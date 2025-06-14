@@ -13,6 +13,8 @@ import { Habit } from '@/types/next-auth-d';
 import { redirect } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import HabitNoxSkeleton from '../skeletons/habit-box-skeleton';
+import { client } from '@/lib/appwrite';
+import { dbId, habitCollectionId } from '@/lib/config';
 // import { client } from '@/lib/appwrite';
 // import { dbId, habitCollectionId } from '@/lib/config';
 
@@ -34,25 +36,43 @@ export default function HabitBox() {
     }
   }, [user]);
 
-  // useEffect(() => {
-  //   const unsubscribe = client.subscribe(`databases.${dbId}.collections.${habitCollectionId}.documents`,
-  //     res => {
-  //       const isCreate = res.events.some(event => event.includes('create'));
-  //       const isUpdate = res.events.some(event => event.includes('update'));
-  //       const isDelete = res.events.some(event => event.includes('delete'));
+  useEffect(() => {
+    const unsubscribe = client.subscribe(
+      `databases.${dbId}.collections.${habitCollectionId}.documents`,
+      res => {
+        if (typeof res.payload === 'object' && res.payload !== null && '$id' in res.payload) {
+          const payload = res.payload as Habit;
+          // do stuff...
+          const isCreate = res.events.some(e => e.includes('create'));
+          const isUpdate = res.events.some(e => e.includes('update'));
+          const isDelete = res.events.some(e => e.includes('delete'));
 
-  //       if (isCreate || isUpdate || isDelete) {
-  //         console.log('Change detected. Refetching habits...');
-  //         fetchHabits();
-  //       }
-  //     }
-  //   )
+          if (isCreate) {
+            setHabits(prev => [...prev, payload])
+            console.log('created')
+          }
 
-  //   return () => {
-  //     unsubscribe();
-  //   }
-  // }, [fetchHabits])
+          if (isUpdate) {
+            setHabits(prev =>
+              prev.map(habit =>
+                habit.$id === payload.$id ? { ...habit, ...payload } : habit
+              )
+            );
+            console.log('updated')
+          }
 
+          if (isDelete) {
+            setHabits(prev =>
+              prev.filter(habit => habit.$id !== payload.$id)
+            );
+            console.log('deleted')
+          }
+        }
+      }
+    );
+
+    return () => unsubscribe();
+  }, [setHabits]);
 
   useEffect(() => {
     if (loading) return;
@@ -72,10 +92,12 @@ export default function HabitBox() {
     setEditMode(!editMode)
   }
 
+  const date = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', year: 'numeric' })
+
   return (
     <Card className='max-w-lg max-h-[calc(100vh-7rem)]'>
       <CardHeader className="flex justify-between items-center text-2xl font-medium">
-        <span>Friday 20, 2025</span>
+        <span>{date}</span>
         <div className='flex items-center gap-1 p-2 rounded-2xl'>
           <FaFire className='text-orange-500' />
           <span>6</span>

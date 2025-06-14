@@ -11,7 +11,11 @@ const FormSchema = z.object({
   items: z.array(z.string())
 })
 
-function ShowHabits({ habits }: { habits: Habit[] }) {
+function ShowHabits({
+  habits,
+}: {
+  habits: Habit[];
+}) {
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -68,7 +72,6 @@ function ShowHabits({ habits }: { habits: Habit[] }) {
                 render={({ field }) => {
                   return (
                     <FormItem
-                      key={habit.$id}
                       className='flex flex-row items-center gap-2'
                     >
                       <FormControl>

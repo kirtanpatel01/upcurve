@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Habit } from '@/types/next-auth-d'
 import axios from 'axios'
 import { toast } from 'sonner'
+import { useEffect } from 'react'
 
 const FormSchema = z.object({
   items: z.array(z.string())
@@ -17,10 +18,16 @@ function ShowHabits({
   habits: Habit[];
 }) {
 
+  
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: { items: habits.filter(h => h.isCompleted).map(h => h.$id) },
   })
+
+  useEffect(() => {
+    const completedIds = habits.filter(h => h.isCompleted).map(h => h.$id)
+    form.setValue('items', completedIds)
+  }, [habits, form])
 
   const handleHabitCheck = async ({
     checked,

@@ -48,12 +48,15 @@ export default function Page() {
     },
   })
 
+  console.log(process.env.NEXT_PUBLIC_SUCCESS_URL!)
+  console.log(process.env.NEXT_PUBLIC_FAILURE_URL!)
+
   const handleGoogleLogin = async () => {
     console.log(account)
     account.createOAuth2Session(
       OAuthProvider.Google,
-      "https://upcurve-xi.vercel.app/",           // success URL
-      "https://upcurve-xi.vercel.app/auth/login" // failure URL
+      `${process.env.NEXT_PUBLIC_SUCCESS_URL}`,           // success URL
+      `${process.env.NEXT_PUBLIC_FAILURE_URL}`,          // failure URL
     );
   };
 

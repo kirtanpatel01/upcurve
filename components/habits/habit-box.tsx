@@ -32,10 +32,15 @@ export default function HabitBox() {
         setIsLoading(false);
       }
     }
+    
+    if(loading) return;
+
     if (user) {
       fetchHabits();
+    } else {
+      setIsLoading(false)
     }
-  }, [user])
+  }, [user, loading])
 
   const toggleEdiMode = () => {
     if (editMode && !user) {
@@ -44,6 +49,8 @@ export default function HabitBox() {
     setEditMode(!editMode)
   }
 
+  console.log(loading)
+  console.log(isLoading)
   return (
     <Card className='max-w-lg max-h-[calc(100vh-7rem)]'>
       <CardHeader className="flex justify-between items-center text-2xl font-medium">

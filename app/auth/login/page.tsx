@@ -27,7 +27,6 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import SubmitBtn from "@/components/submit-btn"
-import axios from "axios"
 import { account } from "@/lib/appwrite"
 import { OAuthProvider } from "appwrite"
 
@@ -48,9 +47,6 @@ export default function Page() {
     },
   })
 
-  console.log(process.env.NEXT_PUBLIC_SUCCESS_URL!)
-  console.log(process.env.NEXT_PUBLIC_FAILURE_URL!)
-
   const handleGoogleLogin = async () => {
     console.log(account)
     account.createOAuth2Session(
@@ -61,33 +57,14 @@ export default function Page() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-
-    const formData = new FormData();
-    formData.append('email', values.email)
-    formData.append('password', values.password);
-
+    setIsLoading(true)
     try {
-      for (const pair of formData.entries()) {
-        console.log(`${pair[0]}: ${pair[1]}`);
-      }
-
-      const res = await axios.post('/api/auth/login', {
-        email: values.email,
-        password: values.password,
-      });
-      console.log(res)
-      if (res.status === 200) {
-        console.log(res.data.message)
-        toast.success(res.data.message);
-        router.push('/')
-      }
+      await account.createEmailPasswordSession(values.email, values.password)
+      toast.success("Logged in successfully")
+      router.push('/')
     } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        toast.error(error.response.data.message || "Server responded with an error");
-      } else {
-        toast.error("Unexpected error occurred");
-      }
+      console.error(error)
+      toast.error("Login failed")
     } finally {
       setIsLoading(false)
     }
@@ -171,14 +148,14 @@ export default function Page() {
             onClick={handleGoogleLogin}
             className="w-full border border-border bg-background text-foreground  cursor-pointer hover:bg-background"
           >
-                <Image
-                  src={'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg'}
-                  alt="google-logo"
-                  width={16}
-                  height={16}
-                  className="mr-2"
-                />
-                Login with Google
+            <Image
+              src={'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg'}
+              alt="google-logo"
+              width={16}
+              height={16}
+              className="mr-2"
+            />
+            Login with Google
           </Button>
         </CardContent>
       </Card>

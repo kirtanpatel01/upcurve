@@ -1,3 +1,5 @@
+// app/api/reset-password/route.ts
+
 import { databases } from '@/lib/appwrite';
 import { Query } from 'appwrite';
 import { hash } from 'bcryptjs'; // or your preferred hasher

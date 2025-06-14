@@ -5,66 +5,49 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
-import axios from 'axios';
+import { account } from '@/lib/appwrite';
 
-function ResetPageContent() {
+export default function Page() {
   const [isLoading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [email, setEmail] = useState<string | null>(null);
-  const router = useRouter();
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const searchParams = useSearchParams();
-  const token = searchParams.get('token');
+  const userId = searchParams.get('userId');
+  const secret = searchParams.get('secret');
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      try {
-        const res = await axios.post('/api/verify-token', { token });
-        setEmail(res.data.email);
-      } catch (error) {
-        console.log(error);
-        toast.error('Invalid or expired link');
-        router.push('/auth/login');
-      }
-    };
-
-    if (token) verifyToken();
-    else router.push('/auth/login');
-  }, [token, router]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleReset = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
+    if (!userId || !secret) {
+      toast.error('Missing token or user ID in URL');
+      setLoading(false);
+      return;
+    }
+
+    if (!newPassword || !confirmPassword) {
+      toast.error('Both password fields are required');
+      setLoading(false);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const formData = new FormData(e.currentTarget);
-      const newPassword = formData.get('newPassword')?.toString();
-      const confirmPassword = formData.get('confirmPassword')?.toString();
-
-      if (!newPassword || !confirmPassword) {
-        toast.error('Both password fields required!');
-        setLoading(false);
-        return;
-      }
-
-      if (newPassword !== confirmPassword) {
-        toast.error('Passwords do not match!');
-        setLoading(false);
-        return;
-      }
-      await axios.post('/api/reset-password', { email, newPassword });
+      await account.updateRecovery(userId, secret, newPassword);
       toast.success('Password reset successfully');
       setSuccess(true);
-    } catch (error) {
-      if (axios.isAxiosError(error) && error.response) {
-        console.log(error.response.data.error);
-        toast.error(error.response.data.error);
-      } else {
-        console.log("Unknown error:", error);
-        toast.error("An unexpected error occurred.");
-      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Reset failed. Link might be expired or invalid.');
     } finally {
       setLoading(false);
     }
@@ -78,31 +61,35 @@ function ResetPageContent() {
             <CardTitle>Reset Your Password</CardTitle>
           </CardHeader>
           <CardContent>
-            <form className='space-y-4' onSubmit={handleSubmit}>
-              <Input placeholder='New Password...' name='newPassword' />
-              <Input placeholder='Re-Enter Password...' name='confirmPassword' />
+            <form className='space-y-4' onSubmit={handleReset}>
+              <Input
+                placeholder='New Password...'
+                name='newPassword'
+                type='password'
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <Input
+                placeholder='Re-Enter Password...'
+                name='confirmPassword'
+                type='password'
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
               <SubmitBtn text='Save' loadingText='Saving...' isLoading={isLoading} />
             </form>
           </CardContent>
         </Card>
       ) : (
-        <div>
-          <span>Your password has changed!</span>
+        <div className='text-center space-y-4'>
+          <span>Your password has been changed!</span>
           <Link href='/auth/login'>
-            <Button variant={'link'} className='cursor-pointer'>
+            <Button variant='link' className='cursor-pointer'>
               Back to Login
             </Button>
           </Link>
         </div>
       )}
     </div>
-  );
-}
-
-export default function Page() {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ResetPageContent />
-    </Suspense>
   );
 }

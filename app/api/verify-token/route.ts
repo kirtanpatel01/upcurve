@@ -1,3 +1,5 @@
+// app/api/verify-token/route.ts
+
 import { verify } from "jsonwebtoken";
 
 type JwtPayload = {

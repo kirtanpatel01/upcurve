@@ -4,9 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const formData = await req.json();
-  console.log(formData)
   const { email, password } = formData;
-  console.log(email, password)
     try {
         const user = await account.createEmailPasswordSession(email, password)
         return NextResponse.json({ message: "User logged in successfully", user }, { status: 200 })

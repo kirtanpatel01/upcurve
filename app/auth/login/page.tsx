@@ -52,8 +52,8 @@ export default function Page() {
     console.log(account)
     account.createOAuth2Session(
       OAuthProvider.Google,
-      "http://localhost:3000",           // success URL
-      "http://localhost:3000/auth/login" // failure URL
+      "https://upcurve-xi.vercel.app/",           // success URL
+      "https://upcurve-xi.vercel.app/auth/login" // failure URL
     );
   };
 

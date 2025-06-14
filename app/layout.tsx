@@ -11,8 +11,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "KJ_PATEL - NextAuth.js",
-  description: "Authentication using Auth.js(next-auth.js)",
+  title: "Upcurve",
+  description: "A habit tracker",
 };
 
 export default function RootLayout({

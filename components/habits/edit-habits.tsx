@@ -49,8 +49,8 @@ function EditHabits({
         title: newHabitTitle.trim(),
       });
 
-      const createdHabit = res.data.data.habit;
-      setHabits(prev => [...prev, createdHabit]);
+      // const createdHabit = res.data.data.habit;
+      // setHabits(prev => [...prev, createdHabit]);
       setNewHabitTitle('');
     } catch (error) {
       console.log(error);

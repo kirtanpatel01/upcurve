@@ -3,10 +3,8 @@
 import EmailTemplate from '@/components/email-template';
 import { Resend } from 'resend';
 import { sign } from 'jsonwebtoken';
-import { auth } from '@/auth';
 import { databases } from '@/lib/appwrite';
 import { Query } from 'appwrite';
-import { NextResponse } from 'next/server';
 
 const dbId = process.env.APPWRITE_DB_ID!;
 const userCollectionId = process.env.APPWRITE_COLLECTION_USER_ID!;

@@ -1,5 +1,4 @@
 import { databases } from '@/lib/appwrite';
-import { User } from '@/models/user';
 import { Query } from 'appwrite';
 import { hash } from 'bcryptjs'; // or your preferred hasher
 import { NextResponse } from 'next/server';

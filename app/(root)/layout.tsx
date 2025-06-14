@@ -2,7 +2,7 @@ import AppSidebar from "@/components/app-sidebar";
 import SiteHeader from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import React from "react";
-import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { AuthProvider } from "@/context/AuthContext";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
     return (

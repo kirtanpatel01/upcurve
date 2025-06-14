@@ -24,10 +24,9 @@ import Link from "next/link"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import Image from "next/image"
 import { toast } from "sonner"
-import { redirect, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useState } from "react"
 import SubmitBtn from "@/components/submit-btn"
-import { Loader2 } from "lucide-react"
 import axios from "axios"
 import { account } from "@/lib/appwrite"
 import { OAuthProvider } from "appwrite"
@@ -40,7 +39,6 @@ const formSchema = z.object({
 export default function Page() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -168,16 +166,8 @@ export default function Page() {
 
           <Button
             onClick={handleGoogleLogin}
-            disabled={googleLoading}
             className="w-full border border-border bg-background text-foreground  cursor-pointer hover:bg-background"
           >
-            {googleLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Redirecting...
-              </>
-            ) : (
-              <>
                 <Image
                   src={'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg'}
                   alt="google-logo"
@@ -186,8 +176,6 @@ export default function Page() {
                   className="mr-2"
                 />
                 Login with Google
-              </>
-            )}
           </Button>
         </CardContent>
       </Card>

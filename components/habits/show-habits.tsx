@@ -5,16 +5,72 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Habit } from '@/types/next-auth-d'
 import axios from 'axios'
+import { toast } from 'sonner'
+import { useEffect } from 'react'
+import { client } from '@/lib/appwrite'
+import { dbId, habitCollectionId } from '@/lib/config'
 
 const FormSchema = z.object({
   items: z.array(z.string())
 })
 
-function ShowHabits({ habits } : { habits: Habit[] }) {
+function ShowHabits({ habits }: { habits: Habit[] }) {
+
+  useEffect(() => {
+    const unsubscribe = client.subscribe(`databases.${dbId}.collections.${habitCollectionId}.documents`,
+      res => {
+        const event = res.events[0]
+
+        if(event.includes('create') || event.includes('upadte') || event.includes('delete')) {
+          console.log('Change in habit collections')
+        } 
+      }
+    )
+
+    return () => {
+      unsubscribe();
+    }
+  }, [])
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: { items: habits.filter(h => h.isCompleted).map(h => h.$id) },
   })
+
+  const handleHabitCheck = async ({
+    checked,
+    habitId,
+    field,
+  }: {
+    checked: boolean;
+    habitId: string;
+    field: {
+      value: string[];
+      onChange: (value: string[]) => void;
+    };
+  }) => {
+    field.onChange(
+      checked
+        ? [...field.value, habitId]
+        : field.value?.filter((id) => id !== habitId)
+    );
+
+    try {
+      if(checked) {
+        await axios.post('/api/habits/complete', { id: habitId })
+      } else {
+        await axios.post('/api/habits/incomplete', { id: habitId })
+      }
+    } catch (error) {
+      toast.error('Failed to update habit!');
+      console.log(error)
+      field.onChange(
+        !checked
+          ? [...field.value, habitId]
+          : field.value?.filter((id) => id !== habitId)
+      )
+    }
+  }
 
   return (
     <Form {...form}>
@@ -39,18 +95,7 @@ function ShowHabits({ habits } : { habits: Habit[] }) {
                           className='size-6 cursor-pointer'
                           checked={field.value?.includes(habit.$id)}
                           onCheckedChange={async (checked) => {
-                            if(checked) {
-                              await axios.post('/api/habits/complete', { id: habit.$id })
-                            } else {
-                              await axios.post('/api/habits/incomplete', { id: habit.$id })
-                            }
-                            return checked
-                              ? field.onChange([...field.value, habit.$id])
-                              : field.onChange(
-                                field.value?.filter(
-                                  (value) => value !== habit.$id
-                                )
-                              )
+                            handleHabitCheck({ checked: Boolean(checked), habitId: habit.$id, field })
                           }}
                         />
                       </FormControl>

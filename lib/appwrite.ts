@@ -1,8 +1,9 @@
 import { Account, Client, Databases } from 'appwrite'
+import { endPoint, projectId } from './config'
 
 const client = new Client()
-  .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-  .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT_ID!)
+  .setEndpoint(endPoint)
+  .setProject(projectId)
 
 const databases = new Databases(client)
 const account = new Account(client)

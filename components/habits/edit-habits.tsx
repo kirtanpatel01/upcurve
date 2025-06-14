@@ -31,7 +31,6 @@ function EditHabits({
 
   const handleSave = async (habit: Habit) => {
     try {
-      console.log(habit);
       await axios.put(`/api/habits/${habit.$id}`, { title: habit.title });
     } catch (err) {
       console.log(err);

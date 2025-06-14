@@ -1,9 +1,7 @@
 import { databases } from "@/lib/appwrite";
+import { dbId, habitCollectionId } from "@/lib/config";
 import { ID, Query } from "appwrite";
 import { NextRequest, NextResponse } from "next/server";
-
-const dbId = process.env.APPWRITE_DB_ID!
-const habitCollectionId = process.env.APPWRITE_COLLECTION_HABIT_ID!
 
 export async function POST(req: Request) {
   try {

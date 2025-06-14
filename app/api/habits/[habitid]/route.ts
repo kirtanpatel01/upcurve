@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { databases } from '@/lib/appwrite';
-
-const dbId = process.env.APPWRITE_DB_ID!;
-const habitCollectionId = process.env.APPWRITE_COLLECTION_HABIT_ID!
+import { dbId, habitCollectionId } from '@/lib/config';
 
 export async function PUT(req: NextRequest) {
   const habitId = req.nextUrl.pathname.split('/').pop(); // or use regex
   if (!habitId) {
     return NextResponse.json({ message: 'Habit ID is required' }, { status: 400 });
   }
+
   const body = await req.json();
 
   try {

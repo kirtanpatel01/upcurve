@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
@@ -13,6 +13,8 @@ import { Habit } from '@/types/next-auth-d';
 import { redirect } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import HabitNoxSkeleton from '../skeletons/habit-box-skeleton';
+import { client } from '@/lib/appwrite';
+import { dbId, habitCollectionId } from '@/lib/config';
 
 export default function HabitBox() {
   const [editMode, setEditMode] = useState(false)
@@ -20,27 +22,48 @@ export default function HabitBox() {
   const [isLoading, setIsLoading] = useState(true);
   const { user, loading } = useAuth();
 
-  useEffect(() => {
-    const fetchHabits = async () => {
-      const id = user.$id;
-      try {
-        const res = await axios.get(`/api/habits?id=${id}`)
-        setHabits(res.data.data.habits.documents);
-      } catch (error) {
-        console.log("Error while fetching habits from habit-box.jsx: ", error);
-      } finally {
-        setIsLoading(false);
-      }
+  const fetchHabits = useCallback(async () => {
+    const id = user.$id;
+    try {
+      const res = await axios.get(`/api/habits?id=${id}`);
+      setHabits(res.data.data.habits.documents);
+    } catch (error) {
+      console.log("Error while fetching habits from habit-box.jsx: ", error);
+    } finally {
+      setIsLoading(false);
     }
-    
-    if(loading) return;
+  }, [user]);
+
+  useEffect(() => {
+    const unsubscribe = client.subscribe(`databases.${dbId}.collections.${habitCollectionId}.documents`,
+      res => {
+        const isCreate = res.events.some(event => event.includes('create'));
+        const isUpdate = res.events.some(event => event.includes('update'));
+        const isDelete = res.events.some(event => event.includes('delete'));
+
+        if (isCreate || isUpdate || isDelete) {
+          console.log('Change detected. Refetching habits...');
+          fetchHabits();
+        }
+      }
+    )
+
+    return () => {
+      unsubscribe();
+    }
+  }, [fetchHabits])
+
+
+  useEffect(() => {
+    if (loading) return;
 
     if (user) {
       fetchHabits();
     } else {
       setIsLoading(false)
     }
-  }, [user, loading])
+  }, [user, loading, fetchHabits])
+
 
   const toggleEdiMode = () => {
     if (editMode && !user) {

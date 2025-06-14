@@ -6,31 +6,12 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Habit } from '@/types/next-auth-d'
 import axios from 'axios'
 import { toast } from 'sonner'
-import { useEffect } from 'react'
-import { client } from '@/lib/appwrite'
-import { dbId, habitCollectionId } from '@/lib/config'
 
 const FormSchema = z.object({
   items: z.array(z.string())
 })
 
 function ShowHabits({ habits }: { habits: Habit[] }) {
-
-  useEffect(() => {
-    const unsubscribe = client.subscribe(`databases.${dbId}.collections.${habitCollectionId}.documents`,
-      res => {
-        const event = res.events[0]
-
-        if(event.includes('create') || event.includes('upadte') || event.includes('delete')) {
-          console.log('Change in habit collections')
-        } 
-      }
-    )
-
-    return () => {
-      unsubscribe();
-    }
-  }, [])
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -56,7 +37,7 @@ function ShowHabits({ habits }: { habits: Habit[] }) {
     );
 
     try {
-      if(checked) {
+      if (checked) {
         await axios.post('/api/habits/complete', { id: habitId })
       } else {
         await axios.post('/api/habits/incomplete', { id: habitId })

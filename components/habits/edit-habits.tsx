@@ -44,7 +44,7 @@ function EditHabits({
     }
 
     try {
-      const res = await axios.post('/api/habits', {
+      await axios.post('/api/habits', {
         userId,
         title: newHabitTitle.trim(),
       });

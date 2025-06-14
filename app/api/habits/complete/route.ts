@@ -1,17 +1,25 @@
-import { connectToDB } from "@/lib/mongoose";
-import { Habit } from "@/models/habits";
+import { databases } from "@/lib/appwrite";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
-  const { _id } = await req.json();
+const dbId = process.env.APPWRITE_DB_ID!;
+const habitCollectionId = process.env.APPWRITE_COLLECTION_HABIT_ID!
 
-  if (!_id) {
+export async function POST(req: Request) {
+  const { id } = await req.json();
+
+  if (!id) {
     return NextResponse.json({ error: "User ID required" }, { status: 400 })
   }
-  await connectToDB();
 
   try {
-    await Habit.findOneAndUpdate({ _id }, { $set: { isCompleted: true } })
+    await databases.updateDocument(
+      dbId,
+      habitCollectionId,
+      id,
+      {
+        isCompleted: true
+      }
+    )
     return NextResponse.json({ message: 'Habit marked as completed' }, { status: 200 })
   } catch (error) {
     console.log(error);

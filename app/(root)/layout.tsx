@@ -1,14 +1,12 @@
-import { auth } from "@/auth";
 import AppSidebar from "@/components/app-sidebar";
 import SiteHeader from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import React from "react";
-import { SessionProvider } from "next-auth/react"
+import { AuthProvider, useAuth } from "@/context/AuthContext";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-    const session = await auth()
     return (
-        <SessionProvider>
+        <AuthProvider>
             <SidebarProvider
                 style={
                     {
@@ -17,7 +15,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     } as React.CSSProperties
                 }
             >
-                <AppSidebar variant='inset' session={session} />
+                <AppSidebar variant='inset' />
                 <SidebarInset>
                     <SiteHeader />
                     <main className="flex p-4 sm:p-6">
@@ -25,6 +23,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     </main>
                 </SidebarInset>
             </SidebarProvider>
-        </SessionProvider>
+        </AuthProvider>
     );
 }

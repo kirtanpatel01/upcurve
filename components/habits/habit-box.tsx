@@ -1,47 +1,44 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { useSession } from "next-auth/react";
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
 import { FaFire } from "react-icons/fa6";
 import { Edit, Save } from 'lucide-react';
-import { toast } from 'sonner';
 import axios from 'axios';
 import ShowHabits from './show-habits';
 import EditHabits from './edit-habits';
 import { Habit } from '@/types/next-auth-d';
 import { redirect } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import HabitNoxSkeleton from '../skeletons/habit-box-skeleton';
 
 export default function HabitBox() {
   const [editMode, setEditMode] = useState(false)
   const [habits, setHabits] = useState<Habit[]>([])
-  const { data: session, status } = useSession();
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const fetchHabits = async () => {
-      const id = session?.user.id;
+      const id = user.$id;
       try {
         const res = await axios.get(`/api/habits?id=${id}`)
         setHabits(res.data.data.habits.documents);
       } catch (error) {
         console.log("Error while fetching habits from habit-box.jsx: ", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     }
-    if (status === 'unauthenticated') {
-      toast.error("You're not authenticated!");
-      setLoading(false);
-    } else if (status === 'authenticated' && session?.user.id) {
+    if (user) {
       fetchHabits();
     }
-  }, [status, session?.user.id])
+  }, [user])
 
   const toggleEdiMode = () => {
-    if(editMode && status=='unauthenticated') {
+    if (editMode && !user) {
       redirect('/auth/login')
     }
     setEditMode(!editMode)
@@ -58,8 +55,8 @@ export default function HabitBox() {
       </CardHeader>
       <Separator />
       <CardContent className='overflow-y-auto'>
-        {loading ? (
-          <div>Loading...</div>
+        {isLoading || loading ? (
+          <HabitNoxSkeleton />
         ) : habits.length > 0 ? (
           editMode ? (
             <EditHabits habits={habits} setHabits={setHabits} />

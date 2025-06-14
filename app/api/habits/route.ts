@@ -1,8 +1,5 @@
 import { databases } from "@/lib/appwrite";
-import { connectToDB } from "@/lib/mongoose";
-import { Habit } from "@/models/habits";
-import { ID, Permission, Query, Role } from "appwrite";
-import mongoose from "mongoose";
+import { ID, Query } from "appwrite";
 import { NextRequest, NextResponse } from "next/server";
 
 const dbId = process.env.APPWRITE_DB_ID!
@@ -11,6 +8,7 @@ const habitCollectionId = process.env.APPWRITE_COLLECTION_HABIT_ID!
 export async function POST(req: Request) {
   try {
     const { userId, title } = await req.json();
+    console.log(userId, title)
     if (!userId) {
       return NextResponse.json({ message: "User ID is required!" }, { status: 400 });
     }
@@ -26,7 +24,7 @@ export async function POST(req: Request) {
     if (!habit) {
       return NextResponse.json({ message: "Error while creating habit!" }, { status: 500 })
     }
-
+    console.log(habit)
     return NextResponse.json(
       { message: "Habits saved", data: { habit } },
       { status: 201 }

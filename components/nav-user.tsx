@@ -1,16 +1,33 @@
+'use client'
+
 import React from 'react'
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from './ui/sidebar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from './ui/dropdown-menu'
 import { Avatar, AvatarFallback } from './ui/avatar'
 import { ChevronUp, LogOut, UserRound } from 'lucide-react'
 import Link from 'next/link'
-import { signOut } from '@/auth'
-import { auth } from '@/auth'
 import Image from 'next/image'
+import { useAuth } from '@/context/AuthContext'
+import { account } from '@/lib/appwrite'
+import { Button } from './ui/button'
+import { NavUserSkeleton } from './skeletons/nav-user-skeleton'
 
-export default async function NavUser() {
-    const session = await auth();
-    const username = session?.user?.name;
+export default function NavUser() {
+    const { user, loading } = useAuth()
+
+    if (loading) return <NavUserSkeleton />
+
+    if (!user) return (
+        <Link href="/auth/login">
+            <Button className="w-full">Login</Button>
+        </Link>
+    )
+    const username = user?.name;
+
+    const handleLogout = async () => {
+        await account.deleteSession('current')
+    }
+
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -22,7 +39,7 @@ export default async function NavUser() {
                         >
                             <Avatar className='w-8 h-8 rounded-lg'>
                                 <Image
-                                    src={session?.user?.image || '/profile.svg'}
+                                    src={'/profile.svg'}
                                     alt={username || "profile"}
                                     width={64}
                                     height={64}
@@ -46,12 +63,7 @@ export default async function NavUser() {
                                     Profile
                                 </DropdownMenuItem>
                             </Link>
-                            <form
-                                action={async () => {
-                                    "use server"
-                                    await signOut()
-                                }}
-                            >
+                            <form onSubmit={handleLogout}>
                                 <button type="submit" className='w-full'>
                                     <DropdownMenuItem variant='destructive' className='cursor-pointer'>
                                         <LogOut className='text-red-500' />

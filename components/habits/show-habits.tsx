@@ -38,12 +38,11 @@ function ShowHabits({ habits } : { habits: Habit[] }) {
                         <Checkbox
                           className='size-6 cursor-pointer'
                           checked={field.value?.includes(habit.$id)}
-                          // defaultChecked={habit.isCompleted}
                           onCheckedChange={async (checked) => {
                             if(checked) {
-                              await axios.post('/api/habits/complete', { _id: habit.$id })
+                              await axios.post('/api/habits/complete', { id: habit.$id })
                             } else {
-                              await axios.post('/api/habits/incomplete', { _id: habit.$id })
+                              await axios.post('/api/habits/incomplete', { id: habit.$id })
                             }
                             return checked
                               ? field.onChange([...field.value, habit.$id])

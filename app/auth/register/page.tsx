@@ -71,7 +71,7 @@ export default function Page() {
     }
 
     try {
-      const res = await axios.post('/api/register', formData);
+      const res = await axios.post('/api/auth/register', formData);
       console.log(res);
       if (res.status == 201) {
         toast.success(res.data.message || "Registration successful!");
@@ -85,7 +85,7 @@ export default function Page() {
       } else {
         toast.error("Unexpected error occurred");
       }
-    } finally {
+    } finally { 
       setIsLoading(false);
     }
   }

@@ -23,12 +23,14 @@ import {
 import Link from "next/link"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import Image from "next/image"
-import { loginAction, signInWithGoogle } from "@/lib/auth.actions"
 import { toast } from "sonner"
-import { useRouter } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
 import { useState } from "react"
 import SubmitBtn from "@/components/submit-btn"
 import { Loader2 } from "lucide-react"
+import axios from "axios"
+import { account } from "@/lib/appwrite"
+import { OAuthProvider } from "appwrite"
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -49,14 +51,12 @@ export default function Page() {
   })
 
   const handleGoogleLogin = async () => {
-    setGoogleLoading(true);
-    try {
-      await signInWithGoogle();
-    } catch (err) {
-      console.log(err);
-      setGoogleLoading(false);
-      toast.error("Google sign-in failed.");
-    }
+    console.log(account)
+    account.createOAuth2Session(
+      OAuthProvider.Google,
+      "http://localhost:3000",           // success URL
+      "http://localhost:3000/auth/login" // failure URL
+    );
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -66,14 +66,29 @@ export default function Page() {
     formData.append('email', values.email)
     formData.append('password', values.password);
 
-    const res = await loginAction(formData);
-    setIsLoading(false)
+    try {
+      for (const pair of formData.entries()) {
+        console.log(`${pair[0]}: ${pair[1]}`);
+      }
 
-    if (res?.error) {
-      toast.error('Invalid credentials!');
-    } else if (res?.success) {
-      toast.success('Logged in successfully!');
-      router.push('/');
+      const res = await axios.post('/api/auth/login', {
+        email: values.email,
+        password: values.password,
+      });
+      console.log(res)
+      if (res.status === 200) {
+        console.log(res.data.message)
+        toast.success(res.data.message);
+        router.push('/')
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        toast.error(error.response.data.message || "Server responded with an error");
+      } else {
+        toast.error("Unexpected error occurred");
+      }
+    } finally {
+      setIsLoading(false)
     }
   }
 

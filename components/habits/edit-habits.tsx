@@ -5,7 +5,7 @@ import { Dot, Plus, Save, X } from 'lucide-react'
 import { Input } from '../ui/input'
 import axios from 'axios'
 import { toast } from 'sonner'
-import { useSession } from 'next-auth/react'
+import { useAuth } from '@/context/AuthContext'
 
 function EditHabits({ 
   habits,
@@ -16,8 +16,8 @@ function EditHabits({
 }) {
   const [editableHabits, setEditableHabits] = useState<Habit[]>(habits ?? []);
   const [newHabitTitle, setNewHabitTitle] = useState('');
-  const { data: session, status } = useSession();
-  const userId = session?.user.id;
+  const { user } = useAuth();
+  const userId = user?.$id;
 
   useEffect(() => {
     setEditableHabits(habits);
@@ -33,7 +33,6 @@ function EditHabits({
     try {
       console.log(habit);
       await axios.put(`/api/habits/${habit.$id}`, { title: habit.title });
-      // toast.success("Habit updated!");
     } catch (err) {
       console.log(err);
       toast.error("Failed to update habit");
@@ -44,7 +43,6 @@ function EditHabits({
     try {
       await axios.delete(`/api/habits/${id}`);
       setHabits(prev => prev.filter(h => h.$id !== id));
-      // toast.success("Habit deleted!");
     } catch (err) {
       console.log(err);
       toast.error("Failed to delete habit");
@@ -66,7 +64,6 @@ function EditHabits({
       const createdHabit = res.data.data.habit;
       setHabits(prev => [...prev, createdHabit]);
       setNewHabitTitle('');
-      // toast.success("Habit added!");
     } catch (error) {
       console.log(error);
       toast.error("Error while storing habit");

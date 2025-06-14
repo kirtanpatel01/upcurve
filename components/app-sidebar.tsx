@@ -1,5 +1,3 @@
-import React from 'react'
-import { Session } from 'next-auth'
 import {
     Sidebar,
     SidebarContent,
@@ -14,14 +12,10 @@ import {
 import { ListTodo, Dumbbell, ChartSpline } from 'lucide-react'
 import Link from 'next/link'
 import NavUser from './nav-user'
-import { Button } from './ui/button'
-
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-    session: Session | null
-}
+import React from 'react'
 
 export default function AppSidebar(
-    { session, ...props }: AppSidebarProps) {
+    { ...props }) {
     const items = [
         // { to: "/dashboard", title: 'Dashboard' },
         { url: "/habits", title: 'Habits', icon: ListTodo },
@@ -61,12 +55,7 @@ export default function AppSidebar(
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-                {
-                    session
-                    ? <NavUser />
-                    : <Link href={'/auth/login'}><Button className='w-full cursor-pointer'>Login</Button></Link> 
-                }
-
+                <NavUser />
             </SidebarFooter>
         </Sidebar>
     )

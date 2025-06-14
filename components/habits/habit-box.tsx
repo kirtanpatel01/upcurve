@@ -13,8 +13,8 @@ import { Habit } from '@/types/next-auth-d';
 import { redirect } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import HabitNoxSkeleton from '../skeletons/habit-box-skeleton';
-import { client } from '@/lib/appwrite';
-import { dbId, habitCollectionId } from '@/lib/config';
+// import { client } from '@/lib/appwrite';
+// import { dbId, habitCollectionId } from '@/lib/config';
 
 export default function HabitBox() {
   const [editMode, setEditMode] = useState(false)
@@ -34,24 +34,24 @@ export default function HabitBox() {
     }
   }, [user]);
 
-  useEffect(() => {
-    const unsubscribe = client.subscribe(`databases.${dbId}.collections.${habitCollectionId}.documents`,
-      res => {
-        const isCreate = res.events.some(event => event.includes('create'));
-        const isUpdate = res.events.some(event => event.includes('update'));
-        const isDelete = res.events.some(event => event.includes('delete'));
+  // useEffect(() => {
+  //   const unsubscribe = client.subscribe(`databases.${dbId}.collections.${habitCollectionId}.documents`,
+  //     res => {
+  //       const isCreate = res.events.some(event => event.includes('create'));
+  //       const isUpdate = res.events.some(event => event.includes('update'));
+  //       const isDelete = res.events.some(event => event.includes('delete'));
 
-        if (isCreate || isUpdate || isDelete) {
-          console.log('Change detected. Refetching habits...');
-          fetchHabits();
-        }
-      }
-    )
+  //       if (isCreate || isUpdate || isDelete) {
+  //         console.log('Change detected. Refetching habits...');
+  //         fetchHabits();
+  //       }
+  //     }
+  //   )
 
-    return () => {
-      unsubscribe();
-    }
-  }, [fetchHabits])
+  //   return () => {
+  //     unsubscribe();
+  //   }
+  // }, [fetchHabits])
 
 
   useEffect(() => {

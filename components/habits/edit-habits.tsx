@@ -6,11 +6,13 @@ import { Input } from '../ui/input'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { useAuth } from '@/context/AuthContext'
+import { client } from '@/lib/appwrite'
+import { dbId, habitCollectionId } from '@/lib/config'
 
-function EditHabits({ 
+function EditHabits({
   habits,
-  setHabits 
-}: { 
+  setHabits
+}: {
   habits: Habit[];
   setHabits: React.Dispatch<React.SetStateAction<Habit[]>>;
 }) {
@@ -29,6 +31,45 @@ function EditHabits({
     setEditableHabits(updated);
   };
 
+  useEffect(() => {
+    const unsubscribe = client.subscribe(
+      `databases.${dbId}.collections.${habitCollectionId}.documents`,
+      res => {
+        if (typeof res.payload === 'object' && res.payload !== null && '$id' in res.payload) {
+          const payload = res.payload as Habit;
+          // do stuff...
+          const isCreate = res.events.some(e => e.includes('create'));
+          const isUpdate = res.events.some(e => e.includes('update'));
+          const isDelete = res.events.some(e => e.includes('delete'));
+
+          if (isCreate) {
+            // Add habit to list
+            setHabits(prev => [...prev, payload]);
+          }
+
+          if (isUpdate) {
+            // Update existing habit
+            setHabits(prev =>
+              prev.map(habit =>
+                habit.$id === payload.$id ? { ...habit, ...payload } : habit
+              )
+            );
+          }
+
+          if (isDelete) {
+            // Remove habit from list
+            setHabits(prev =>
+              prev.filter(habit => habit.$id !== payload.$id)
+            );
+          }
+        }
+      }
+    );
+
+    return () => unsubscribe();
+  }, [setHabits]);
+
+
   const handleSave = async (habit: Habit) => {
     try {
       await axios.put(`/api/habits/${habit.$id}`, { title: habit.title });
@@ -37,7 +78,7 @@ function EditHabits({
       toast.error("Failed to update habit");
     }
   };
-  
+
   const handleDelete = async (id: string) => {
     try {
       await axios.delete(`/api/habits/${id}`);
@@ -112,7 +153,7 @@ function EditHabits({
             className='w-fit'
           />
         </div>
-        <Button size={'icon'} className='cursor-pointer' onClick={handleAdd} disabled={status==='unauthenticated'}>
+        <Button size={'icon'} className='cursor-pointer' onClick={handleAdd} disabled={status === 'unauthenticated'}>
           <Plus />
         </Button>
       </div>

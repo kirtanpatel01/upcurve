@@ -53,7 +53,7 @@ function AvatarUploader({
             alt='avatar'
             height={100}
             width={100}
-            className='rounded-full size-32 cursor-pointer'
+            className='rounded-full size-32 cursor-pointer object-cover'
             onClick={() => fileInputRef.current?.click()}
           />
           <FormControl>

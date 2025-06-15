@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             userId: user.$id,
             email: user.email,
             avatar: fallbackAvatar,
+            name: user.name,
           })
           console.log('Profile created for google user')
         } else {

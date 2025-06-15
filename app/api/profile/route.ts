@@ -4,6 +4,7 @@ import { ID, Query } from "appwrite";
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest) {
+  console.log('come in get')
   try {
     const searchParams = req.nextUrl.searchParams;
     const userId = searchParams.get('userId')
@@ -24,7 +25,7 @@ export async function GET(req: NextRequest) {
       exists = true;
     }
 
-    return NextResponse.json({ message: "User profile fetched successfully.", exists, userProfile }, { status: 200 })
+    return NextResponse.json({ message: "User profile fetched successfully.", exists, userProfile: userProfile.documents[0] }, { status: 200 })
   } catch (error) {
     console.log("Error while fetching user profile: ", error)
     return NextResponse.json({ message: "Something went wrong while fetching profile" })
@@ -32,8 +33,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: Request) {
+  console.log('come in post')
   try {
-    const { userId, email, avatar } = await req.json();
+    const { userId, email, avatar, name } = await req.json();
     if (!userId || !email) {
       return NextResponse.json({ message: "UserId and email both are required!" }, { status: 400 })
     }
@@ -53,7 +55,8 @@ export async function POST(req: Request) {
       {
         userId,
         email,
-        avatar
+        avatar,
+        name,
       }
     )
 

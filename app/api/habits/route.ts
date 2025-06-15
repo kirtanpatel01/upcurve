@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const { userId, title } = await req.json();
-    console.log(userId, title)
     if (!userId) {
       return NextResponse.json({ message: "User ID is required!" }, { status: 400 });
     }
@@ -22,7 +21,6 @@ export async function POST(req: Request) {
     if (!habit) {
       return NextResponse.json({ message: "Error while creating habit!" }, { status: 500 })
     }
-    console.log(habit)
     return NextResponse.json(
       { message: "Habits saved", data: { habit } },
       { status: 201 }

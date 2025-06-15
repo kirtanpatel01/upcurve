@@ -2,6 +2,7 @@
 "use client"
 import { createContext, useContext, useEffect, useState } from "react";
 import { account } from "@/lib/appwrite";
+import axios from "axios";
 
 const AuthContext = createContext<any>(null);
 
@@ -10,10 +11,33 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    account.get()
-      .then(setUser)
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
+    const getUser = async () => {
+      try {
+        const user = await account.get();
+        setUser(user)
+
+        const res = await axios.get(`/api/profile?userId=${user?.$id}`)
+        if(!res.data.exists) {
+          await axios.post('/api/profile', {
+            userId: user.$id,
+            email: user.email,
+          })
+          console.log('Profile created for google user')
+        } else {
+          console.log('Profile already exists')
+        }
+      } catch (error) {
+        setUser(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    // account.get()
+    //   .then(setUser)
+    //   .catch(() => setUser(null))
+    //   .finally(() => setLoading(false));
+
+    getUser();
   }, []);
 
   return (

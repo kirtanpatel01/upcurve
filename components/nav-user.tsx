@@ -57,7 +57,7 @@ export default function NavUser() {
                         sideOffset={4}
                     >
                         <DropdownMenuGroup>
-                            <Link href='/profile'>
+                            <Link href={`/profile/${user?.$id}`}>
                                 <DropdownMenuItem className='cursor-pointer'>
                                     <UserRound />
                                     Profile

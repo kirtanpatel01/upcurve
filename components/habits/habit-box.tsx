@@ -4,7 +4,6 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Card, CardContent, CardFooter, CardHeader } from '../ui/card';
 import { Button } from '../ui/button';
 import { Separator } from '../ui/separator';
-import { FaFire } from "react-icons/fa6";
 import { Edit, Save } from 'lucide-react';
 import axios from 'axios';
 import ShowHabits from './show-habits';
@@ -15,8 +14,6 @@ import { useAuth } from '@/context/AuthContext';
 import HabitNoxSkeleton from '../skeletons/habit-box-skeleton';
 import { client } from '@/lib/appwrite';
 import { dbId, habitCollectionId } from '@/lib/config';
-// import { client } from '@/lib/appwrite';
-// import { dbId, habitCollectionId } from '@/lib/config';
 
 export default function HabitBox() {
   const [editMode, setEditMode] = useState(false)
@@ -49,7 +46,6 @@ export default function HabitBox() {
 
           if (isCreate) {
             setHabits(prev => [...prev, payload])
-            console.log('created')
           }
 
           if (isUpdate) {
@@ -58,14 +54,12 @@ export default function HabitBox() {
                 habit.$id === payload.$id ? { ...habit, ...payload } : habit
               )
             );
-            console.log('updated')
           }
 
           if (isDelete) {
             setHabits(prev =>
               prev.filter(habit => habit.$id !== payload.$id)
             );
-            console.log('deleted')
           }
         }
       }
@@ -84,7 +78,6 @@ export default function HabitBox() {
     }
   }, [user, loading, fetchHabits])
 
-
   const toggleEdiMode = () => {
     if (editMode && !user) {
       redirect('/auth/login')
@@ -92,15 +85,18 @@ export default function HabitBox() {
     setEditMode(!editMode)
   }
 
-  const date = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', year: 'numeric' })
+  const date = new Date();
+  const formattedDate = `${date.toLocaleDateString('en-US', { weekday: 'long' })} ${date.getDate()}, ${date.getFullYear()}`;
+
+  const completedCount = habits.filter(h => h.isCompleted).length;
 
   return (
     <Card className='max-w-lg max-h-[calc(100vh-7rem)]'>
       <CardHeader className="flex justify-between items-center text-2xl font-medium">
-        <span>{date}</span>
+        <span>{formattedDate}</span>
         <div className='flex items-center gap-1 p-2 rounded-2xl'>
-          <FaFire className='text-orange-500' />
-          <span>6</span>
+          {/* <FaFire className='text-orange-500' /> */}
+          <span className='py-2 px-3 rounded-md bg-sky-500/10 border border-sky-700'>{completedCount}/{habits.length}</span>
         </div>
       </CardHeader>
       <Separator />

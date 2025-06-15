@@ -18,7 +18,6 @@ function ShowHabits({
   habits: Habit[];
 }) {
 
-  
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: { items: habits.filter(h => h.isCompleted).map(h => h.$id) },

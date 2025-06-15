@@ -33,8 +33,6 @@ import axios from "axios"
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
-  username: z.string().min(1, "Username is required").toLowerCase(),
-  phone: z.string().min(10, "Phone must be 10 digits").max(10, "Phone must be 10 digits"),
   email: z.string().email("Enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters").max(16),
   confirmPassword: z.string()
@@ -51,8 +49,6 @@ export default function Page() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       fullName: '',
-      username: '',
-      phone: '',
       email: "",
       password: '',
       confirmPassword: '',
@@ -64,9 +60,7 @@ export default function Page() {
 
     const formData: RegisterSchemaType = {
       fullName: values.fullName,
-      username: values.username,
       email: values.email,
-      phone: values.phone,
       password: values.password,
     }
 
@@ -128,38 +122,12 @@ export default function Page() {
               />
               <FormField
                 control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Write a username" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem className="w-full">
                     <FormLabel>Email</FormLabel>
                     <FormControl>
                       <Input type="email" placeholder="Enter your email address" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>Phone Number</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Enter your phone number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -14,6 +14,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const getUser = async () => {
       try {
         const user = await account.get();
+        const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
         setUser(user)
 
         const res = await axios.get(`/api/profile?userId=${user?.$id}`)
@@ -21,6 +22,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           await axios.post('/api/profile', {
             userId: user.$id,
             email: user.email,
+            avatar: fallbackAvatar,
           })
           console.log('Profile created for google user')
         } else {

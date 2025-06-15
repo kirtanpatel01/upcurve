@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
       exists = true;
     }
 
-    return NextResponse.json({ message: "User profile fetched successfully.", exists }, { status: 200 })
+    return NextResponse.json({ message: "User profile fetched successfully.", exists, userProfile }, { status: 200 })
   } catch (error) {
     console.log("Error while fetching user profile: ", error)
     return NextResponse.json({ message: "Something went wrong while fetching profile" })
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: Request) {
   try {
-    const { userId, email } = await req.json();
+    const { userId, email, avatar } = await req.json();
     if (!userId || !email) {
       return NextResponse.json({ message: "UserId and email both are required!" }, { status: 400 })
     }
@@ -53,6 +53,7 @@ export async function POST(req: Request) {
       {
         userId,
         email,
+        avatar
       }
     )
 

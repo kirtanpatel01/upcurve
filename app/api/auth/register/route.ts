@@ -8,6 +8,7 @@ export async function POST(req: Request) {
         const formData = await req.json();
         const { fullName, email, password } = formData;
         const user = await account.create(ID.unique(), email, password, fullName)
+        const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`;
         await databases.createDocument(
             dbId,
             profileCollectionId,
@@ -15,7 +16,8 @@ export async function POST(req: Request) {
             {
                 userId: user?.$id,
                 email: user?.email,
-                name: user?.name
+                name: user?.name,
+                avatar: fallbackAvatar
             }
         )
         return NextResponse.json({ message: "User created successfully", user }, { status: 201 })

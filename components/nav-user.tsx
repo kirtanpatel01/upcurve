@@ -22,11 +22,13 @@ export default function NavUser() {
             <Button className="w-full">Login</Button>
         </Link>
     )
-    const username = user?.name;
+    const fullName = user?.name;
 
     const handleLogout = async () => {
         await account.deleteSession('current')
     }
+
+    const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random`;
 
     return (
         <SidebarMenu>
@@ -39,15 +41,15 @@ export default function NavUser() {
                         >
                             <Avatar className='w-8 h-8 rounded-lg'>
                                 <Image
-                                    src={'/profile.svg'}
-                                    alt={username || "profile"}
+                                    src={fallbackAvatar || '/profile.svg'}
+                                    alt={fullName || "profile"}
                                     width={64}
                                     height={64}
                                     className='rounded-full' />
                                 <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                             <div className='grid flex-1 text-left text-sm leading-tight'>
-                                <span className='truncate font-medium'>{username || "User"}</span>
+                                <span className='truncate font-medium'>{fullName || "User"}</span>
                             </div>
                             <ChevronUp className='ml-auto size-4' />
                         </SidebarMenuButton>

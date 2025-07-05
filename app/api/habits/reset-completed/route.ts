@@ -7,7 +7,7 @@ const qSecret = process.env.QSTASH_SECRET!
 
 export async function PUT(req: Request) {
   const { secret } = await req.json()
-  if(secret !== qSecret) {
+  if (secret !== qSecret) {
     return NextResponse.json({ error: "You're not authorized to make this API call!" }, { status: 401 })
   }
   try {
@@ -16,22 +16,21 @@ export async function PUT(req: Request) {
     const userHabitMap: { [userId: string]: typeof habits.documents } = {}
 
     habits.documents.forEach(habit => {
-      if(!userHabitMap[habit?.userId]) {
+      if (!userHabitMap[habit?.userId]) {
         userHabitMap[habit.userId] = [];
       }
       userHabitMap[habit.userId].push(habit)
     })
 
-    console.log(userHabitMap)
-    const today = new Date().toISOString().split('T')[0]
+    const today = new Date();
+    const dayName = today.toLocaleDateString('en-GB', { weekday: 'long' }); // e.g., "Tuesday"
 
-    for(const [userId, userHabits] of Object.entries(userHabitMap)) {
+    for (const [userId, userHabits] of Object.entries(userHabitMap)) {
       const completedCount = userHabits.filter(h => h.isCompleted).length
       console.log(completedCount)
 
       await databases.createDocument(dbId, historyCol, ID.unique(), {
         userId,
-        date: today,
         count: completedCount
       })
     }

@@ -30,7 +30,7 @@ function HabitChart() {
   const [habitHistory, setHabitHistory] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const { user, loading } = useAuth()
-  const [groupBy, setGroupBy] = useState<"day" | "week" | "month">("day");
+  // const [groupBy, setGroupBy] = useState<"day" | "week" | "month">("day");
 
   const getHistory = useCallback(async () => {
     const id = user.$id

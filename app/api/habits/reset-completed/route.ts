@@ -22,8 +22,8 @@ export async function PUT(req: Request) {
       userHabitMap[habit.userId].push(habit)
     })
 
-    const today = new Date();
-    const dayName = today.toLocaleDateString('en-GB', { weekday: 'long' }); // e.g., "Tuesday"
+    // const today = new Date();
+    // const dayName = today.toLocaleDateString('en-GB', { weekday: 'long' }); // e.g., "Tuesday"
 
     for (const [userId, userHabits] of Object.entries(userHabitMap)) {
       const completedCount = userHabits.filter(h => h.isCompleted).length

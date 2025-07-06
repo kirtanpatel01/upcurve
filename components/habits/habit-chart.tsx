@@ -33,9 +33,8 @@ function HabitChart() {
   // const [groupBy, setGroupBy] = useState<"day" | "week" | "month">("day");
 
   const getHistory = useCallback(async () => {
-    const id = user.$id
+    const id = user?.id
     try {
-      console.log(id)
       const res = await axios.get(`/api/habits/history?userId=${id}`)
       setHabitHistory(res.data.chartData)
     } catch (error) {
@@ -55,6 +54,12 @@ function HabitChart() {
       setIsLoading(false)
     }
   }, [user, loading, getHistory])
+
+  useEffect(() => {
+      if (!user && !loading) {
+        setHabitHistory(null)
+      }
+    }, [user, loading]);
 
   const chartConfig = {
     desktop: {

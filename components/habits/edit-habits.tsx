@@ -16,7 +16,7 @@ function EditHabits({
 }) {
   const [newHabitTitle, setNewHabitTitle] = useState('');
   const { user } = useAuth();
-  const userId = user?.$id;
+  const userId = user?.id;
 
   const handleSave = async (habit: Habit) => {
     try {

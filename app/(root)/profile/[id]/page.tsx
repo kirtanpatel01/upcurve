@@ -19,7 +19,7 @@ function Page() {
 
   useEffect(() => {
     if (!loading && user) {
-      setIsAuthenticated(userId === user.$id)
+      setIsAuthenticated(userId === user.id)
     }
   }, [userId, user, loading])
 

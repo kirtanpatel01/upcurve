@@ -4,47 +4,96 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { account } from "@/lib/appwrite";
 import axios from "axios";
 
-const AuthContext = createContext<any>(null);
+interface UserType {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  avatar: string;
+  profileId: string;
+}
+
+interface AuthContexType {
+  user: UserType | null;
+  setUser: (user: any) => void;
+  loading: boolean
+  logout: () => Promise<void>
+}
+
+const AuthContext = createContext<AuthContexType>({
+  user: null,
+  setUser: () => { },
+  loading: true,
+  logout: async () => { }
+});
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const cachedUser = localStorage.getItem("upcurve_user")
+    if (cachedUser) {
+      setUser(JSON.parse(cachedUser))
+      setLoading(false)
+    }
     const getUser = async () => {
       try {
-        const user = await account.get();
-        const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
-        setUser(user)
+        const user = await account.get()
+        let avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
 
+        let profileId = "";
+        let username = "";
         const res = await axios.get(`/api/profile?userId=${user?.$id}`)
-        if(!res.data.exists) {
-          await axios.post('/api/profile', {
+        if (!res.data.exists) {
+          const newProfile = await axios.post('/api/profile', {
             userId: user.$id,
             email: user.email,
-            avatar: fallbackAvatar,
+            avatar: avatar,
             name: user.name,
           })
-          console.log('Profile created for google user')
+          profileId = newProfile.data.userProfile.$id
         } else {
-          console.log('Profile already exists')
+          profileId = res.data.userProfile.$id
+          avatar = res.data.userProfile.avatar
+          username = res.data.userProfile.username
         }
+
+        const newUser = {
+          id: user.$id,
+          name: user.name,
+          username,
+          email: user.email,
+          avatar: avatar,
+          profileId: profileId
+        }
+
+        localStorage.setItem("upcurve_user", JSON.stringify(newUser))
+        setUser(newUser)
+
       } catch (error) {
+        console.error("Auth check failed: ", error)
+        localStorage.removeItem('upcurve_user')
         setUser(null)
       } finally {
         setLoading(false)
       }
     }
-    // account.get()
-    //   .then(setUser)
-    //   .catch(() => setUser(null))
-    //   .finally(() => setLoading(false));
 
     getUser();
   }, []);
 
+  const logout = async () => {
+    setLoading(true)
+    await account.deleteSession("current")
+    localStorage.removeItem("upcurve_user")
+    setUser(null)
+    setLoading(false)
+    // window.location.href = "/auth/login" // or use next/router
+  }
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading }}>
+    <AuthContext.Provider value={{ user, setUser, loading, logout }}>
       {children}
     </AuthContext.Provider>
   );

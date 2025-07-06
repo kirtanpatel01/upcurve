@@ -4,7 +4,6 @@ import { ID, Query } from "appwrite";
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(req: NextRequest) {
-  console.log('come in get')
   try {
     const searchParams = req.nextUrl.searchParams;
     const userId = searchParams.get('userId')
@@ -25,15 +24,21 @@ export async function GET(req: NextRequest) {
       exists = true;
     }
 
-    return NextResponse.json({ message: "User profile fetched successfully.", exists, userProfile: userProfile.documents[0] }, { status: 200 })
+    return NextResponse.json(
+      { 
+        message: "User profile fetched successfully.", 
+        exists, 
+        userProfile: userProfile.documents[0] 
+      }, 
+      { status: 200 }
+    )
   } catch (error) {
     console.log("Error while fetching user profile: ", error)
-    return NextResponse.json({ message: "Something went wrong while fetching profile" })
+    return NextResponse.json({ message: "Something went wrong while fetching profile" }, { status: 500 })
   }
 }
 
 export async function POST(req: Request) {
-  console.log('come in post')
   try {
     const { userId, email, avatar, name } = await req.json();
     if (!userId || !email) {
@@ -67,6 +72,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: "User profile created successfully." }, { status: 201 })
   } catch (error) {
     console.log("Error while creating user profile: ", error)
-    return NextResponse.json({ message: "Something went wrong while creating profile" })
+    return NextResponse.json({ message: "Something went wrong while creating profile" }, { status: 500 })
   }
 }

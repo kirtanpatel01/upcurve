@@ -9,11 +9,11 @@ import axios from 'axios';
 import ShowHabits from './show-habits';
 import EditHabits from './edit-habits';
 import { Habit } from '@/types/next-auth-d';
-import { redirect } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import HabitNoxSkeleton from '../skeletons/habit-box-skeleton';
 import { client } from '@/lib/appwrite';
 import { dbId, habitCollectionId } from '@/lib/config';
+import { toast } from 'sonner';
 
 export default function HabitBox() {
   const [editMode, setEditMode] = useState(false)
@@ -22,7 +22,7 @@ export default function HabitBox() {
   const { user, loading } = useAuth();
 
   const fetchHabits = useCallback(async () => {
-    const id = user.$id;
+    const id = user?.id;
     try {
       const res = await axios.get(`/api/habits?id=${id}`);
       setHabits(res.data.data.habits.documents);
@@ -78,10 +78,15 @@ export default function HabitBox() {
     }
   }, [user, loading, fetchHabits])
 
-  const toggleEdiMode = () => {
-    if (editMode && !user) {
-      redirect('/auth/login')
+  useEffect(() => {
+    if (!user && !loading) {
+      setHabits([]);
+      setEditMode(false);
     }
+  }, [user, loading]);
+
+  const toggleEdiMode = () => {
+    if (!user) return toast.error("Please login to edit habits");
     setEditMode(!editMode)
   }
 

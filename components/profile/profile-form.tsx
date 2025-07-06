@@ -13,6 +13,7 @@ import axios from "axios"
 import { useEffect } from "react"
 import AvatarUploader from "./avatar-uploader"
 import { UserProfile } from "@/types/next-auth-d"
+import { useAuth } from "@/context/AuthContext"
 
 const formSchema = z.object({
   username: z.string().toLowerCase(),
@@ -36,6 +37,8 @@ function ProfileForm({
   userProfile: UserProfile,
   setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>
 }) {
+  const { user } = useAuth()
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -59,7 +62,7 @@ function ProfileForm({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const res = await axios.put(`/api/profile/${userProfile?.$id}`, values)
+      const res = await axios.put(`/api/profile/${user?.profileId}`, values)
       if (res.status === 200) {
         toast.success("Profile updated successfully!")
         setUserProfile(res.data.updatedProfile)

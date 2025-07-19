@@ -1,0 +1,31 @@
+1. app\api\exercise\history\route.ts - not checking if the user is authenticated or not 
+
+2. components\exercise\HistoryChart.tsx - chart is showing only best performace of the day but it should not be like that 
+DO THIS:
+```
+  Instead of relying on overall percentage per log, recalculate the day’s total reps vs total goal reps:
+
+  ts
+  Copy
+  Edit
+  totalRepsDone = sum of all logs' doneReps
+  totalRepsGoal = sum of all logs' targetReps
+
+  dailyOverall = Math.round((totalRepsDone / totalRepsGoal) * 100)
+  This truly reflects how much work the user did overall.
+
+  ✅ Pros:
+  Most accurate
+
+  Fully represents daily effort
+
+  ❌ Cons:
+  Needs detailed data per log (sets, reps done, goal)
+
+  Slightly more complex logic
+```
+
+3. Move all fucking types in single file or structured folder
+
+4. Add skeleton for whole exercise page its differen components 
+

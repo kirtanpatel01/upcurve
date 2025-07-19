@@ -23,13 +23,11 @@ import {
 } from "@/components/ui/card"
 import Link from "next/link"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
-import { RegisterSchemaType } from "../../../models/user"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import SubmitBtn from "@/components/submit-btn"
 import { useState } from "react"
 import axios from "axios"
-
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -40,6 +38,12 @@ const formSchema = z.object({
   message: "Passwords do not match",
   path: ["confirmPassword"]
 });
+
+interface RegisterSchemaType {
+  fullName: string,
+  email: string,
+  password: string,
+}
 
 export default function Page() {
   const router = useRouter();
@@ -79,7 +83,7 @@ export default function Page() {
       } else {
         toast.error("Unexpected error occurred");
       }
-    } finally { 
+    } finally {
       setIsLoading(false);
     }
   }

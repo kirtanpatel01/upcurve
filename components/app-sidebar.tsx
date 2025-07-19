@@ -14,8 +14,7 @@ import Link from 'next/link'
 import NavUser from './nav-user'
 import React from 'react'
 
-export default function AppSidebar(
-    { ...props }) {
+export default function AppSidebar() {
     const items = [
         // { to: "/dashboard", title: 'Dashboard' },
         { url: "/habits", title: 'Habits', icon: ListTodo },
@@ -23,7 +22,7 @@ export default function AppSidebar(
     ]
 
     return (
-        <Sidebar collapsible='offcanvas' {...props}>
+        <Sidebar collapsible="icon">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>

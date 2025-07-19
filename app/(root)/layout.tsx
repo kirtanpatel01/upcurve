@@ -15,12 +15,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                     } as React.CSSProperties
                 }
             >
-                <AppSidebar variant='inset' />
+                <AppSidebar />
                 <SidebarInset>
                     <SiteHeader />
-                    <main className="flex p-4 sm:p-6">
-                        {children}
-                    </main>
+                    {children}
                 </SidebarInset>
             </SidebarProvider>
         </AuthProvider>

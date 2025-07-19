@@ -112,7 +112,7 @@ function Page() {
             />
           )
         ) : (
-          <div className='h-fit m-6 border rounded-lg bg-card flex flex-col gap-4 p-4 justify-between items-center'>
+          <div className='h-fit m-4 sm:m-6 border rounded-lg bg-card flex flex-col gap-4 p-4 justify-between items-center'>
             <div className='min-w-72 flex flex-wrap items-center justify-center gap-2 text-center'>
               <span>Want to add new log activity for</span>
               {fetching ? (
@@ -141,14 +141,14 @@ function Page() {
           )}
         </div>
       </div>
-      <div className="p-6 border-b xl:border-r">
+      <div className="p-4 sm:p-6 border-b xl:border-r">
         <LogsPagination fetching={fetching} exerciseLogs={exerciseLogs} />
       </div>
       <div className='grid grid-rows-2'>
-        <div className="p-6 border-b flex justify-center items-center">
+        <div className="p-4 sm:p-6 border-b flex justify-center items-center">
           <ExerciseCalendar fetching={fetching} exerciseLogs={exerciseLogs} />
         </div>
-        <div className="p-6 flex justify-center items-center">
+        <div className="p-4 sm:p-6 flex justify-center items-center">
           <Overview fetching={fetching} exerciseLogs={exerciseLogs} />
         </div>
       </div>

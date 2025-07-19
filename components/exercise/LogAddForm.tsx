@@ -154,7 +154,7 @@ export function LogAddForm({
   // if (fetching) return <div>Loading...</div>
 
   return (
-    <div className="min-w-56 p-6">
+    <div className="min-w-56 p-4 sm:p-6">
       <Card>
         <CardHeader className='flex justify-between items-center'>
           <CardTitle>

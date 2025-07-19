@@ -70,7 +70,7 @@ function HabitChart() {
 
   return (
     <div>
-      <Card className='sm:w-xl h-[400px]'>
+      <Card className='sm:w-lg h-[400px]'>
         <CardHeader>
           <CardTitle>Habit Completion History</CardTitle>
           <CardDescription>January - June 2024</CardDescription>

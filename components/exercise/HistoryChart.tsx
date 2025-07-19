@@ -65,7 +65,7 @@ export function HistoryChart({
   if(fetching) return <div>Loading...</div>
 
   return (
-    <div className="p-6">
+    <div className="p-4 sm:p-6">
       <Card>
         <CardHeader>
           <CardTitle>Exercise Log Activity</CardTitle>

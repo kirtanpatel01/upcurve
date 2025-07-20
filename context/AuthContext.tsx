@@ -11,13 +11,13 @@ const AuthContext = createContext<AuthContexType>({
   logout: async () => { },
   isLoggingOut: false,
   startLogin: () => { },
-  loadingMsg: "Validating authentication...",
+  loadingMsg: "Validating...",
 })
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserType | null>(null)
   const [loading, setLoading] = useState(true)
-  const [loadingMsg, setLoadingMsg] = useState("Validating Authentication...")
+  const [loadingMsg, setLoadingMsg] = useState("Validating...")
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   async function validateSession() {

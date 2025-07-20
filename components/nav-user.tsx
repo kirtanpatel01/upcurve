@@ -17,9 +17,7 @@ import { Button } from './ui/button'
 import { NavUserSkeleton } from './skeletons/nav-user-skeleton'
 
 export default function NavUser() {
-  const { user, loading, logout } = useAuth()
-
-  if (loading) return <NavUserSkeleton />
+  const { user, logout } = useAuth()
 
   return (
     <SidebarMenu>

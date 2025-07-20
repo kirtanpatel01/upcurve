@@ -29,6 +29,7 @@ import { useState } from "react"
 import SubmitBtn from "@/components/submit-btn"
 import { account } from "@/lib/appwrite"
 import { OAuthProvider } from "appwrite"
+import { useAuth } from "@/context/AuthContext" // Add this import
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -38,6 +39,7 @@ const formSchema = z.object({
 export default function Page() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const { startLogin } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,7 +50,7 @@ export default function Page() {
   })
 
   const handleGoogleLogin = async () => {
-    console.log(account)
+    startLogin()
     account.createOAuth2Session(
       OAuthProvider.Google,
       `${process.env.NEXT_PUBLIC_SUCCESS_URL}`,           // success URL
@@ -61,6 +63,7 @@ export default function Page() {
     try {
       await account.createEmailPasswordSession(values.email, values.password)
       toast.success("Logged in successfully")
+      startLogin()
       router.push('/')
     } catch (error) {
       console.error(error)
@@ -129,7 +132,7 @@ export default function Page() {
                 </Button>
               </Link>
 
-              <SubmitBtn isLoading={isLoading} text="Login" loadingText="Loggin in..." />
+              <SubmitBtn isLoading={isLoading} text="Login" loadingText="Logging in..." />
             </form>
           </Form>
 

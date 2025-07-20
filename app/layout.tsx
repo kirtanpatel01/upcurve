@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { ModeToggle } from "@/components/mode-toggle";
+import { AuthProvider } from "@/context/AuthContext";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -25,18 +26,20 @@ export default function RootLayout({
       <body
         className={`${poppins.className} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="absolute top-4 right-4">
-            <ModeToggle />
-          </div>
-          <Toaster richColors />
-          {children}
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="absolute top-4 right-4">
+              <ModeToggle />
+            </div>
+            <Toaster richColors />
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

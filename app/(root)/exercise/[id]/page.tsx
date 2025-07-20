@@ -1,12 +1,7 @@
 'use client'
 
 import { ExerciseCardType } from '@/components/exercise/ExCards'
-import dynamic from 'next/dynamic'
-
-const ExerciseCalendar = dynamic(() => import('@/components/exercise/ExerciseCalendar'), {
-  ssr: false,
-})
-
+import ExerciseCalendar from '@/components/exercise/ExerciseCalendar'
 import { HistoryChart } from '@/components/exercise/HistoryChart'
 import { LogAddForm } from '@/components/exercise/LogAddForm'
 import LogsPagination from '@/components/exercise/LogsPagination'
@@ -35,7 +30,7 @@ function Page() {
   const id = params?.id as string
   const [openLogForm, setOpenLogForm] = useState(false)
   const [fetching, setFetching] = useState(true)
-  // const [logsFetching, setLogFetching] = useState(true)
+  const [logsFetching, setLogFetching] = useState(true)
   const [exercise, setExercise] = useState<ExerciseCardType | null>(null)
   const [exerciseLogs, setExerciseLogs] = useState<ExerciseLogsType[]>([])
   const [setReps, setSetReps] = useState<number[] | null>(null)
@@ -68,10 +63,9 @@ function Page() {
         }
       } catch (error) {
         console.log("Error while fetching exercise!", error)
+      } finally {
+        setLogFetching(false)
       }
-      // } finally {
-      //   setLogFetching(false)
-      // }
     }
 
     if (id) {
@@ -136,20 +130,18 @@ function Page() {
         )}
         <Separator />
         <div className="overflow-y-auto">
-          {exerciseLogs.length > 0 && (
-            <HistoryChart fetching={fetching} exerciseLogs={exerciseLogs} />
-          )}
+          <HistoryChart logFetching={logsFetching} exerciseLogs={exerciseLogs} />
         </div>
       </div>
       <div className="p-4 sm:p-6 border-b xl:border-r">
-        <LogsPagination fetching={fetching} exerciseLogs={exerciseLogs} />
+        <LogsPagination logFetching={logsFetching} exerciseLogs={exerciseLogs} />
       </div>
       <div className='grid grid-rows-2'>
         <div className="p-4 sm:p-6 border-b flex justify-center items-center">
-          <ExerciseCalendar fetching={fetching} exerciseLogs={exerciseLogs} />
+          <ExerciseCalendar logFetching={logsFetching} exerciseLogs={exerciseLogs} />
         </div>
         <div className="p-4 sm:p-6 flex justify-center items-center">
-          <Overview fetching={fetching} exerciseLogs={exerciseLogs} />
+          <Overview logFetching={logsFetching} exerciseLogs={exerciseLogs} />
         </div>
       </div>
     </div>

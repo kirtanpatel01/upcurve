@@ -45,7 +45,7 @@ function Page() {
   if (isLoading || loading) return <div>Loading...</div>
 
   return (
-    <>
+    <div className='p-4 sm:p-6'>
       {userProfile && (
         <ProfileForm
           isAuthenticated={!!isAuthenticated}
@@ -53,7 +53,7 @@ function Page() {
           setUserProfile={setUserProfile}
         />
       )}
-    </>
+    </div>
   )
 }
 

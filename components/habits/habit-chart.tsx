@@ -69,7 +69,7 @@ function HabitChart() {
   } satisfies ChartConfig
 
   return (
-    <Card className='sm:max-w-xl w-full'>
+    <Card className='sm:max-w-lg w-full'>
       <CardHeader>
         <CardTitle>Habit Completion History</CardTitle>
         <CardDescription>January - June 2024</CardDescription>

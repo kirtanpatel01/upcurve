@@ -22,7 +22,6 @@ import {
   LineChart,
   XAxis
 } from 'recharts'
-import { toast } from 'sonner'
 import axios from 'axios'
 import { useAuth } from '@/context/AuthContext'
 
@@ -39,7 +38,7 @@ function HabitChart() {
       setHabitHistory(res.data.chartData)
     } catch (error) {
       console.log("Error while fetching history", error)
-      toast.error("Error while fetching history!")
+      // toast.error("Error while fetching history!")
     } finally {
       setIsLoading(false)
     }
@@ -69,7 +68,7 @@ function HabitChart() {
   } satisfies ChartConfig
 
   return (
-    <Card className='sm:max-w-lg w-full'>
+    <Card className='sm:max-w-lg w-full min-h-96'>
       <CardHeader>
         <CardTitle>Habit Completion History</CardTitle>
         <CardDescription>January - June 2024</CardDescription>
@@ -78,7 +77,8 @@ function HabitChart() {
         {isLoading || loading ? (
           <div className='text-center mt-24'>Loading...</div>
         ) : (
-          <ChartContainer config={chartConfig}>
+          habitHistory ? (
+            <ChartContainer config={chartConfig}>
             <LineChart
               accessibilityLayer
               data={habitHistory || []}
@@ -108,6 +108,11 @@ function HabitChart() {
               />
             </LineChart>
           </ChartContainer>
+          ) : (
+            <div className='mt-24 flex justify-center items-center'>
+              No History found!
+            </div>
+          )
         )}
       </CardContent>
     </Card>

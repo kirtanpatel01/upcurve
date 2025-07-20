@@ -18,7 +18,7 @@ export function NoData({
 }: NoDataProps) {
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center p-6 text-muted-foreground border border-dashed rounded-xl ${className}`}
+      className={`w-fit flex flex-col items-center justify-center text-center p-6 text-muted-foreground border border-dashed rounded-xl ${className}`}
     >
       <div className="mb-2">{icon}</div>
       <h3 className="text-base font-semibold">{title}</h3>

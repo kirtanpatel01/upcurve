@@ -96,7 +96,7 @@ export default function HabitBox() {
   const completedCount = habits.filter(h => h.isCompleted).length;
 
   return (
-    <Card className='max-w-lg max-h-[calc(100vh-7rem)]'>
+    <Card className='max-w-lg'>
       <CardHeader className="flex justify-between items-center text-2xl font-medium">
         <span>{formattedDate}</span>
         <div className='flex items-center gap-1 p-2 rounded-2xl'>
@@ -105,7 +105,7 @@ export default function HabitBox() {
         </div>
       </CardHeader>
       <Separator />
-      <CardContent className='overflow-y-auto'>
+      <CardContent>
         {isLoading || loading ? (
           <HabitNoxSkeleton />
         ) : habits.length > 0 ? (

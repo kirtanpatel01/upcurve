@@ -32,6 +32,7 @@ import { client } from '@/lib/appwrite'
 import { dbId, exerciseCol } from '@/lib/config'
 import Link from 'next/link'
 import { SkeletonExerciseCard } from '../skeletons/exercise-cards'
+import { NoData } from '../no-data'
 
 export interface ExerciseCardType {
   $id: string;
@@ -80,12 +81,25 @@ function ExCards() {
     if (user && !loading) fetchExercises()
   }, [user, loading, fetchExercises])
 
+  if (!loading && !user) {
+    return (
+      <div className="w-full h-[70vh] flex justify-center items-center">
+        <NoData
+          title="Login to Continue"
+          message="Please login to view or create exercises."
+        />
+      </div>
+    )
+  }
+
+  console.log(fetching, loading)
+
   return (
     <Command>
-      <div className='flex p-4'>
-        <CommandInput className='max-w-96' placeholder="Search for exercise..." />
+      <div className="flex p-4">
+        <CommandInput className="max-w-96" placeholder="Search for exercise..." />
         <Dialog>
-          <DialogTrigger className='ml-2 cursor-pointer bg-primary rounded-md p-2 h-9 w-9' asChild>
+          <DialogTrigger className="ml-2 cursor-pointer bg-primary rounded-md p-2 h-9 w-9" asChild>
             <Plus />
           </DialogTrigger>
           <DialogContent>
@@ -99,37 +113,51 @@ function ExCards() {
         </Dialog>
       </div>
       <CommandList className="p-4">
-        {!fetching && <CommandEmpty>No Result found!</CommandEmpty>}
         <CommandGroup>
-          {fetching ? (
-            <SkeletonExerciseCard />
-          ) : (
+          {fetching || loading ? (
             <div className="flex flex-wrap gap-4">
-              {exercise && exercise.map((item) => (
-                <Link key={item.$id} href={`/exercise/${item.$id}`}>
-                  <div className="w-full sm:w-[240px]">
-                    <CommandItem className="border rounded-md w-full">
-                      <Card className='sm:gap-4 dark:hover:bg-black/50'>
-                        <CardHeader>
-                          <CardTitle>{item.name}</CardTitle>
-                        </CardHeader>
-                        <Separator />
-                        <CardContent className='flex flex-col gap-1'>
-                          <span>Last Activity:</span>
-                          <span className='text-primary'>13 x 15 x 18 Reps</span>
-                          <span className='text-xs text-slate-600'>21-2-2034</span>
-                        </CardContent>
-                      </Card>
-                    </CommandItem>
-                  </div>
-                </Link>
+              {[...Array(1)].map((_, i) => (
+                <SkeletonExerciseCard key={i} />
               ))}
             </div>
+          ) : exercise && exercise.length === 0 ? (
+            <div className="w-full h-[70vh] flex justify-center items-center">
+              <NoData
+                title="No Exercises Found"
+                message="Start your fitness journey by adding your first exercise!"
+              />
+            </div>
+          ) : (
+            <>
+              <CommandEmpty>No results found!</CommandEmpty>
+              <div className="flex flex-wrap gap-4">
+                {exercise?.map((item) => (
+                  <Link key={item.$id} href={`/exercise/${item.$id}`}>
+                    <div className="w-full sm:w-[240px]">
+                      <CommandItem className="border rounded-md w-full">
+                        <Card className="sm:gap-4 dark:hover:bg-black/50">
+                          <CardHeader>
+                            <CardTitle>{item.name}</CardTitle>
+                          </CardHeader>
+                          <Separator />
+                          <CardContent className="flex flex-col gap-1">
+                            <span>Last Activity:</span>
+                            <span className="text-primary">13 x 15 x 18 Reps</span>
+                            <span className="text-xs text-slate-600">21-2-2034</span>
+                          </CardContent>
+                        </Card>
+                      </CommandItem>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </>
           )}
         </CommandGroup>
       </CommandList>
     </Command>
   )
+
 }
 
 export default ExCards

@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { account } from "@/lib/appwrite"
 import axios from "axios"
 import { AuthContexType, UserType } from "@/types/auth"
-import { ca } from "date-fns/locale"
 
 const AuthContext = createContext<AuthContexType>({
   user: null,
@@ -32,22 +31,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       let username = ""
 
       if (!res.data.exists) {
-        console.log("1st userid: ",user.$id)
         const newProfile = await axios.post('/api/profile', {
           userId: user?.$id,
           email: user?.email,
           avatar,
           name: user?.name,
         })
-        console.log("new profileid: ", newProfile.data.userProfile?.$id)
         profileId = newProfile.data.userProfile?.$id
       } else {
-        console.log("profileid: ", res.data.userProfile?.$id)
         profileId = res.data.userProfile?.$id
         avatar = res.data.userProfile.avatar
         username = res.data.userProfile.username
       }
-      console.log("userid: ", user.$id)
 
       const newUser = {
         id: user.$id,

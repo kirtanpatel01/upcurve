@@ -22,9 +22,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   async function validateSession() {
     try {
-      setLoading(true)
+      console.log("validating session....")
       const user = await account.get()
-
       const res = await axios.get(`/api/profile?userId=${user?.$id}`)
       let avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
       let profileId = ""
@@ -65,7 +64,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   useEffect(() => {
-    validateSession()
+    const cachedUser = localStorage.getItem("upcurve_user")
+    if(cachedUser) {
+      setUser(JSON.parse(cachedUser))
+      console.log("validating from cached...")
+      setLoading(false)
+    } else {
+      validateSession()
+    }
   }, [])
 
   const logout = async () => {

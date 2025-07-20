@@ -16,7 +16,6 @@ import {
   CardTitle
 } from '../ui/card'
 import { Separator } from '../ui/separator'
-import { Button } from '../ui/button'
 import { Plus } from 'lucide-react'
 import {
   Dialog,
@@ -32,7 +31,6 @@ import axios from 'axios'
 import { client } from '@/lib/appwrite'
 import { dbId, exerciseCol } from '@/lib/config'
 import Link from 'next/link'
-import { Skeleton } from '../ui/skeleton'
 import { SkeletonExerciseCard } from '../skeletons/exercise-cards'
 
 export interface ExerciseCardType {

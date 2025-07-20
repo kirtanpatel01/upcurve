@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Calendar } from '../ui/calendar'
 import { ExerciseLogsType } from '@/app/(root)/exercise/[id]/page'
 import axios from 'axios'
@@ -48,7 +48,7 @@ function ExerciseCalendar({
 
   useEffect(() => {
     if (id) fetchExercise()
-  }, [id])
+  }, [id, fetchExercise])
 
   useEffect(() => {
     const unsubscribe = client.subscribe(
@@ -60,7 +60,7 @@ function ExerciseCalendar({
     )
 
     return () => unsubscribe()
-  }, [])
+  }, [fetchExercise])
 
   useEffect(() => {
     console.log('isfetching:', isfetching, 'streak:', streak)

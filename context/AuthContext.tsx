@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { account } from "@/lib/appwrite"
 import axios from "axios"
 import { AuthContexType, UserType } from "@/types/auth"
+import { ca } from "date-fns/locale"
 
 const AuthContext = createContext<AuthContexType>({
   user: null,
@@ -24,24 +25,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       console.log("validating session....")
       const user = await account.get()
+      console.log(user)
       const res = await axios.get(`/api/profile?userId=${user?.$id}`)
       let avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`
       let profileId = ""
       let username = ""
 
       if (!res.data.exists) {
+        console.log("1st userid: ",user.$id)
         const newProfile = await axios.post('/api/profile', {
-          userId: user.$id,
-          email: user.email,
+          userId: user?.$id,
+          email: user?.email,
           avatar,
-          name: user.name,
+          name: user?.name,
         })
-        profileId = newProfile.data.userProfile.$id
+        console.log("new profileid: ", newProfile.data.userProfile?.$id)
+        profileId = newProfile.data.userProfile?.$id
       } else {
-        profileId = res.data.userProfile.$id
+        console.log("profileid: ", res.data.userProfile?.$id)
+        profileId = res.data.userProfile?.$id
         avatar = res.data.userProfile.avatar
         username = res.data.userProfile.username
       }
+      console.log("userid: ", user.$id)
 
       const newUser = {
         id: user.$id,
@@ -66,6 +72,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const cachedUser = localStorage.getItem("upcurve_user")
     if(cachedUser) {
+      console.log(cachedUser)
       setUser(JSON.parse(cachedUser))
       console.log("validating from cached...")
       setLoading(false)

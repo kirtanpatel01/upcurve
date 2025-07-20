@@ -69,7 +69,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "User profile not created!" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "User profile created successfully." }, { status: 201 })
+    return NextResponse.json({ message: "User profile created successfully.", userProfile }, { status: 201 })
   } catch (error) {
     console.log("Error while creating user profile: ", error)
     return NextResponse.json({ message: "Something went wrong while creating profile" }, { status: 500 })

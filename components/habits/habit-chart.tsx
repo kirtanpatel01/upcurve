@@ -56,10 +56,10 @@ function HabitChart() {
   }, [user, loading, getHistory])
 
   useEffect(() => {
-      if (!user && !loading) {
-        setHabitHistory(null)
-      }
-    }, [user, loading]);
+    if (!user && !loading) {
+      setHabitHistory(null)
+    }
+  }, [user, loading]);
 
   const chartConfig = {
     desktop: {
@@ -69,50 +69,48 @@ function HabitChart() {
   } satisfies ChartConfig
 
   return (
-    <div>
-      <Card className='sm:w-lg h-[400px]'>
-        <CardHeader>
-          <CardTitle>Habit Completion History</CardTitle>
-          <CardDescription>January - June 2024</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isLoading || loading ? (
-              <div className='text-center mt-24'>Loading...</div>
-          ) : (
-            <ChartContainer config={chartConfig}>
-              <LineChart
-                accessibilityLayer
-                data={habitHistory || []}
-                margin={{
-                  left: 12,
-                  right: 12,
-                }}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tickLine={false}
-                  axisLine={false}
-                  tickMargin={8}
-                // tickFormatter={(value) => value.slice(0, 3)}
-                />
-                <ChartTooltip
-                  cursor={false}
-                  content={<ChartTooltipContent hideLabel />}
-                />
-                <Line
-                  dataKey="count"
-                  type="linear"
-                  stroke="var(--color-primary)"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </LineChart>
-            </ChartContainer>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+    <Card className='sm:max-w-xl w-full'>
+      <CardHeader>
+        <CardTitle>Habit Completion History</CardTitle>
+        <CardDescription>January - June 2024</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading || loading ? (
+          <div className='text-center mt-24'>Loading...</div>
+        ) : (
+          <ChartContainer config={chartConfig}>
+            <LineChart
+              accessibilityLayer
+              data={habitHistory || []}
+              margin={{
+                left: 12,
+                right: 12,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+              // tickFormatter={(value) => value.slice(0, 3)}
+              />
+              <ChartTooltip
+                cursor={false}
+                content={<ChartTooltipContent hideLabel />}
+              />
+              <Line
+                dataKey="count"
+                type="linear"
+                stroke="var(--color-primary)"
+                strokeWidth={2}
+                dot={false}
+              />
+            </LineChart>
+          </ChartContainer>
+        )}
+      </CardContent>
+    </Card>
   )
 }
 

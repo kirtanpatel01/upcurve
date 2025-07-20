@@ -1,6 +1,5 @@
 import HabitBox from "@/components/habits/habit-box"
 import HabitChart from "@/components/habits/habit-chart"
-import { Separator } from "@/components/ui/separator"
 
 function Page() {
   return (

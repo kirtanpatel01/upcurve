@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useCallback, useContext, useEffect, useState } from "react"
 import { account } from "@/lib/appwrite"
 import axios from "axios"
 import { AuthContexType, UserType } from "@/types/auth"
@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loadingMsg, setLoadingMsg] = useState("Validating...")
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  async function validateSession() {
+  const validateSession = useCallback(async () => {
     try {
       console.log("validating session....")
       const user = await account.get()
@@ -62,11 +62,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
-      validateSession()
-  }, [])
+    validateSession()
+  }, [validateSession])
 
   const logout = async () => {
     try {

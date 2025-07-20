@@ -1,4 +1,4 @@
-// app/root/layout.tsx
+// app/(root)/layout.tsx
 import ClientProtectedLayout from "@/components/protected-route"
 import AppSidebar from "@/components/app-sidebar"
 import SiteHeader from "@/components/site-header"

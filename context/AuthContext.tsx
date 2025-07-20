@@ -65,15 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   useEffect(() => {
-    const cachedUser = localStorage.getItem("upcurve_user")
-    if(cachedUser) {
-      console.log(cachedUser)
-      setUser(JSON.parse(cachedUser))
-      console.log("validating from cached...")
-      setLoading(false)
-    } else {
       validateSession()
-    }
   }, [])
 
   const logout = async () => {

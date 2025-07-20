@@ -3,7 +3,6 @@ import ClientProtectedLayout from "@/components/protected-route"
 import AppSidebar from "@/components/app-sidebar"
 import SiteHeader from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
-import { AuthProvider } from "@/context/AuthContext"
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

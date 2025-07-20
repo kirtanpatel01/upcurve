@@ -62,8 +62,8 @@ export default function Page() {
     setIsLoading(true)
     try {
       await account.createEmailPasswordSession(values.email, values.password)
+      await startLogin() // ensure context is populated
       toast.success("Logged in successfully")
-      startLogin()
       router.push('/')
     } catch (error) {
       console.error(error)

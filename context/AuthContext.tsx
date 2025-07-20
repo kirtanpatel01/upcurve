@@ -10,7 +10,7 @@ const AuthContext = createContext<AuthContexType>({
   loading: true,
   logout: async () => { },
   isLoggingOut: false,
-  startLogin: () => { },
+  startLogin: async () => { },
   loadingMsg: "Validating...",
 })
 
@@ -65,7 +65,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }
 
   useEffect(() => {
-      validateSession()
+    const cachedUser = localStorage.getItem("upcurve_user")
+    if(cachedUser) {
+      setUser(JSON.parse(cachedUser))
+      setLoading(false)
+    }
+    validateSession()
   }, [])
 
   const logout = async () => {
@@ -82,9 +87,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  const startLogin = () => {
-    validateSession()
+  const startLogin = async () => {
     setLoadingMsg("Logging in...")
+    await validateSession()
   }
 
   return (

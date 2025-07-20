@@ -13,6 +13,6 @@ export interface AuthContexType {
   loading: boolean
   logout: () => Promise<void>
   isLoggingOut: boolean
-  startLogin: () => void
+  startLogin: () => Promise<void>
   loadingMsg: string
 }

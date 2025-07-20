@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/AuthContext"
 import { Loader2 } from "lucide-react"
@@ -8,20 +8,16 @@ import { Loader2 } from "lucide-react"
 export default function ClientProtectedLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, isLoggingOut, loadingMsg } = useAuth()
   const router = useRouter()
-  const [mounted, setMounted] = useState(false)
-
-  // Prevent hook mismatch between server and client
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
-    if (mounted && !loading && !user && !isLoggingOut) {
+    if (!loading && !user && !isLoggingOut) {
       router.replace("/auth/login")
     }
-  }, [mounted, loading, user, isLoggingOut, router])
+  }, [loading, user, isLoggingOut, router])
 
-  if (!mounted || loading || isLoggingOut || !user) {
+  console.log(loading, user)
+
+  if (loading || isLoggingOut || !user) {
     const message = loadingMsg || "Loading..."
     return (
       <div className="h-screen w-full flex items-center justify-center text-muted-foreground">

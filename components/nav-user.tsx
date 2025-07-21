@@ -1,12 +1,12 @@
 'use client'
 
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from './ui/sidebar'
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuGroup,
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuItem,
+  DropdownMenuTrigger
 } from './ui/dropdown-menu'
 import { Avatar } from './ui/avatar'
 import { ChevronUp, LogOut, UserRound } from 'lucide-react'
@@ -14,6 +14,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useAuth } from '@/context/AuthContext'
 import { Button } from './ui/button'
+import { log } from 'console'
 
 export default function NavUser() {
   const { user, logout } = useAuth()
@@ -60,14 +61,12 @@ export default function NavUser() {
                     Profile
                   </DropdownMenuItem>
                 </Link>
-                <form onSubmit={logout}>
-                  <button type="submit" className='w-full'>
-                    <DropdownMenuItem variant='destructive' className='cursor-pointer'>
-                      <LogOut className='text-red-500' />
-                      Logout
-                    </DropdownMenuItem>
-                  </button>
-                </form>
+                <button onClick={logout} className='w-full'>
+                  <DropdownMenuItem variant='destructive' className='cursor-pointer'>
+                    <LogOut className='text-red-500' />
+                    Logout
+                  </DropdownMenuItem>
+                </button>
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>

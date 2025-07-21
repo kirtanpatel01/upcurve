@@ -4,7 +4,6 @@ import { createContext, useContext, useEffect, useState } from "react"
 import { account } from "@/lib/appwrite"
 import axios from "axios"
 import { AuthContexType, UserType } from "@/types/auth"
-import { useRouter } from "next/navigation"
 
 const AuthContext = createContext<AuthContexType>({
   user: null,
@@ -20,7 +19,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true)
   const [loadingMsg, setLoadingMsg] = useState("Validating...")
   const [isLoggingOut, setIsLoggingOut] = useState(false)
-  const router = useRouter()
 
   async function validateSession() {
     try {
@@ -77,24 +75,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   const logout = async () => {
-  try {
-    setLoadingMsg("Logging out...")
-    setIsLoggingOut(true)
-    await account.deleteSession("current")
-    localStorage.removeItem("upcurve_user")
-    setUser(null)
-
-    // Wait for the context to fully reset before redirect
-    setTimeout(() => {
-      router.replace("/auth/login")
-    }, 100) // small delay to allow state flush
-  } catch (error) {
-    console.error("Logout error:", error)
-  } finally {
-    setIsLoggingOut(false)
+    try {
+      setLoadingMsg("Logging out...")
+      setIsLoggingOut(true)
+      await account.deleteSession("current")
+      localStorage.removeItem("upcurve_user")
+      setUser(null)
+    } catch (error) {
+      console.error("Logout error:", error)
+    } finally {
+      setIsLoggingOut(false)
+    }
   }
-}
-
 
   const startLogin = async () => {
     setLoadingMsg("Logging in...")

@@ -28,6 +28,7 @@ import { useRouter } from "next/navigation"
 import SubmitBtn from "@/components/submit-btn"
 import { useState } from "react"
 import axios from "axios"
+import { Eye, EyeClosed } from "lucide-react"
 
 const formSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -48,6 +49,8 @@ interface RegisterSchemaType {
 export default function Page() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setConfirmShowPassword] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -144,7 +147,21 @@ export default function Page() {
                   <FormItem className="w-full">
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Choose strong password" {...field} />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="password"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          className="cursor-pointer absolute top-2.5 right-3"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          tabIndex={-1}
+                        >
+                          {showPassword ? <EyeClosed size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -157,7 +174,21 @@ export default function Page() {
                   <FormItem className="w-full">
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Re-enter above password" {...field} />
+                      <div className="relative">
+                        <Input
+                          type={showConfirmPassword ? "text" : "password"}
+                          placeholder="Enter password again..."
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          className="cursor-pointer absolute top-2.5 right-3"
+                          onClick={() => setConfirmShowPassword((prev) => !prev)}
+                          tabIndex={-1}
+                        >
+                          {showConfirmPassword ? <EyeClosed size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

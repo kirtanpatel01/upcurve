@@ -15,8 +15,6 @@ export default function ClientProtectedLayout({ children }: { children: React.Re
     }
   }, [loading, user, isLoggingOut, router])
 
-  console.log(loading, user)
-
   if (loading || isLoggingOut || !user) {
     const message = loadingMsg || "Loading..."
     return (

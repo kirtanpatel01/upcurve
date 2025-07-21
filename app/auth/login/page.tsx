@@ -30,6 +30,7 @@ import SubmitBtn from "@/components/submit-btn"
 import { account } from "@/lib/appwrite"
 import { OAuthProvider } from "appwrite"
 import { useAuth } from "@/context/AuthContext" // Add this import
+import { Eye, EyeClosed } from "lucide-react"
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -39,6 +40,7 @@ const formSchema = z.object({
 export default function Page() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false)
   const { startLogin } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -116,7 +118,21 @@ export default function Page() {
                   <FormItem className="w-full m-0">
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="password" {...field} />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="password"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          className="cursor-pointer absolute top-2.5 right-3"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          tabIndex={-1}
+                        >
+                          {showPassword ? <EyeClosed size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

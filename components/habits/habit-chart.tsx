@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Card,
   CardContent,
@@ -24,21 +24,22 @@ import {
 } from 'recharts'
 import axios from 'axios'
 import { useAuth } from '@/context/AuthContext'
+import { NoData } from '../no-data'
 
 function HabitChart() {
-  const [habitHistory, setHabitHistory] = useState(null)
+  const [habitHistory, setHabitHistory] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const { user, loading } = useAuth()
-  // const [groupBy, setGroupBy] = useState<"day" | "week" | "month">("day");
 
   const getHistory = useCallback(async () => {
     const id = user?.id
     try {
       const res = await axios.get(`/api/habits/history?userId=${id}`)
-      setHabitHistory(res.data.chartData)
+      if (res.status === 200) {
+        setHabitHistory(res.data.chartData)
+      }
     } catch (error) {
       console.log("Error while fetching history", error)
-      // toast.error("Error while fetching history!")
     } finally {
       setIsLoading(false)
     }
@@ -56,16 +57,27 @@ function HabitChart() {
 
   useEffect(() => {
     if (!user && !loading) {
-      setHabitHistory(null)
+      setHabitHistory([])
     }
   }, [user, loading]);
 
   const chartConfig = {
-    desktop: {
-      label: "Desktop",
+    habits: {
+      label: "Completed: ",
       color: "hsl(var(--chart-1))",
     },
   } satisfies ChartConfig
+
+  console.log(habitHistory)
+
+  if (habitHistory.length === 0) {
+    return (
+      <NoData
+        title='No History Found'
+        message='Please add some habits and wait for 24 hours!'
+      />
+    )
+  }
 
   return (
     <Card className='sm:max-w-lg w-full min-h-96'>
@@ -77,8 +89,7 @@ function HabitChart() {
         {isLoading || loading ? (
           <div className='text-center mt-24'>Loading...</div>
         ) : (
-          habitHistory ? (
-            <ChartContainer config={chartConfig}>
+          <ChartContainer config={chartConfig}>
             <LineChart
               accessibilityLayer
               data={habitHistory || []}
@@ -100,7 +111,7 @@ function HabitChart() {
                 content={<ChartTooltipContent hideLabel />}
               />
               <Line
-                dataKey="count"
+                dataKey="habits"
                 type="linear"
                 stroke="var(--color-primary)"
                 strokeWidth={2}
@@ -108,11 +119,6 @@ function HabitChart() {
               />
             </LineChart>
           </ChartContainer>
-          ) : (
-            <div className='mt-24 flex justify-center items-center'>
-              No History found!
-            </div>
-          )
         )}
       </CardContent>
     </Card>

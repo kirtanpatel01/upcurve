@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
     )
 
     if (history.total === 0) {
-      return NextResponse.json({ error: "History not found for the given userId!" }, { status: 404 })
+      return NextResponse.json({ chartData: [] }, { status: 200 })
     }
 
     const rawHistory = history.documents;
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
 
       return {
         day: weekday,
-        count: doc.count,
+        habits: doc.count,
         date: formattedDate
       }
     });

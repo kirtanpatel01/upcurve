@@ -62,11 +62,6 @@ function ExerciseCalendar({
     return () => unsubscribe()
   }, [fetchExercise])
 
-  useEffect(() => {
-    console.log('isfetching:', isfetching, 'streak:', streak)
-  }, [isfetching, streak])
-
-
   const loggedDates = exerciseLogs.map((log) => new Date(log.$createdAt))
 
   return (

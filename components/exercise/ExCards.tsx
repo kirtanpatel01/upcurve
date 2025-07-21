@@ -92,8 +92,6 @@ function ExCards() {
     )
   }
 
-  console.log(fetching, loading)
-
   return (
     <Command>
       <div className="flex p-4">

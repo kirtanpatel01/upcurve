@@ -1,0 +1,19 @@
+@import "tailwindcss";
+@plugin "daisyui" {
+  themes: winter --default, halloween --prefersdark;
+}
+
+@custom-variant dark (&:where([data-theme=halloween], [data-theme=halloween] *));
+
+h1 {
+  @apply text-2xl sm:text-3xl font-bold tracking-wider
+}
+h2 {
+  @apply text-2xl font-bold
+}
+h3 {
+  @apply text-xl font-bold
+}
+h4 {
+  @apply font-bold
+}

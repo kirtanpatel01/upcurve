@@ -1,16 +1,24 @@
-"use client";
+'use client'
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {addTodo} from "../action";
+import { editTodo } from "../action";
 import { TodoFormValues } from "../components/TodoForm";
 
-export function useAddTodo(userId?: string) {
+export function useEditTodo(userId?: string ) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (values: TodoFormValues) => {
-      return await addTodo(values);
+    mutationFn: async ({
+      id,
+      value,
+    }: {
+      id: number;
+      value: TodoFormValues;
+    }) => {
+      await editTodo(value, id);
+      return { id, value };
     },
+
     onSuccess: () => {
       if (userId) queryClient.invalidateQueries({ queryKey: ["todos", userId] });
     },

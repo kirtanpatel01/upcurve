@@ -1,235 +1,243 @@
+//TodoForm.tsx
+
 "use client";
 
-import addTodo from "../action";
-import { useActionState, useCallback, useEffect, useState } from "react";
-import clsx from "clsx";
-import { useQueryClient } from "@tanstack/react-query";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+  SelectItem,
+} from "@/components/ui/select";
+import { Plus } from "lucide-react";
+import { z } from "zod";
+import { useForm } from "@tanstack/react-form";
+import { toast } from "sonner";
+import { useAddTodo } from "../hooks/use-add-todo";
 import { useUser } from "@/utils/supabase/use-user";
-import { useTodoById } from "../hooks/use-todo-by-id";
+import { useState } from "react";
 
-export default function TodoForm({
-  edit,
-  id,
-  onClose,
-}: {
-  edit?: boolean;
-  id?: number;
-  onClose?: () => void;
-}) {
-  const queryClient = useQueryClient();
-  const [state, formAction, isPending] = useActionState(addTodo, {
-    fieldErrors: {},
-    success: false,
-    values: {
+const formSchema = z.object({
+  id: z.number().optional(),
+  title: z
+    .string()
+    .min(3, "Todo title must be 3 or more characters.")
+    .max(32, "Todo title can't be more than 32 characters."),
+  desc: z.string(),
+  deadline: z.string(),
+  priority: z.string(),
+});
+
+export type TodoFormValues = z.infer<typeof formSchema>;
+
+export default function TodoForm() {
+  const { user } = useUser();
+  const { mutateAsync: addTodoMutation } = useAddTodo(user?.id);
+  const [open, setOpen] = useState(false);
+
+  const form = useForm({
+    defaultValues: {
       title: "",
       desc: "",
       deadline: "",
       priority: "",
     },
+    validators: {
+      onSubmit: formSchema,
+    },
+    onSubmit: async ({ value }: { value: TodoFormValues }) => {
+      try {
+        await addTodoMutation(value);
+        toast.success("Todo added successfully!");
+        form.reset();
+        setOpen(false);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          toast.error(err.message || "Failed to add todo");
+        } else {
+          toast.error("Failed to add todo");
+        }
+      }
+    },
   });
-
-  const closeModal = useCallback(() => {
-    const modal = document.getElementById(
-      "add_todo_modal"
-    ) as HTMLDialogElement;
-    modal?.close();
-    setTimeout(() => {
-      onClose?.();
-    }, 200);
-  }, [onClose])
-
-  const { user } = useUser();
-
-  useEffect(() => {
-    if (state.success) {
-      queryClient.invalidateQueries({ queryKey: ["todos", user?.id] });
-      setTimeout(closeModal, 200);
-    }
-  }, [state.success, user?.id, queryClient, closeModal]);
-
-  const { data: todo, isLoading: todoLoading } = useTodoById(
-    edit && id ? id : undefined
-  );
-
-  const [formValues, setFormValues] = useState({
-    title: "",
-    desc: "",
-    deadline: "",
-    priority: "",
-  });
-
-  useEffect(() => {
-    if (edit && todo) {
-      setFormValues({
-        title: todo.title || "",
-        desc: todo.desc || "",
-        deadline: todo.deadline || "",
-        priority: todo.priority || "",
-      });
-    } else if (!edit) {
-      setFormValues({
-        title: "",
-        desc: "",
-        deadline: "",
-        priority: "",
-      });
-    }
-  }, [todo, edit]);
-
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormValues((prev) => ({ ...prev, [name]: value }));
-  };
 
   return (
-    <dialog id="add_todo_modal" className="modal">
-      <div className="modal-box max-w-96 space-y-4">
-        {edit && todoLoading ? (
-          <div className="w-full flex flex-col items-center justify-center py-12">
-            <span className="loading loading-spinner loading-lg text-primary"></span>
-            <p className="text-sm mt-3 text-gray-500">
-              Loading todo details...
-            </p>
-          </div>
-        ) : (
-          <>
-            <h3 className="font-bold text-lg">
-              {edit ? "Edit Todo" : "Add New Todo"}
-            </h3>
-            <form action={formAction} className="flex flex-col gap-3">
-              {/* Title */}
-              <label
-                className={clsx("flex flex-col gap-1", {
-                  "text-red-500": state.fieldErrors?.title,
-                })}
-              >
-                <span className="text-xs ml-1">
-                  Title <span className="text-red-500">*</span>
-                </span>
-                <input
-                  type="text"
-                  name="title"
-                  placeholder={
-                    state.fieldErrors?.title
-                      ? "Title is required"
-                      : "Enter todo title"
-                  }
-                  defaultValue={formValues?.title || state.values.title}
-                  className={clsx(
-                    "input input-bordered",
-                    state.fieldErrors?.title &&
-                      "input-error placeholder-red-400/75"
-                  )}
-                />
-                {state.fieldErrors?.title && (
-                  <span className="text-xs text-red-500 ml-1 animate-pulse">
-                    {state.fieldErrors.title}
-                  </span>
-                )}
-              </label>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild className="self-end">
+        <Button>
+          <Plus />
+          New
+        </Button>
+      </DialogTrigger>
 
-              {/* Description */}
-              <label className="flex flex-col gap-1">
-                <span className="text-xs ml-1">Description</span>
-                <textarea
-                  name="desc"
-                  defaultValue={formValues?.desc || state.values.desc}
-                  placeholder="Short description (optional)"
-                  className="textarea textarea-bordered"
-                />
-              </label>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Todo</DialogTitle>
+          <DialogDescription>
+            Write down what you plan to do next. Add a title, a few notes, and
+            mark how important it is — every small step counts
+          </DialogDescription>
+        </DialogHeader>
+        <form
+          id="add-todo-from"
+          onSubmit={(e) => {
+            e.preventDefault();
+            form.handleSubmit();
+          }}
+        >
+          {/* Title */}
+          <FieldGroup>
+            <form.Field name="title">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>
+                      Title <span className="text-red-500">*</span>
+                    </FieldLabel>
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Enter todo title"
+                      autoComplete="off"
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            </form.Field>
 
-              {/* Deadline */}
-              <label
-                className={clsx("flex flex-col gap-1", {
-                  "text-red-500": state.fieldErrors?.deadline,
-                })}
-              >
-                <span className="text-xs ml-1">Deadline</span>
-                <input
-                  type="date"
-                  name="deadline"
-                  defaultValue={formValues?.deadline || state.values.deadline}
-                  className={clsx(
-                    "input input-bordered",
-                    state.fieldErrors?.deadline && "input-error"
-                  )}
-                />
-                {state.fieldErrors?.deadline && (
-                  <span className="text-xs text-red-500 ml-1 animate-pulse">
-                    {state.fieldErrors.deadline}
-                  </span>
-                )}
-              </label>
+            {/* Description */}
+            <form.Field name="desc">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Description</FieldLabel>
+                    <Textarea
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Short description (optional)"
+                      autoComplete="off"
+                    />
+                    {isInvalid && (
+                      <FieldError errors={field.state.meta.errors} />
+                    )}
+                  </Field>
+                );
+              }}
+            </form.Field>
 
-              {/* Priority */}
-              <label
-                className={clsx("flex flex-col gap-1", {
-                  "text-red-500": state.fieldErrors?.priority,
-                })}
-              >
-                <span className="text-xs ml-1">
-                  Priority <span className="text-red-500">*</span>
-                </span>
-                <select
-                  name="priority"
-                  value={formValues?.priority || state.values.priority}
-                  onChange={handleChange}
-                  className={clsx(
-                    "select select-bordered",
-                    state.fieldErrors?.priority && "select-error"
-                  )}
-                >
-                  <option value="">Select priority</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-                {state.fieldErrors?.priority && (
-                  <span className="text-xs text-red-500 ml-1 animate-pulse">
-                    {state.fieldErrors.priority}
-                  </span>
-                )}
-              </label>
+            {/* Deadline */}
+            <form.Field name="deadline">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field>
+                    <FieldLabel>Deadline</FieldLabel>
+                    <Input
+                      type="date"
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      placeholder="Choose date(Optional)"
+                      autoComplete="off"
+                    />
+                  </Field>
+                );
+              }}
+            </form.Field>
 
-              {/* General or success messages */}
-              {state.fieldErrors?.general && (
-                <p className="text-sm text-red-500 ml-1 mt-1">
-                  {state.fieldErrors.general}
-                </p>
-              )}
-              {state.success && (
-                <p className="text-sm text-green-500 mt-1 animate-fade-in">
-                  ✅ Todo added successfully!
-                </p>
-              )}
+            {/* Priority */}
+            <form.Field name="priority">
+              {(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched && !field.state.meta.isValid;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldContent>
+                      <FieldLabel htmlFor={field.name}>
+                        Priority <span className="text-red-500">*</span>
+                      </FieldLabel>
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </FieldContent>
+                    <Select
+                      name={field.name}
+                      value={field.state.value}
+                      onValueChange={field.handleChange}
+                    >
+                      <SelectTrigger id={field.name} aria-invalid={isInvalid}>
+                        <SelectValue placeholder="Select Priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="low">Low</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </Field>
+                );
+              }}
+            </form.Field>
+          </FieldGroup>
+        </form>
 
-              <div className="modal-action">
-                <button type="button" onClick={closeModal} className="btn">
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="btn btn-primary disabled:opacity-60"
-                >
-                  {isPending
-                    ? edit
-                      ? "Updating..."
-                      : "Adding..."
-                    : edit
-                    ? "Update Todo"
-                    : "Add Todo"}
-                </button>
-              </div>
-            </form>
-          </>
-        )}
-      </div>
-    </dialog>
+        <DialogFooter>
+          <Field orientation={"horizontal"}>
+            <Button
+              type="button"
+              variant={"outline"}
+              onClick={() => form.reset()}
+            >
+              Reset
+            </Button>
+            <Button
+              type="submit"
+              form="add-todo-from"
+              disabled={form.state.isSubmitting}
+            >
+              {form.state.isSubmitting ? "Adding..." : "Add"}
+            </Button>
+          </Field>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

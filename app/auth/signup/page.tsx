@@ -4,6 +4,28 @@ import Link from "next/link";
 import React, { useActionState, useState } from "react";
 import { signup } from "../actions";
 import { Eye, EyeOff } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 const initialState = {
   error: "",
@@ -20,108 +42,96 @@ export default function Page() {
 
   return (
     <div className="min-h-screen flex justify-center items-center p-4 sm:p-6">
-      <div className="flex max-w-96 sm:max-w-xl w-full shadow-md shadow-accent-200/25 rounded-xl">
-        <div className="bg-base-200/50 dark:bg-base-300 w-full flex flex-col justify-center gap-6 sm:gap-8 p-4 sm:p-8 md:p-20 rounded-xl">
-          {/* Header */}
-          <div className="space-y-1">
-            <h1 className="text-primary">Sign Up Page</h1>
-            <p className="opacity-75 text-sm">Start your journey!</p>
-          </div> 
+      <Card className="max-w-96 w-full">
+        <CardHeader>
+          <CardTitle>Sign Up Page</CardTitle>
+          <CardDescription>Start your journey!</CardDescription>
+        </CardHeader>
 
-          {/* Form */}
-          <form action={formAction} className="flex flex-col gap-6 sm:gap-8">
+        <CardContent>
+          <form action={formAction}>
+            <FieldGroup>
+              <Field>
+                <FieldLabel>Name</FieldLabel>
+                <Input
+                  type="text"
+                  placeholder="John Doe"
+                  name="name"
+                  defaultValue={state.name}
+                />
+              </Field>
 
-            {/* Name Field */}
-            <label className="floating-label">
-              <span>Name</span>
-              <input
-                type="text"
-                placeholder="John Doe"
-                className="input input-md w-full"
-                name="name"
-                defaultValue={state.name}
-              />
-            </label>
+              <Field>
+                <FieldLabel>Email</FieldLabel>
+                <Input
+                  type="text"
+                  placeholder="mail@site.com"
+                  name="email"
+                  defaultValue={state.email}
+                />
+              </Field>
 
-            {/* Email Field */}
-            <label className="floating-label">
-              <span>Email</span>
-              <input
-                type="text"
-                placeholder="mail@site.com"
-                className="input input-md w-full"
-                name="email"
-                defaultValue={state.email}
-              />
-            </label>
+              <Field>
+                <FieldLabel>Password</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    name="password"
+                    defaultValue={state.password}
+                  />
+                  <InputGroupAddon align={"inline-end"}>
+                    <InputGroupButton
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      size={"icon-xs"}
+                    >
+                      {showPassword ? <EyeOff /> : <Eye />}
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
+              </Field>
 
-            {/* Password Field */}
-            <div className="relative">
-              <label className="absolute left-1 -top-5 transition-all text-xs opacity-50">
-                Password
-              </label>
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder=""
-                className="input input-md w-full pr-10" 
-                name="password"
-                defaultValue={state.password}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                onMouseDown={(e) => e.preventDefault()}
-                className="absolute top-2 right-3 cursor-pointer z-10"
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
+              <Field>
+                <FieldLabel>Confirm Password</FieldLabel>
+                <InputGroup>
+                  <InputGroupInput
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Re-enter your password"
+                    name="password"
+                    defaultValue={state.confirmPassword}
+                  />
+                  <InputGroupAddon align={"inline-end"}>
+                    <InputGroupButton
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      onMouseDown={(e) => e.preventDefault()}
+                      size={"icon-xs"}
+                    >
+                      {showConfirmPassword ? <EyeOff /> : <Eye />}
+                    </InputGroupButton>
+                  </InputGroupAddon>
+                </InputGroup>
+              </Field>
 
-            {/* Confirm Password Field */}
-            <div className="relative">
-              <label className="absolute left-1 -top-5 transition-all text-xs opacity-50">
-                Confirm Password
-              </label>
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                placeholder=""
-                className="input input-md w-full pr-10"
-                name="password"
-                defaultValue={state.confirmPassword}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword((prev) => !prev)}
-                onMouseDown={(e) => e.preventDefault()}
-                className="absolute top-2 right-3 cursor-pointer z-10"
-              >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
+              <Field>
+                <Button type="submit">
+                  {isPending ? <Spinner /> : "Sign Up"}
+                </Button>
+                <FieldDescription className="text-center">
+                  Already have an account ?
+                  <Link href="/auth/login" className="ml-2">Login</Link>
+                </FieldDescription>
+              </Field>
 
-            {/* Submit Button */}
-            <button className="btn btn-primary self-center" type="submit">
-              {isPending ? (
-                <span className="loading loading-spinner loading-md"></span>
-              ) : (
-                <span>Sign Up</span>
+              {state.error && (
+                <p className={`text-red-500 text-sm mt-2`}>{state.error}</p>
               )}
-            </button>
-
-            {state.error && (
-              <p className={`text-red-500 text-sm mt-2`}>{state.error}</p>
-            )}
+            </FieldGroup>
           </form>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center">
-            <p>Already have an account ?</p>
-            <Link href="/auth/login">
-              <button className="btn btn-link px-2">Login</button>
-            </Link>
-          </div>
-
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

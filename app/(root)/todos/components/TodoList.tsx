@@ -1,137 +1,74 @@
+"use client";
 
 import { useTodosByUser } from "../hooks/use-todos-by-user";
 import { useUser } from "@/utils/supabase/use-user";
 import { useToggleTodo } from "../hooks/use-toggle-todo";
-import { EllipsisVertical } from "lucide-react";
-import { useState } from "react";
-import TodoForm from "./TodoForm";
+import { Checkbox } from "@/components/ui/checkbox";
+
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TodoActionDropDown } from "./TodoActionDropDown";
 
 export default function TodoList() {
   const { user, loading: userLoading } = useUser();
   const { data: todos, isLoading: todosLoading } = useTodosByUser(user?.id);
   const toggleTodo = useToggleTodo();
 
-  const [editTodoId, setEditTodoId] = useState<number | null>(null);
+  const isLoading = userLoading || todosLoading;
 
-  if (todosLoading || userLoading) {
+  if (isLoading) {
     return (
-      <div className="w-full h-full flex flex-col justify-center items-center">
-        <span className="loading loading-sm loading-dots"></span>
-        Fetching your todos...
+      <div className="w-full space-y-3 max-h-[calc(100vh-13rem)] overflow-y-auto scrollbar-none">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="w-full flex items-center justify-between inset-shadow-sm inset-shadow-accent/20 px-3 py-1.5 rounded-md bg-background"
+          >
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-4.5 w-4.5 rounded-sm" />
+              <Skeleton className="h-4.5 w-32" />
+            </div>
+            <Skeleton className="h-8 w-8 rounded-full" />
+          </div>
+        ))}
       </div>
     );
   }
-  const groupedTodos = {
-    high: [] as Todo[],
-    medium: [] as Todo[],
-    low: [] as Todo[],
-  };
-
-  todos?.forEach((todo) => {
-    if (todo.priority === "high") groupedTodos.high.push(todo);
-    else if (todo.priority === "medium") groupedTodos.medium.push(todo);
-    else groupedTodos.low.push(todo);
-  });
 
   return (
-    <div className="min-h-96 bg-base-200/15 flex flex-col gap-4 p-4 border border-base-200 rounded-lg shadow mt-6">
-      {["high", "medium", "low"].map((priority) => {
-        const todosByPriority =
-          groupedTodos[priority as keyof typeof groupedTodos];
-        if (todosByPriority.length === 0) return null;
-
-        return (
-          <div key={priority}>
-            <span className="font-medium text-xs capitalize">
-              {priority} priority
-            </span>
-            <ul className="space-y-1">
-              {todosByPriority.map((todo) => (
-                <li
-                  key={todo.id}
-                  className="flex justify-between items-center bg-base-300/75 px-3 py-2 rounded-md"
-                >
-                  <label
-                    htmlFor={todo.title}
-                    className="flex items-center gap-2 hover:bg-base-300 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-primary checkbox-sm"
-                      id={todo.title}
-                      checked={todo.is_completed}
-                      onChange={(e) =>
-                        toggleTodo.mutate({
-                          id: todo.id,
-                          completed: e.target.checked,
-                        })
-                      }
-                    />
-                    <span
-                      className={`transition-all duration-200 ${
-                        todo.is_completed ? "line-through text-gray-400" : ""
-                      }`}
-                    >
-                      {todo.title}
-                    </span>
-                  </label>
-                  <div className="flex items-center">
-                    <span
-                      className={`badge dark:badge-soft badge-sm capitalize ${
-                        todo.priority === "high"
-                          ? "badge-primary"
-                          : todo.priority === "medium"
-                          ? "badge-secondary"
-                          : ""
-                      }`}
-                    >
-                      {todo.priority}
-                    </span>
-                    <div className="dropdown">
-                      <div
-                        tabIndex={0}
-                        role="button"
-                        className="cursor-pointer hover:bg-slate-600/10 p-1 rounded-full ml-1"
-                      >
-                        <EllipsisVertical size={16} />
-                      </div>
-                      <ul
-                        tabIndex="-1"
-                        className="dropdown-content menu bg-base-100 rounded-box z-1 p-2 shadow-sm"
-                      >
-                        <li>
-                          <button
-                            onClick={() => {
-                              setEditTodoId(todo?.id)
-                              const el =
-                                document.getElementById("add_todo_modal");
-                              if (el instanceof HTMLDialogElement)
-                                el.showModal();
-                            }}
-                          >
-                            Edit
-                          </button>
-                        </li>
-                        <li>
-                          <button className="text-error hover:text-white hover:bg-error">
-                            Delete
-                          </button>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
+    <div className="max-h-[calc(100vh-32rem)] sm:max-h-[calc(100vh-9.8rem)] md:max-h-[calc(100vh-12.8rem)] overflow-y-auto scroll w-full space-y-3">
+      {todos &&
+        todos.map((todo) => (
+          <div
+            key={todo.id}
+            className="w-full flex items-center justify-between inset-shadow-sm inset-shadow-accent/20 shadow-md shadow-primary/15 dark:shadow-background/25
+            px-3.5 py-1.5 rounded-md bg-background relative"
+          >
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id={`todo-${todo.id}`}
+                checked={todo.is_completed}
+                onCheckedChange={(checked) =>
+                  toggleTodo.mutate({
+                    id: todo.id,
+                    completed: !!checked,
+                  })
+                }
+              />
+              <Label
+                htmlFor={`todo-${todo.id}`}
+                className={cn(
+                  "cursor-pointer select-none capitalize",
+                  todo.is_completed && "line-through text-gray-400"
+                )}
+              >
+                {todo.title}
+              </Label>
+            </div>
+            <TodoActionDropDown id={todo.id} />
           </div>
-        );
-      })}
-
-      <TodoForm
-        edit={!!editTodoId}
-        id={editTodoId || undefined}
-        onClose={() => setEditTodoId(null)}
-      />
+        ))}
     </div>
   );
 }

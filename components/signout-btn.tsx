@@ -5,9 +5,10 @@ import { User } from "@supabase/supabase-js";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { Spinner } from "./ui/spinner";
+import { toast } from "sonner";
 
 function SignoutBtn() {
-  const [showToast, setShowToast] = useState(false);
   const [user, setUser] = useState<User | undefined>(undefined);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -32,14 +33,7 @@ function SignoutBtn() {
       if (user) {
         await supabase.auth.signOut();
       }
-
-      // revalidatePath("/", "layout");
-      setShowToast(true);
-
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
-
+      toast.success("Successfully logout.");
       router.push("/auth/login");
     } catch (error) {
       console.log(error);
@@ -48,26 +42,12 @@ function SignoutBtn() {
 
   return (
     <>
-      <button
-        disabled={loading || !user}
-        onClick={handleSubmit}
-        className='is-drawer-close:tooltip is-drawer-close:tooltip-right'
-      >
-        {loading ? (
-          <span className="loading loading-spinner loading-sm"></span>
-        ) : (
-          <span className="w-full flex justify-start items-center gap-2">
-            <LogOut size={16} />
-            Logout
-          </span>
-        )}
-      </button>
-
-      {showToast && (
-        <div className="toast">
-          <div className="alert alert-success">
-            <span>Logout Successfully.</span>
-          </div>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <div className="flex items-center gap-2" onClick={handleSubmit}>
+          <LogOut size={16} className="text-primary" />
+          <span className="group-data-[collapsible=icon]:hidden">Logout</span>
         </div>
       )}
     </>

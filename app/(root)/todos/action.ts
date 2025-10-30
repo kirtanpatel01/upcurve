@@ -1,113 +1,96 @@
+// action.ts
+
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { TodoFormValues } from "./components/TodoForm";
 
-export default async function addTodo(
-  prevState: {
-    fieldErrors?: Record<string, string>;
-    success?: boolean;
-    values: {
-      title: string;
-      desc: string;
-      deadline: string;
-      priority: string;
-    };
-  } | undefined,
-  formData: FormData
-) {
+export async function addTodo(value: TodoFormValues) {
   const supabase = await createClient();
-
-  const title = formData.get("title") as string;
-  const desc = formData.get("desc") as string;
-  const deadline = formData.get("deadline") as string;
-  const priority = formData.get("priority") as string;
-
-  const errors: Record<string, string> = {};
+  const { title, desc, deadline, priority } = value;
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) {
-    return {
-      fieldError: { general: "You're not logged in!" },
-      success: false,
-      values: {
-        title,
-        desc,
-        deadline,
-        priority,
-      },
-    };
-  }
 
-  if (!title || title.trim().length === 0) {
-    errors.title = "Title is required.";
-  } else if (title.length < 3) {
-    errors.title = "Title must be at least 3 characters.";
+  if (!user) throw new Error("You're not logged in!");
+
+  if (!title || title.trim().length < 3) {
+    throw new Error("Title must be at least 3 characters.");
   }
 
   if (deadline && isNaN(Date.parse(deadline))) {
-    errors.deadline = "Deadline must be a valid date.";
+    throw new Error("Deadline must be a valid date.");
   }
 
   if (!priority) {
-    errors.priority = "Priority is required.";
+    throw new Error("Priority is required.");
   }
 
-  if (Object.keys(errors).length > 0) {
-    return {
-      fieldErrors: errors,
-      success: false,
-      values: {
-        title,
-        desc,
-        deadline,
-        priority,
-      },
-    };
+  const { error } = await supabase
+    .from("todos")
+    .insert([{ title, desc, deadline, priority, user_id: user?.id }]);
+
+  if (error) {
+    console.log(error);
+    throw new Error("Failed to add todo. Please try again.");
   }
 
-  try {
-    const { error } = await supabase
-      .from("todos")
-      .insert([{ title, desc, deadline, priority, user_id: user?.id }])
-      .select();
+  return { success: true };
+}
 
-    if (error) {
-      console.log(error);
-      return {
-        fieldErrors: { general: "Nhi add thyu bhai" },
-        success: false,
-        values: {
-          title,
-          desc,
-          deadline,
-          priority,
-        },
-      };
-    }
+export async function editTodo(value: TodoFormValues, id: number) {
+  const supabase = await createClient();
+  const { title, desc, deadline, priority } = value;
 
-    return { 
-      success: true, 
-      fieldErrors: {}, 
-      values: { 
-        title:"",  
-        desc: "",
-        deadline: "",
-        priority: "",
-      } 
-    };
-  } catch (err) {
-    console.log(err);
-    return {
-      fieldErrors: { general: "Something went wrong while saving your todo." },
-      success: false,
-      values: {
-        title,
-        desc,
-        deadline,
-        priority,
-      },
-    };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("You're not logged in!");
+
+  if (!title || title.trim().length < 3) {
+    throw new Error("Title must be at least 3 characters.");
   }
+
+  if (deadline && isNaN(Date.parse(deadline))) {
+    throw new Error("Deadline must be a valid date.");
+  }
+
+  if (!priority) {
+    throw new Error("Priority is required.");
+  }
+
+  const { error } = await supabase
+    .from("todos")
+    .update({ title, desc, deadline, priority })
+    .eq("id", id);
+
+  if (error) {
+    console.log(error);
+    throw new Error("Failed to edit todo. Please try again.");
+  }
+
+  return { success: true };
+}
+
+export async function deleteTodo(id: number) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) throw new Error("You're not logged in!");
+
+  const { error } = await supabase
+    .from("todos")
+    .delete()
+    .eq("id", id);
+  
+  if(error) {
+    console.log(error)
+    throw new Error("Failed to delete the todo. Please try again.");
+  }
+
+  return { success: true }
 }

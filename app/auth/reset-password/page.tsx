@@ -23,7 +23,7 @@ import { useState } from "react";
 
 export default function Page() {
   const [email, setEmail] = useState("");
-  const [success, setSuccess] = useState<boolean | undefined>(true);
+  const [success, setSuccess] = useState<boolean | undefined>(false);
   const [loading, setLoading] = useState(false);
   const supabase = createClient();
 

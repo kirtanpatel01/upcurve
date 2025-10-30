@@ -27,9 +27,9 @@ import {
 } from "@/components/ui/select";
 import { useTodoById } from "../hooks/use-todo-by-id";
 import { Spinner } from "@/components/ui/spinner";
-import { useEditTodo } from "../hooks/use-edit-todo";
 import { Dispatch, useEffect } from "react";
-import { useUser } from "@/utils/supabase/use-user";
+import { editTodo } from "../action";
+import { TodoFormValues } from "../types";
 
 const formSchema = z.object({
   title: z
@@ -51,8 +51,6 @@ function EditTodoSheetContent({
   setIsFetchingTodo: Dispatch<React.SetStateAction<boolean>>;
 }) {
   const { data: todo, isLoading } = useTodoById(id);
-  const { user } = useUser();
-  const { mutateAsync: editTodoMutation } = useEditTodo(user?.id);
 
   useEffect(() => {
     setIsFetchingTodo(isLoading);
@@ -70,7 +68,7 @@ function EditTodoSheetContent({
     },
     onSubmit: async ({ value }: { value: TodoFormValues }) => {
       try {
-        await editTodoMutation({ id, value });
+        await editTodo(value, id);
         toast.success("Todo updated successfully!");
         form.reset();
         setOpen(false);

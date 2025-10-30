@@ -1,4 +1,4 @@
-"use client";
+// "use client";
 
 import {
   AlertDialogAction,
@@ -10,16 +10,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { useDeleteTodo } from "../hooks/use-delete-todo";
-import { useUser } from "@/utils/supabase/use-user";
+import { deleteTodo } from "../action";
 
 function DeleteTodoAlert({ id }: { id: number }) {
-  const { user } = useUser();
-  const { mutateAsync: addTodoMutation } = useDeleteTodo(user?.id);
-
   const submit = async () => {
     try {
-      await addTodoMutation(id);
+      await deleteTodo(id);
       toast.success("Successfully deleted!");
     } catch (err: unknown) {
       if (err instanceof Error) {

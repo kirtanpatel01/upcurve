@@ -1,29 +1,54 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { Todo } from "../types";
 
 const supabase = createClient();
 
 async function fetchAllTodosByUser(userId: string): Promise<Todo[]> {
   const { data: todos, error } = await supabase
     .from("todos")
-    .select('*')
-    .eq('user_id', userId)
-    .order("created_at", { ascending: false })
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
-    if(error) throw error
-    return todos
+  if (error) throw error;
+  return todos;
 }
 
 export function useTodosByUser(userId?: string) {
-  return useQuery<Todo[]>({
+  const queryClient = useQueryClient();
+
+  const query = useQuery<Todo[]>({
     queryKey: ["todos", userId],
     queryFn: () => fetchAllTodosByUser(userId!),
     enabled: !!userId,
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    cacheTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
   });
-}
+  
+  useEffect(() => {
+    if (!userId) return;
 
+    const channel = supabase
+      .channel("todos-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "todos" },
+        (payload) => {
+          console.log("Realtime change:", payload);
+          queryClient.invalidateQueries({ queryKey: ["todos", userId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
+
+  return query;
+}

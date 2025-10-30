@@ -3,6 +3,7 @@
 "use server";
 
 import { createClient } from "@/utils/supabase/server";
+import { TodoFormValues } from "./types";
 
 export async function addTodo(value: TodoFormValues) {
   const supabase = await createClient();

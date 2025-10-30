@@ -1,4 +1,4 @@
-interface TodoFormValues {
+export interface TodoFormValues {
   title: string;
   desc: string;
   deadline: string;
@@ -7,6 +7,6 @@ interface TodoFormValues {
   is_completed?: boolean;
 }
 
-interface Todo extends Omit<TodoFormValues, "id"> {
+export interface Todo extends Omit<TodoFormValues, "id"> {
     id: number;
 }

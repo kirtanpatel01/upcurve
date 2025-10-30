@@ -32,9 +32,9 @@ import { Plus } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { useAddTodo } from "../hooks/use-add-todo";
-import { useUser } from "@/utils/supabase/use-user";
 import { useState } from "react";
+import { addTodo } from "../action";
+import { TodoFormValues } from "../types";
 
 const formSchema = z.object({
   id: z.number().optional(),
@@ -49,8 +49,6 @@ const formSchema = z.object({
 });
 
 export default function TodoForm() {
-  const { user } = useUser();
-  const { mutateAsync: addTodoMutation } = useAddTodo(user?.id);
   const [open, setOpen] = useState(false);
 
   const form = useForm({
@@ -65,7 +63,7 @@ export default function TodoForm() {
     },
     onSubmit: async ({ value }: { value: TodoFormValues }) => {
       try {
-        await addTodoMutation(value);
+        await addTodo(value);
         toast.success("Todo added successfully!");
         form.reset();
         setOpen(false);

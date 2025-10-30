@@ -45,9 +45,8 @@ const formSchema = z.object({
   desc: z.string(),
   deadline: z.string(),
   priority: z.string(),
+  is_completed: z.boolean().optional()
 });
-
-export type TodoFormValues = z.infer<typeof formSchema>;
 
 export default function TodoForm() {
   const { user } = useUser();
@@ -64,7 +63,7 @@ export default function TodoForm() {
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }: { value: TodoFormValues }) => {
+    onSubmit: async ({ value }: { value: Todo }) => {
       try {
         await addTodoMutation(value);
         toast.success("Todo added successfully!");

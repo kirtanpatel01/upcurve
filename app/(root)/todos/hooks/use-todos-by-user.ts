@@ -2,11 +2,10 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { TodoFormValues } from "../components/TodoForm";
 
 const supabase = createClient();
 
-async function fetchAllTodosByUser(userId: string): Promise<TodoFormValues[]> {
+async function fetchAllTodosByUser(userId: string): Promise<Todo[]> {
   const { data: todos, error } = await supabase
     .from("todos")
     .select('*')
@@ -18,7 +17,7 @@ async function fetchAllTodosByUser(userId: string): Promise<TodoFormValues[]> {
 }
 
 export function useTodosByUser(userId?: string) {
-  return useQuery<TodoFormValues[]>({
+  return useQuery<Todo[]>({
     queryKey: ["todos", userId],
     queryFn: () => fetchAllTodosByUser(userId!),
     enabled: !!userId,

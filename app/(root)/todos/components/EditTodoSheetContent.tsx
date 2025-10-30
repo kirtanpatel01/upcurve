@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import z from "zod";
 import { useForm } from "@tanstack/react-form";
-import { TodoFormValues } from "./TodoForm";
 import { toast } from "sonner";
 import {
   Field,
@@ -69,7 +68,7 @@ function EditTodoSheetContent({
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }: { value: TodoFormValues }) => {
+    onSubmit: async ({ value }: { value: Todo }) => {
       try {
         await editTodoMutation({ id, value });
         toast.success("Todo updated successfully!");

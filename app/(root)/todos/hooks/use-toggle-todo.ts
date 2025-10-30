@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 const supabase = createClient()
 async function toggleTodoCompletion(id: number, completed: boolean) {
   const { error } = await supabase

@@ -2,7 +2,6 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { editTodo } from "../action";
-import { TodoFormValues } from "../components/TodoForm";
 
 export function useEditTodo(userId?: string ) {
   const queryClient = useQueryClient();
@@ -13,7 +12,7 @@ export function useEditTodo(userId?: string ) {
       value,
     }: {
       id: number;
-      value: TodoFormValues;
+      value: Todo;
     }) => {
       await editTodo(value, id);
       return { id, value };

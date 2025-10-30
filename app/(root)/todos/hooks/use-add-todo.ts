@@ -2,13 +2,12 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {addTodo} from "../action";
-import { TodoFormValues } from "../components/TodoForm";
 
 export function useAddTodo(userId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (values: TodoFormValues) => {
+    mutationFn: async (values: Todo) => {
       return await addTodo(values);
     },
     onSuccess: () => {

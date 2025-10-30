@@ -63,7 +63,7 @@ export default function TodoForm() {
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }: { value: Todo }) => {
+    onSubmit: async ({ value }: { value: TodoFormValues }) => {
       try {
         await addTodoMutation(value);
         toast.success("Todo added successfully!");

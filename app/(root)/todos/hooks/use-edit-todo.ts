@@ -12,7 +12,7 @@ export function useEditTodo(userId?: string ) {
       value,
     }: {
       id: number;
-      value: Todo;
+      value: TodoFormValues;
     }) => {
       await editTodo(value, id);
       return { id, value };

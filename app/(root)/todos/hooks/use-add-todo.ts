@@ -7,7 +7,7 @@ export function useAddTodo(userId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (values: Todo) => {
+    mutationFn: async (values: TodoFormValues) => {
       return await addTodo(values);
     },
     onSuccess: () => {

@@ -51,7 +51,7 @@ export default function TodoList() {
                 checked={todo.is_completed}
                 onCheckedChange={(checked) =>
                   toggleTodo.mutate({
-                    id: todo.id,
+                    id: todo?.id,
                     completed: !!checked,
                   })
                 }

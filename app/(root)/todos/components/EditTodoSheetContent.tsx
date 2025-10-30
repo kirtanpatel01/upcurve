@@ -68,7 +68,7 @@ function EditTodoSheetContent({
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }: { value: Todo }) => {
+    onSubmit: async ({ value }: { value: TodoFormValues }) => {
       try {
         await editTodoMutation({ id, value });
         toast.success("Todo updated successfully!");

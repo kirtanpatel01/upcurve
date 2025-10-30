@@ -4,7 +4,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-export async function addTodo(value: Todo) {
+export async function addTodo(value: TodoFormValues) {
   const supabase = await createClient();
   const { title, desc, deadline, priority } = value;
 
@@ -38,7 +38,7 @@ export async function addTodo(value: Todo) {
   return { success: true };
 }
 
-export async function editTodo(value: Todo, id: number) {
+export async function editTodo(value: TodoFormValues, id: number) {
   const supabase = await createClient();
   const { title, desc, deadline, priority } = value;
 

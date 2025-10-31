@@ -33,11 +33,15 @@ const initialState = { error: "", email: "", password: "" };
 export default function Page() {
   const [state, formAction, isPending] = useActionState(login, initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const redirectTo = `${process.env.NEXT_PUBLIC_WEB_URL || "http://localhost:3000"}/dashboard`;
 
   const supabase = createClient();
   const handleSumbit = async () => {
     supabase.auth.signInWithOAuth({
       provider: "google",
+      options: {
+        redirectTo: redirectTo
+      }
     });
   };
 

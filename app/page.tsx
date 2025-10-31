@@ -5,20 +5,24 @@ import { createClient } from "@/utils/supabase/client";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const router = useRouter();
+  const redirectUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "http://localhost:3000"}/dashboard`;
+
   useEffect(() => {
     const supabase = createClient();
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if(user) {
         setIsLoggedIn(true)
-        console.log(user)
+        router.push(redirectUrl)
       }
     }
     getUser();
-  }, [])
+  }, [router, redirectUrl])
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center text-base-content transition-colors pt-16">

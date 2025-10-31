@@ -2,19 +2,17 @@
 
 import { useTodosByUser } from "../hooks/use-todos-by-user";
 import { useUser } from "@/utils/supabase/use-user";
-import { useToggleTodo } from "../hooks/use-toggle-todo";
 import { Checkbox } from "@/components/ui/checkbox";
-
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TodoActionDropDown } from "./TodoActionDropDown";
+import { toggleTodoCompletion } from "../action";
 
 export default function TodoList() {
   const { user, loading: userLoading } = useUser();
   const { data: todos, isLoading: todosLoading } = useTodosByUser(user?.id);
-  const toggleTodo = useToggleTodo();
-
+  // const todos: Todo[] = [];
   const isLoading = userLoading || todosLoading;
 
   if (isLoading) {
@@ -37,24 +35,19 @@ export default function TodoList() {
   }
 
   return (
-    <div className="max-h-[calc(100vh-32rem)] sm:max-h-[calc(100vh-9.8rem)] md:max-h-[calc(100vh-12.8rem)] overflow-y-auto scroll w-full space-y-3">
-      {todos &&
+    <div className="max-h-[calc(100vh-32rem)] sm:max-h-[calc(100vh-9.8rem)] md:max-h-[calc(100vh-12.8rem)] overflow-y-auto scroll w-full">
+      {todos && todos.length > 0 ? (
         todos.map((todo) => (
           <div
             key={todo.id}
-            className="w-full flex items-center justify-between inset-shadow-sm inset-shadow-accent/20 shadow-md shadow-primary/15 dark:shadow-background/25
-            px-3.5 py-1.5 rounded-md bg-background relative"
+            className="w-full flex items-center justify-between shadow-md shadow-primary/15 dark:shadow-background/25
+            px-3.5 py-1.5 rounded-md bg-background mb-3"
           >
             <div className="flex items-center gap-2">
               <Checkbox
                 id={`todo-${todo.id}`}
                 checked={todo.is_completed}
-                onCheckedChange={(checked) =>
-                  toggleTodo.mutate({
-                    id: todo?.id,
-                    completed: !!checked,
-                  })
-                }
+                onCheckedChange={(checked) => toggleTodoCompletion(todo.id, !!checked)}
               />
               <Label
                 htmlFor={`todo-${todo.id}`}
@@ -68,7 +61,13 @@ export default function TodoList() {
             </div>
             <TodoActionDropDown id={todo.id} />
           </div>
-        ))}
+        ))
+      ) : (
+        <div className="w-full h-full bg-background p-10 text-center space-y-4 rounded shadow-md shadow-primary/25 mb-2">
+          <h3 className="text-lg font-semibold underline underline-offset-2">No todos here!</h3>
+          <p>Click on the New button and add new todo to your list.</p>
+        </div>
+      )}
     </div>
   );
 }

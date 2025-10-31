@@ -94,3 +94,14 @@ export async function deleteTodo(id: number) {
 
   return { success: true }
 }
+
+export async function toggleTodoCompletion(id: number, completed: boolean) {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("todos")
+    .update({ is_completed: completed })
+    .eq("id", id)
+    .select()
+
+  if(error) throw error
+} 

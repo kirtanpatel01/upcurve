@@ -35,7 +35,7 @@ export function ModeToggle({
       ) : (
         <Moon size={size} className="scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0 text-primary" />
       )}
-      <span className="group-data-[collapsible=icon]:hidden">
+      <span className="group-data-[collapsible=icon]:hidden mt-1">
         {theme === "dark" ? "Dark" : "Light"}
       </span>
     </>
@@ -48,7 +48,7 @@ export function ModeToggle({
   return (
     <Button
       variant={"outline"}
-      className='flex rounded-full absolute top-4 right-4'
+      className='flex items-center rounded-full absolute top-4 right-4'
       onClick={toggleTheme}
     >
       {content}

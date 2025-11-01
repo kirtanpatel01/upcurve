@@ -16,7 +16,7 @@ function Review({
   const completed = todos.filter((todo) => todo.is_completed).length || 0;
   const overDueTodos = todos.filter((todo) => isPast(parseISO(todo?.deadline)) && !todo.is_completed) 
   const todayCompleted = todos.filter((todo) => todo.is_completed);
-
+  console.log(todayCompleted)
   return (
     <div className="m-4 flex gap-2">
       <Card className="w-fit gap-4 py-4 bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800

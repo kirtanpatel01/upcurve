@@ -82,26 +82,26 @@ export async function deleteTodo(id: number) {
 
   if (!user) throw new Error("You're not logged in!");
 
-  const { error } = await supabase
-    .from("todos")
-    .delete()
-    .eq("id", id);
-  
-  if(error) {
-    console.log(error)
+  const { error } = await supabase.from("todos").delete().eq("id", id);
+
+  if (error) {
+    console.log(error);
     throw new Error("Failed to delete the todo. Please try again.");
   }
 
-  return { success: true }
+  return { success: true };
 }
 
 export async function toggleTodoCompletion(id: number, completed: boolean) {
   const supabase = await createClient();
   const { error } = await supabase
     .from("todos")
-    .update({ is_completed: completed })
+    .update({
+      is_completed: completed,
+      completed_time: completed ? new Date().toISOString() : null,
+    })
     .eq("id", id)
-    .select()
+    .select();
 
-  if(error) throw error
-} 
+  if (error) throw error;
+}

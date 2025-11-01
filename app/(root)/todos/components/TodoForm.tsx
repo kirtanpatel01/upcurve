@@ -32,9 +32,8 @@ import { Plus } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { addTodo } from "../action";
-import { TodoFormValues } from "../types";
 
 const formSchema = z.object({
   id: z.number().optional(),
@@ -45,7 +44,7 @@ const formSchema = z.object({
   desc: z.string(),
   deadline: z.string(),
   priority: z.string(),
-  is_completed: z.boolean().optional()
+  is_completed: z.boolean().optional(),
 });
 
 export default function TodoForm() {
@@ -61,7 +60,7 @@ export default function TodoForm() {
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }: { value: TodoFormValues }) => {
+    onSubmit: async ({ value }) => {
       try {
         await addTodo(value);
         toast.success("Todo added successfully!");
@@ -76,6 +75,10 @@ export default function TodoForm() {
       }
     },
   });
+
+  useEffect(() => {
+    console.log("Submitting:", form.state.isSubmitting);
+  }, [form.state.isSubmitting]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -95,10 +98,10 @@ export default function TodoForm() {
           </DialogDescription>
         </DialogHeader>
         <form
-          id="add-todo-from"
-          onSubmit={(e) => {
+          id="add-todo-form"
+          onSubmit={async (e) => {
             e.preventDefault();
-            form.handleSubmit();
+            await form.handleSubmit(e);
           }}
         >
           {/* Title */}
@@ -225,13 +228,20 @@ export default function TodoForm() {
             >
               Reset
             </Button>
-            <Button
-              type="submit"
-              form="add-todo-from"
-              disabled={form.state.isSubmitting}
-            >
-              {form.state.isSubmitting ? "Adding..." : "Add"}
-            </Button>
+            <form.Subscribe selector={(state) => [state.isSubmitting]}>
+              {([isSubmitting]) => {
+                console.log("Submitting:", isSubmitting);
+                return (
+                  <Button
+                    type="submit"
+                    form="add-todo-form"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Adding..." : "Add"}
+                  </Button>
+                );
+              }}
+            </form.Subscribe>
           </Field>
         </DialogFooter>
       </DialogContent>

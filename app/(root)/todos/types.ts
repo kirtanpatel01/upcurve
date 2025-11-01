@@ -3,10 +3,10 @@ export interface TodoFormValues {
   desc: string;
   deadline: string;
   priority: string;
-  id?: number;
-  is_completed?: boolean;
 }
 
 export interface Todo extends Omit<TodoFormValues, "id"> {
-    id: number;
+  id: number;
+  is_completed?: boolean;
+  completed_time?: string;
 }

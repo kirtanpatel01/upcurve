@@ -48,7 +48,7 @@ export default function AppSidebar() {
 
   return (
     <Sidebar variant="inset" collapsible="icon">
-      <SidebarHeader  className="bg-primary text-primary-foreground rounded-lg mb-2">
+      <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
@@ -67,9 +67,9 @@ export default function AppSidebar() {
             {items.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild>
-                  <Link href={item.url}>
+                  <Link href={item.url} className="flex items-center">
                     <item.icon className="text-primary" />
-                    <span>{item.title}</span>
+                    <span className="mt-1">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -91,7 +91,7 @@ export function TodosBarChart({
         </Select>
       </CardHeader>
 
-      <CardContent className="max-h-[2rem] h-full">
+      <CardContent className="h-full">
         {loading ? (
           <div className="flex justify-center items-center py-48">
             <Spinner />

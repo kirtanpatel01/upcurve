@@ -66,7 +66,7 @@ export function TodosBarChart({
   }, [todos, range]);
 
   return (
-    <Card className="h-full">
+    <Card className="max-w-xl w-full">
       <CardHeader className="flex justify-between items-center">
         <div>
           <CardTitle>Todos Activity</CardTitle>
@@ -91,9 +91,9 @@ export function TodosBarChart({
         </Select>
       </CardHeader>
 
-      <CardContent className="h-full">
+      <CardContent>
         {loading ? (
-          <div className="flex justify-center items-center py-48">
+          <div className="flex justify-center items-center py-24 sm:py-32">
             <Spinner />
           </div>
         ) : chartData.length === 0 ? (

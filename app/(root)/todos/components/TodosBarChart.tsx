@@ -65,10 +65,8 @@ export function TodosBarChart({
     return groupTodosByDay(filtered);
   }, [todos, range]);
 
-  // if (loading) return <Spinner />;
-
   return (
-    <Card className="">
+    <Card className="h-full">
       <CardHeader className="flex justify-between items-center">
         <div>
           <CardTitle>Todos Activity</CardTitle>
@@ -93,7 +91,7 @@ export function TodosBarChart({
         </Select>
       </CardHeader>
 
-      <CardContent>
+      <CardContent className="max-h-[32rem] h-full">
         {loading ? (
           <div className="flex justify-center items-center py-48">
             <Spinner />

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { parseISO, isValid } from "date-fns";
-import { Todo } from "../types";
+import { Todo } from "../utils/types";
 
 const priorityMap: Record<string, number> = {
   low: 1,

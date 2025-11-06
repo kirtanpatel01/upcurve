@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Todo } from "../types";
+import { Todo } from "../utils/types";
 
 const supabase = createClient();
 

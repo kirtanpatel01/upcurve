@@ -10,7 +10,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { deleteTodo } from "../action";
+import { deleteTodo } from "../utils/action";
 
 function DeleteTodoAlert({ id }: { id: number }) {
   const submit = async () => {

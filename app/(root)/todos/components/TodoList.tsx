@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TodoActionDropDown } from "./TodoActionDropDown";
-import { toggleTodoCompletion } from "../action";
+import { toggleTodoCompletion } from "../utils/action";
 import TodoForm from "./TodoForm";
 import RemainingTime from "./RemainingTime";
 import {
@@ -22,7 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Todo } from "../types";
+import { Todo } from "../utils/types";
 import { AnimatePresence, motion } from "motion/react";
 
 export default function TodoList({

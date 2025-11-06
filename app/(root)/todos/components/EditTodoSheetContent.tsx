@@ -28,8 +28,8 @@ import {
 import { useTodoById } from "../hooks/use-todo-by-id";
 import { Spinner } from "@/components/ui/spinner";
 import { Dispatch, useEffect } from "react";
-import { editTodo } from "../action";
-import { TodoFormValues } from "../types";
+import { editTodo } from "../utils/action";
+import { TodoFormValues } from "../utils/types";
 
 const formSchema = z.object({
   title: z

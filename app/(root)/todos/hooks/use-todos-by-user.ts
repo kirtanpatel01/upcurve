@@ -3,7 +3,7 @@
 import { createClient } from "@/utils/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Todo } from "../types";
+import { Todo } from "../utils/types";
 
 const supabase = createClient();
 

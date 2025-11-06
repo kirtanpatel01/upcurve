@@ -33,7 +33,7 @@ import { z } from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { addTodo } from "../action";
+import { addTodo } from "../utils/action";
 
 const formSchema = z.object({
   id: z.number().optional(),

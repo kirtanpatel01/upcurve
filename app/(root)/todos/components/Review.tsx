@@ -1,10 +1,9 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Todo } from "../types";
+import { Todo } from "../utils/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isPast, parseISO } from "date-fns";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function Review({
   todos,
@@ -15,11 +14,10 @@ function Review({
 }) {
   const completed = todos.filter((todo) => todo.is_completed).length || 0;
   const overDueTodos = todos.filter((todo) => isPast(parseISO(todo?.deadline)) && !todo.is_completed) 
-  const todayCompleted = todos.filter((todo) => todo.is_completed);
-  console.log(todayCompleted)
+  // const todayCompleted = todos.filter((todo) => todo.is_completed);
   return (
-    <div className="m-4 flex gap-2">
-      <Card className="w-fit gap-4 py-4 bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800
+    <div className="flex gap-2">
+      <Card className="w-full max-w-md gap-4 py-4 bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800
       shadow-md shadow-zinc-400/25 dark:shadow-zinc-900/25">
         <CardHeader className="flex items-center">
           <CardTitle>Review</CardTitle>
@@ -35,16 +33,6 @@ function Review({
                 {completed}
               </span>
             )}
-            <Select>
-              <SelectTrigger className="w-28">
-                <SelectValue placeholder="In a day" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="day">Yesterday</SelectItem>
-                <SelectItem value="week">Last Week</SelectItem>
-                <SelectItem value="month">Last Month</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
           <div className="flex items-center gap-2">
             <span>Left:</span>

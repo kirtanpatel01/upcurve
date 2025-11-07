@@ -32,7 +32,7 @@ import { Plus } from "lucide-react";
 import { z } from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { addTodo } from "../utils/action";
 
 const formSchema = z.object({
@@ -75,10 +75,6 @@ export default function TodoForm() {
       }
     },
   });
-
-  useEffect(() => {
-    console.log("Submitting:", form.state.isSubmitting);
-  }, [form.state.isSubmitting]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

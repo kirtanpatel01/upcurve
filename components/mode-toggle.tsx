@@ -35,7 +35,7 @@ export function ModeToggle({
       ) : (
         <Moon size={size} className="scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0 text-primary" />
       )}
-      <span className="group-data-[collapsible=icon]:hidden mt-1">
+      <span className="group-data-[collapsible=icon]:hidden">
         {theme === "dark" ? "Dark" : "Light"}
       </span>
     </>

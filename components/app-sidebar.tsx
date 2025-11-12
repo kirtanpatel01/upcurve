@@ -69,7 +69,7 @@ export default function AppSidebar() {
                 <SidebarMenuButton asChild>
                   <Link href={item.url} className="flex items-center">
                     <item.icon className="text-primary" />
-                    <span className="mt-1">{item.title}</span>
+                    <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

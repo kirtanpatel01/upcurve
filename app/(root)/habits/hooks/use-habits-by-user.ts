@@ -38,8 +38,8 @@ export function useHabitsByUser(userId?: string) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "habits" },
-        (payload) => {
-          console.log("Realtime change:", payload);
+        () => {
+          // console.log("Realtime change:", payload);
           queryClient.invalidateQueries({ queryKey: ["habits", userId] });
         }
       )

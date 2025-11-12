@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Eye, EyeClosed, Info, Trash2 } from "lucide-react";
 import EditHabitDialog from "./edit-habit-dialog";
 import DeleteHabitAlertDialog from "./delete-habit-alert-dialog";
 import { motion, AnimatePresence } from "framer-motion";
@@ -30,6 +30,8 @@ import EmptyHabits from "./empty-habits";
 import { Habit } from "../utils/types";
 import { deleteSelectedHabits, updateDraftHabits } from "../utils/action";
 import { Spinner } from "@/components/ui/spinner";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 function EditHabitsSheet({ habits }: { habits: Habit[] }) {
   const [selected, setSelected] = useState<number[]>([]);
@@ -44,9 +46,6 @@ function EditHabitsSheet({ habits }: { habits: Habit[] }) {
       setDraftHabits(habits);
     }
   }, [habits]);
-
-  console.log("habits: ", habits);
-  console.log("Draft: ", draftHabits);
 
   const toggleCheckbox = (id: number) => {
     setSelected((prev) =>
@@ -67,9 +66,9 @@ function EditHabitsSheet({ habits }: { habits: Habit[] }) {
     setSelected([]);
   };
 
-  const handleUpdate = (id: number, title: string) => {
+  const handleUpdate = (id: number, title: string, inList: boolean) => {
     setDraftHabits((prev) =>
-      prev.map((h) => (h.id === id ? { ...h, title } : h))
+      prev.map((h) => (h.id === id ? { ...h, title, in_list: inList } : h))
     );
   };
   
@@ -126,8 +125,18 @@ function EditHabitsSheet({ habits }: { habits: Habit[] }) {
                       aria-label="Select all"
                     />
                   </TableHead>
-                  {/* <TableHead className="text-center">Sr. No.</TableHead> */}
                   <TableHead>Title</TableHead>
+                  <TableHead className="flex items-center gap-1.5">
+                    View
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info size={14} />
+                      </TooltipTrigger>
+                      <TooltipContent sideOffset={10} className="text-center">
+                        Task will be visible or not in the list.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TableHead>
                   <TableHead>Edit</TableHead>
                   <TableHead>Delete</TableHead>
                 </TableRow>
@@ -149,12 +158,16 @@ function EditHabitsSheet({ habits }: { habits: Habit[] }) {
                         onCheckedChange={() => toggleCheckbox(habit.id)}
                       />
                     </TableCell>
-                    {/* <TableCell className="text-center">{habit.id}</TableCell> */}
                     <TableCell
                       className="max-w-[150px] truncate whitespace-nowrap overflow-hidden"
                       title={habit.title}
                     >
                       {habit.title}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Badge className="rounded-full bg-transparent text-foreground">
+                        {habit.in_list ? <Eye /> : <EyeClosed />}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <EditHabitDialog habit={habit} onUpdate={handleUpdate} />

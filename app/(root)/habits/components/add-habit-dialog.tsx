@@ -48,8 +48,7 @@ function AddHabitDialog() {
     },
     onSubmit: async ({ value }: { value: HabitFormValues }) => {
       try {
-        // onAdd( value.title, value.in_list);
-        addHabits(value)
+        addHabits(value);
         toast.success("Habit added successfully.");
         form.reset();
       } catch (error: unknown) {
@@ -61,6 +60,7 @@ function AddHabitDialog() {
       }
     },
   });
+  
   return (
     <Dialog>
       <DialogTrigger asChild>

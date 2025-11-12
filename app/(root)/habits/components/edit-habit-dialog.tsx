@@ -11,20 +11,33 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Field, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Pen } from "lucide-react";
 import React, { useState } from "react";
 import { Habit } from "../utils/types";
+import { Checkbox } from "@/components/ui/checkbox";
 
 function EditHabitDialog({
   habit,
   onUpdate,
 }: {
   habit: Habit;
-  onUpdate: (id: number, title: string) => void;
+  onUpdate: (id: number, title: string, inList: boolean) => void;
 }) {
   const [title, setTitle] = useState(habit.title);
+  const [inList, setInList] = useState(habit.in_list);
+
+  const reset = () => {
+    setTitle(habit.title);
+    setInList(habit.in_list);
+  };
 
   return (
     <Dialog>
@@ -44,26 +57,41 @@ function EditHabitDialog({
           id="edit-dialog-form"
           onSubmit={(e) => {
             e.preventDefault();
-            onUpdate(habit.id, title);
+            onUpdate(habit.id, title, inList);
           }}
         >
-          <Field>
-            <FieldLabel htmlFor="title">Title</FieldLabel>
-            <Input
-              id="title"
-              name="title"
-              placeholder="Enter title here..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </Field>
+          <FieldGroup>
+            <Field>
+              <FieldLabel htmlFor="title">Title</FieldLabel>
+              <Input
+                id="title"
+                name="title"
+                placeholder="Enter title here..."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </Field>
+
+            <Field orientation={"horizontal"}>
+              <Checkbox
+                id="in_list"
+                name="in_list"
+                checked={inList}
+                onCheckedChange={(checked) => setInList(checked === true)}
+              />
+              <FieldContent>
+                <FieldLabel htmlFor="in_list">Include in list ?</FieldLabel>
+                <FieldDescription>
+                  If you deselect this option the above task will not be
+                  included in the list, meaning it won&apos;t appear in daily
+                  tasks.
+                </FieldDescription>
+              </FieldContent>
+            </Field>
+          </FieldGroup>
         </form>
         <DialogFooter>
-          <Button
-            type="button"
-            variant={"secondary"}
-            onClick={() => setTitle(habit.title)}
-          >
+          <Button type="button" variant={"secondary"} onClick={reset}>
             Reset
           </Button>
           <DialogClose asChild>

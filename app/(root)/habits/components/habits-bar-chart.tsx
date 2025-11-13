@@ -29,6 +29,11 @@ import { groupHabitsByHour } from "../utils/group-by-habits-hour";
 import { groupHabitsByDay } from "../utils/group-by-habits";
 import { useHabitHistoryByUser } from "../hooks/use-habits-history";
 import { useUser } from "@/utils/supabase/use-user";
+import type { TooltipProps } from "recharts";
+import {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
 
 export const description = "Habits completion chart";
 
@@ -44,7 +49,7 @@ export default function HabitsBarChart() {
     "today" | "yesterday" | "lastWeek" | "lastMonth"
   >("lastWeek");
   const { user, loading } = useUser();
-  const { data: habit_history, isLoading } = useHabitHistoryByUser(user?.id)
+  const { data: habit_history, isLoading } = useHabitHistoryByUser(user?.id);
 
   const rangeLabels: Record<typeof range, string> = {
     today: "Today",
@@ -58,11 +63,31 @@ export default function HabitsBarChart() {
     if (range === "today" || range === "yesterday") {
       return groupHabitsByHour(filtered);
     }
-    return groupHabitsByDay(filtered);
+    return groupHabitsByDay(filtered, range);
   }, [habit_history, range]);
 
-  console.log(chartData);
+  const CustomTooltip = (props: TooltipProps<ValueType, NameType>) => {
+    const { active, payload } = props;
 
+    if (!active || !payload || payload.length === 0) return null;
+
+    const item = payload[0];
+    const hour = item.payload.hour;
+    const date = item.payload.date;
+
+    const label =
+      range === "today" || range === "yesterday" ? `${hour}:00` : date;
+
+    return (
+      <ChartTooltipContent
+        active={active}
+        payload={payload}
+        label={label}
+        nameKey="count"
+        color="var(--chart-1)"
+      />
+    );
+  };
 
   return (
     <Card className="max-w-3xl w-full">
@@ -117,10 +142,7 @@ export default function HabitsBarChart() {
                 }
               />
               <YAxis allowDecimals={false} />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
+              <ChartTooltip cursor={false} content={<CustomTooltip />} />
               <Bar dataKey="count" fill="var(--color-count)" radius={6} />
             </BarChart>
           </ChartContainer>

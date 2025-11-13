@@ -4,7 +4,7 @@ import {
   Brain,
   ChartSpline,
   Dumbbell,
-  Home,
+  // Home,
   ListTodo,
 } from "lucide-react";
 import React from "react";
@@ -24,11 +24,11 @@ import { ModeToggle } from "./mode-toggle";
 
 export default function AppSidebar() {
   const items = [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: Home,
-    },
+    // {
+    //   title: "Dashboard",
+    //   url: "/dashboard",
+    //   icon: Home,
+    // },
     {
       title: "Todos",
       url: "/todos",

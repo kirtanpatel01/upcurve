@@ -1,7 +1,38 @@
-import { format, parseISO, eachDayOfInterval } from "date-fns";
+import { format, parseISO, eachDayOfInterval, subDays } from "date-fns";
 import { Todo } from "./types";
 
-export function groupTodosByDay(todos: Todo[]) {
+export function groupTodosByDay(
+  todos: Todo[],
+  range: "today" | "yesterday" | "lastWeek" | "lastMonth"
+) {
+  const now = new Date();
+
+  let start: Date;
+  let end: Date = now;
+
+  switch (range) {
+    case "today":
+      start = now;
+      break;
+
+    case "yesterday":
+      start = subDays(now, 1);
+      end = subDays(now, 1);
+      break;
+
+    case "lastWeek":
+      start = subDays(now, 6);
+      break;
+
+    case "lastMonth":
+      start = subDays(now, 29);
+      break;
+
+    default:
+      start = now;
+  }
+
+  // Build map of counts
   const counts: Record<string, number> = {};
 
   for (const todo of todos) {
@@ -11,16 +42,13 @@ export function groupTodosByDay(todos: Todo[]) {
     counts[day] = (counts[day] || 0) + 1;
   }
 
-  const allDates = Object.keys(counts).map((d) => parseISO(d));
-  if (allDates.length === 0) return [];
-
-  const start = new Date(Math.min(...allDates.map((d) => d.getTime())));
-  const end = new Date(Math.max(...allDates.map((d) => d.getTime())));
-
   const daysInRange = eachDayOfInterval({ start, end });
 
   return daysInRange.map((d) => {
     const dateStr = format(d, "yyyy-MM-dd");
-    return { date: dateStr, count: counts[dateStr] || 0 };
+    return {
+      date: dateStr,
+      count: counts[dateStr] || 0,
+    };
   });
 }

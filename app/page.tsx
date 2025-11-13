@@ -10,7 +10,6 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
-  const redirectUrl = `${process.env.NEXT_PUBLIC_WEB_URL || "http://localhost:3000"}/dashboard`;
 
   useEffect(() => {
     const supabase = createClient();
@@ -18,11 +17,10 @@ export default function Home() {
       const { data: { user } } = await supabase.auth.getUser()
       if(user) {
         setIsLoggedIn(true)
-        router.push(redirectUrl)
       }
     }
     getUser();
-  }, [router, redirectUrl])
+  }, [router])
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center text-base-content transition-colors pt-16">
@@ -67,8 +65,8 @@ export default function Home() {
       <div className="mt-12"
       >
         {isLoggedIn ? (
-          <Link href="/dashboard">
-              <Button>Go to Dashboard</Button>
+          <Link href="/todos">
+              <Button>Go to website</Button>
           </Link>
         ) : (
           <Link href="/auth/login">

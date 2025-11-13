@@ -29,6 +29,11 @@ import { Todo } from "../utils/types";
 import { groupTodosByDay } from "../utils/group-by-todos";
 import { groupTodosByHour } from "../utils/group-by-todos-hour";
 import { filterTodosByRange } from "../utils/filter-todos";
+import type { TooltipProps } from "recharts";
+import {
+  NameType,
+  ValueType,
+} from "recharts/types/component/DefaultTooltipContent";
 
 export const description = "Todos completion chart";
 
@@ -62,11 +67,34 @@ export function TodosBarChart({
     if (range === "today" || range === "yesterday") {
       return groupTodosByHour(filtered);
     }
-    return groupTodosByDay(filtered);
+    return groupTodosByDay(filtered, range);
   }, [todos, range]);
+  
+  const CustomTooltip = (props: TooltipProps<ValueType, NameType>) => {
+    const { active, payload } = props;
+
+    if (!active || !payload || payload.length === 0) return null;
+
+    const item = payload[0];
+    const hour = item.payload.hour;
+    const date = item.payload.date;
+
+    const label =
+      range === "today" || range === "yesterday" ? `${hour}:00` : date;
+
+    return (
+      <ChartTooltipContent
+        active={active}
+        payload={payload}
+        label={label}
+        nameKey="count"
+        color="var(--chart-1)"
+      />
+    );
+  };
 
   return (
-    <Card className="max-w-xl w-full">
+    <Card className="max-w-5xl w-full">
       <CardHeader className="flex justify-between items-center">
         <div>
           <CardTitle>Todos Activity</CardTitle>
@@ -101,7 +129,7 @@ export function TodosBarChart({
             No completed todos in this period.
           </p>
         ) : (
-          <ChartContainer config={chartConfig} className="">
+          <ChartContainer config={chartConfig}>
             <BarChart accessibilityLayer data={chartData}>
               <CartesianGrid vertical={false} />
               <XAxis
@@ -118,10 +146,7 @@ export function TodosBarChart({
                 }
               />
               <YAxis allowDecimals={false} />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent hideLabel />}
-              />
+              <ChartTooltip cursor={false} content={<CustomTooltip />} />
               <Bar dataKey="count" fill="var(--color-count)" radius={6} />
             </BarChart>
           </ChartContainer>

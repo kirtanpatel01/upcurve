@@ -11,7 +11,7 @@ function Page() {
 
   console.log(habits)
   return (
-    <div className="p-4 flex flex-col xl:flex-row gap-4">
+    <div className="p-4 flex flex-col xl:flex-row xl:gap-4">
       <HabitList habits={habits || []} loading={loading || isLoading} />
       <HabitsBarChart />
     </div>

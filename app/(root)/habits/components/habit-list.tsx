@@ -121,126 +121,124 @@ export default function HabitList({
   }, [habits, overrides]);
 
   return (
-    <div>
-      <Card className="max-w-sm">
-        <CardHeader>
-          <div className="flex items-start justify-between w-full gap-4">
-            <div>
-              <CardTitle>Habit List</CardTitle>
-              <CardDescription>
-                List of all the habits you&apos;ve decided to follow daily.
-              </CardDescription>
-            </div>
-
-            {/* Progress summary */}
-            <div className="text-right">
-              <div className="text-xs text-muted-foreground">Completed</div>
-              <div className="mt-1 inline-flex items-baseline gap-2">
-                <span className="text-sm font-semibold">{completed}</span>
-                <span className="text-sm text-muted-foreground">/</span>
-                <span className="text-sm text-muted-foreground">{total}</span>
-              </div>
-            </div>
+    <Card className="max-w-md w-full">
+      <CardHeader>
+        <div className="flex items-start justify-between w-full gap-4">
+          <div>
+            <CardTitle>Habit List</CardTitle>
+            <CardDescription>
+              List of all the habits you&apos;ve decided to follow daily.
+            </CardDescription>
           </div>
 
-          {/* Progress bar */}
-          <div className="mt-3 w-full">
-            <div className="h-2 bg-muted rounded-full overflow-hidden">
+          {/* Progress summary */}
+          <div className="text-right">
+            <div className="text-xs text-muted-foreground">Completed</div>
+            <div className="mt-1 inline-flex items-baseline gap-2">
+              <span className="text-sm font-semibold">{completed}</span>
+              <span className="text-sm text-muted-foreground">/</span>
+              <span className="text-sm text-muted-foreground">{total}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mt-3 w-full">
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div
+              className="h-2 rounded-full bg-primary transition-all duration-300 ease-in-out"
+              style={{ width: `${pct}%` }}
+              aria-hidden
+            />
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            {pct}% completed
+          </div>
+        </div>
+      </CardHeader>
+
+      <Separator />
+
+      <CardContent>
+        {loading ? (
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
               <div
-                className="h-2 rounded-full bg-primary transition-all duration-300 ease-in-out"
-                style={{ width: `${pct}%` }}
-                aria-hidden
-              />
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {pct}% completed
-            </div>
+                key={i}
+                className="flex items-center gap-3 bg-muted rounded-xl p-3"
+              >
+                <Skeleton className="h-5 w-5 rounded-md" />
+                <Skeleton className="h-4 w-40" />
+              </div>
+            ))}
           </div>
-        </CardHeader>
+        ) : visible.length <= 0 ? (
+          <EmptyHabits list />
+        ) : (
+          <ul className="space-y-3">
+            {visible.map((habit) => {
+              // if we have an optimistic override for this id, prefer it
+              const hasOverride = Object.prototype.hasOwnProperty.call(
+                overrides,
+                habit.id
+              );
+              const checked = hasOverride
+                ? overrides[habit.id]
+                : habit.is_completed;
+              const disabled = Boolean(inFlight[habit.id]);
 
-        <Separator />
-
-        <CardContent>
-          {loading ? (
-            <div className="space-y-3">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-3 bg-muted rounded-xl p-3"
-                >
-                  <Skeleton className="h-5 w-5 rounded-md" />
-                  <Skeleton className="h-4 w-40" />
-                </div>
-              ))}
-            </div>
-          ) : visible.length <= 0 ? (
-            <EmptyHabits list />
-          ) : (
-            <ul className="space-y-3">
-              {visible.map((habit) => {
-                // if we have an optimistic override for this id, prefer it
-                const hasOverride = Object.prototype.hasOwnProperty.call(
-                  overrides,
-                  habit.id
-                );
-                const checked = hasOverride
-                  ? overrides[habit.id]
-                  : habit.is_completed;
-                const disabled = Boolean(inFlight[habit.id]);
-
-                return (
-                  <Label
-                    htmlFor={`habit-${habit.id}`}
-                    key={habit.id}
-                    className="group flex items-center gap-3 rounded-xl border border-border/60 bg-muted/40 p-3 
+              return (
+                <Label
+                  htmlFor={`habit-${habit.id}`}
+                  key={habit.id}
+                  className="group flex items-center gap-3 rounded-xl border border-border/60 bg-muted/40 p-3 
                       transition-all duration-200 cursor-pointer hover:bg-muted hover:border-primary/40 hover:shadow-sm"
-                  >
-                    <div className="flex items-center gap-3 w-full">
-                      <Checkbox
-                        id={`habit-${habit.id}`}
-                        checked={checked}
-                        disabled={disabled}
-                        onCheckedChange={(c) =>
-                          handleOptimisticToggle(habit, !!c)
-                        }
-                        aria-checked={checked}
-                        aria-label={`Toggle ${habit.title}`}
-                        className="h-5 w-5 rounded-md border-2 border-border/70 group-has-[[aria-checked=true]]:border-primary 
+                >
+                  <div className="flex items-center gap-3 w-full">
+                    <Checkbox
+                      id={`habit-${habit.id}`}
+                      checked={checked}
+                      disabled={disabled}
+                      onCheckedChange={(c) =>
+                        handleOptimisticToggle(habit, !!c)
+                      }
+                      aria-checked={checked}
+                      aria-label={`Toggle ${habit.title}`}
+                      className="h-5 w-5 rounded-md border-2 border-border/70 group-has-[[aria-checked=true]]:border-primary 
                         group-has-[[aria-checked=true]]:bg-primary data-[state=checked]:text-primary-foreground transition-colors"
-                      />
+                    />
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-3">
-                          <span
-                            className={`text-sm font-medium truncate ${
-                              checked
-                                ? "text-foreground/30"
-                                : "text-muted-foreground"
-                            }`}
-                            title={habit.title}
-                          >
-                            {habit.title}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-3">
+                        <span
+                          className={`text-sm font-medium truncate ${
+                            checked
+                              ? "text-foreground/30"
+                              : "text-muted-foreground"
+                          }`}
+                          title={habit.title}
+                        >
+                          {habit.title}
+                        </span>
+
+                        {checked && (
+                          <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                            Completed
                           </span>
-
-                          {checked && (
-                            <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                              Completed
-                            </span>
-                          )}
-                        </div>
+                        )}
                       </div>
                     </div>
-                  </Label>
-                );
-              })}
-            </ul>
-          )}
-        </CardContent>
+                  </div>
+                </Label>
+              );
+            })}
+          </ul>
+        )}
+      </CardContent>
 
-        <CardFooter>
-          <EditHabitsSheet habits={habits || []} />
-        </CardFooter>
-      </Card>
-    </div>
+      <CardFooter>
+        <EditHabitsSheet habits={habits || []} />
+      </CardFooter>
+    </Card>
   );
 }

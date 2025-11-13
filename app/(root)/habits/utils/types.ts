@@ -11,3 +11,10 @@ export interface Habit extends Omit<HabitFormValues, "id" | "is_completed"> {
   is_completed: boolean;
   completed_at: string;
 }
+
+export interface HabitHistory {
+  id: number;
+  user_id: string;
+  completed_habits: number;
+  created_at: string;
+}

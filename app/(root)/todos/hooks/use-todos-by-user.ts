@@ -29,21 +29,18 @@ export function useTodosByUser(userId?: string) {
     cacheTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
   });
-  
+
   useEffect(() => {
     if (!userId) return;
-
     const channel = supabase
       .channel("todos-realtime")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "todos" },
-        (payload) => {
-          console.log("Realtime change:", payload);
+        () => {
           queryClient.invalidateQueries({ queryKey: ["todos", userId] });
         }
       )
-      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);

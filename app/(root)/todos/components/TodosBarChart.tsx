@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useUser } from "@/utils/supabase/use-user";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
@@ -34,7 +33,7 @@ import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { useTodosByUser } from "../hooks/use-todos-by-user";
+import { Todo } from "../utils/types";
 
 export const description = "Todos completion chart";
 
@@ -45,7 +44,13 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function TodosBarChart() {
+export function TodosBarChart({
+  todos,
+  loading,
+}: {
+  todos: Todo[];
+  loading: boolean;
+}) {
   const [range, setRange] = useState<
     "today" | "yesterday" | "lastWeek" | "lastMonth"
   >("lastWeek");
@@ -57,12 +62,8 @@ export function TodosBarChart() {
     lastMonth: "Last 30 Days",
   };
 
-  const { user, loading: userLoading } = useUser();
-  const { data: todos, isLoading: todosLoading } = useTodosByUser(user?.id);
-  const loading = userLoading || todosLoading;
-
   const chartData = useMemo(() => {
-    const filtered = filterTodosByRange(todos ?? [], range);
+    const filtered = filterTodosByRange(todos, range);
     if (range === "today" || range === "yesterday") {
       return groupTodosByHour(filtered);
     }

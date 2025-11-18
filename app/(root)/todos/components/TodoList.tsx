@@ -23,13 +23,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AnimatePresence, motion } from "motion/react";
-import { useUser } from "@/utils/supabase/use-user";
-import { useTodosByUser } from "../hooks/use-todos-by-user";
+import { Todo } from "../utils/types";
 
-export default function TodoList() {
-  const { user, loading: userLoading } = useUser();
-  const { data: todos, isLoading: todosLoading } = useTodosByUser(user?.id);
-  const loading = userLoading || todosLoading;
+export default function TodoList({
+  todos,
+  loading,
+}: {
+  todos: Todo[];
+  loading: boolean;
+}) {
   const [sortBy, setSortBy] = useState("newest");
   const activeTodos = todos?.filter((t) => !t.is_completed) ?? [];
   const sortedTodos = useSortedTodos(
@@ -98,7 +100,6 @@ export default function TodoList() {
               transition={{ duration: 0.3 }}
               className="w-full flex items-center justify-between shadow-md shadow-primary/15 dark:shadow-background/25 px-3.5 py-1.5 rounded-md bg-background mb-3 overflow-hidden"
             >
-              {/* 👇 conditional content */}
               {!todo.is_completed && !animatingTodos.has(todo.id.toString()) ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -108,22 +109,19 @@ export default function TodoList() {
                         checked={todo.is_completed}
                         onCheckedChange={async (checked) => {
                           if (checked) {
-                            // start animation immediately
                             setAnimatingTodos((prev) =>
                               new Set(prev).add(todo.id.toString())
                             );
 
-                            // trigger backend update in parallel
                             await toggleTodoCompletion(todo.id, true);
 
-                            // after short delay, allow refetch to replace it
                             setTimeout(() => {
                               setAnimatingTodos((prev) => {
                                 const next = new Set(prev);
                                 next.delete(todo.id.toString());
                                 return next;
                               });
-                            }, 700); // matches your animation duration
+                            }, 700);
                           } else {
                             await toggleTodoCompletion(todo.id, false);
                           }
@@ -145,7 +143,6 @@ export default function TodoList() {
                   )}
                 </Tooltip>
               ) : (
-                // ✅ "Completed!" animation
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -157,7 +154,6 @@ export default function TodoList() {
                 </motion.div>
               )}
 
-              {/* Right side buttons visible only when not completed */}
               {!todo.is_completed && (
                 <div className="flex items-center gap-1">
                   {todo.deadline && <RemainingTime deadline={todo.deadline} />}

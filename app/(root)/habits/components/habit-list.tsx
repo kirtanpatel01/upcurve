@@ -18,6 +18,8 @@ import EmptyHabits from "./empty-habits";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toggleHabitCompletion } from "../utils/action";
 import { toast } from "sonner";
+import { useUser } from "@/utils/supabase/use-user";
+import { useHabitsByUser } from "../hooks/use-habits-by-user";
 
 /**
  * Optimistic HabitList:
@@ -31,14 +33,10 @@ import { toast } from "sonner";
  *   the same completion state for that habit id.
  */
 
-export default function HabitList({
-  habits,
-  loading,
-}: {
-  habits: Habit[];
-  loading: boolean;
-}) {
+export default function HabitList() {
   // optimistic overrides: id -> optimistic boolean value
+  const { user, loading } = useUser();
+  const { data: habits, isLoading } = useHabitsByUser(user?.id);
   const [overrides, setOverrides] = useState<Record<number, boolean>>({});
   // in-flight toggles: id -> boolean
   const [inFlight, setInFlight] = useState<Record<number, boolean>>({});
@@ -120,6 +118,8 @@ export default function HabitList({
     });
   }, [habits, overrides]);
 
+  console.log("HabitList MOUNTED");
+
   return (
     <Card className="max-w-md w-full">
       <CardHeader>
@@ -160,7 +160,7 @@ export default function HabitList({
       <Separator />
 
       <CardContent>
-        {loading ? (
+        {loading || isLoading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
               <div

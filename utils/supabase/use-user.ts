@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 
+const supabase = createClient();
+
 export function useUser() {
   const [user, setUser] = useState<null | { id: string; email: string }> (null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
     const getUser = async () => {
@@ -17,7 +18,7 @@ export function useUser() {
     };
 
     getUser();
-  }, [supabase]);
+  }, []);
 
   return { user, loading };
 }

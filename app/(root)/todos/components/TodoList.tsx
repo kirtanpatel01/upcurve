@@ -22,16 +22,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Todo } from "../utils/types";
 import { AnimatePresence, motion } from "motion/react";
+import { useUser } from "@/utils/supabase/use-user";
+import { useTodosByUser } from "../hooks/use-todos-by-user";
 
-export default function TodoList({
-  todos,
-  loading,
-}: {
-  todos: Todo[];
-  loading: boolean;
-}) {
+export default function TodoList() {
+  const { user, loading: userLoading } = useUser();
+  const { data: todos, isLoading: todosLoading } = useTodosByUser(user?.id);
+  const loading = userLoading || todosLoading;
   const [sortBy, setSortBy] = useState("newest");
   const activeTodos = todos?.filter((t) => !t.is_completed) ?? [];
   const sortedTodos = useSortedTodos(

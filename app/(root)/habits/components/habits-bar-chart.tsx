@@ -89,6 +89,8 @@ export default function HabitsBarChart() {
     );
   };
 
+  console.log("HabitsBarChart MOUNTED");
+
   return (
     <Card className="max-w-3xl w-full">
       <CardHeader className="flex justify-between items-center">

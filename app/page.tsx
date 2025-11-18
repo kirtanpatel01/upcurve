@@ -1,26 +1,22 @@
-"use client";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import { ModeToggle } from "@/components/mode-toggle";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/server";
 
-export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const router = useRouter();
+export async function page() {
+  const supabase = await createClient();
 
-  useEffect(() => {
-    const supabase = createClient();
-    const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if(user) {
-        setIsLoggedIn(true)
-      }
-    }
-    getUser();
-  }, [router])
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const isLoggedIn = !!user;
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center text-base-content transition-colors pt-16">
@@ -30,7 +26,8 @@ export default function Home() {
           Build Better Days with Upcurve
         </h1>
         <p className="mt-4 text-base-content/70 text-lg">
-          Track habits, manage todos, and log your workouts — all in one smooth, responsive dashboard.
+          Track habits, manage todos, and log your workouts — all in one smooth,
+          responsive dashboard.
         </p>
       </div>
 
@@ -49,10 +46,7 @@ export default function Home() {
             desc: "Set targets for sets and reps, and log your progress each day.",
           },
         ].map((feature) => (
-          <Card
-            key={feature.title}
-            className=""
-          >
+          <Card key={feature.title}>
             <CardHeader>
               <CardTitle>{feature.title}</CardTitle>
               <CardDescription>{feature.desc}</CardDescription>
@@ -62,11 +56,10 @@ export default function Home() {
       </div>
 
       {/* CTA */}
-      <div className="mt-12"
-      >
+      <div className="mt-12">
         {isLoggedIn ? (
           <Link href="/todos">
-              <Button>Go to website</Button>
+            <Button>Go to website</Button>
           </Link>
         ) : (
           <Link href="/auth/login">

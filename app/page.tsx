@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/server";
 
-export async function page() {
+export default async function page() {
   const supabase = await createClient();
 
   const {

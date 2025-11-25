@@ -7,7 +7,7 @@ import { Todo } from "../utils/types";
 
 const supabase = createClient();
 
-async function fetchAllTodosByUser(userId: string): Promise<Todo[]> {
+export async function fetchAllTodosByUser(userId: string): Promise<Todo[]> {
   const { data: todos, error } = await supabase
     .from("todos")
     .select("*")
@@ -18,29 +18,28 @@ async function fetchAllTodosByUser(userId: string): Promise<Todo[]> {
   return todos;
 }
 
-export function useTodosByUser(userId?: string) {
+export function useTodosByUser(userId: string | undefined) {
+  console.log(userId)
   const queryClient = useQueryClient();
-
   const query = useQuery<Todo[]>({
     queryKey: ["todos", userId],
     queryFn: () => fetchAllTodosByUser(userId!),
     enabled: !!userId,
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
+    gcTime: Infinity,
+    // staleTime: 1000*60*10,
   });
 
   useEffect(() => {
     if (!userId) return;
     const channel = supabase
-      .channel("todos-realtime")
+      .channel("custom-all-channel")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "todos" },
         () => {
           queryClient.invalidateQueries({ queryKey: ["todos", userId] });
         }
-      )
+      ).subscribe();
 
     return () => {
       supabase.removeChannel(channel);

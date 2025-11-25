@@ -23,24 +23,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { AnimatePresence, motion } from "motion/react";
-import { Todo } from "../utils/types";
+import { useTodosByUser } from "../hooks/use-todos-by-user";
 
-export default function TodoList({
-  todos,
-  loading,
-}: {
-  todos: Todo[];
-  loading: boolean;
-}) {
+export default function TodoList({ userId }: { userId: string }) {
+  const { data: todos, isLoading } = useTodosByUser(userId);
   const [sortBy, setSortBy] = useState("newest");
+  const [animatingTodos, setAnimatingTodos] = useState<Set<string>>(new Set());
   const activeTodos = todos?.filter((t) => !t.is_completed) ?? [];
   const sortedTodos = useSortedTodos(
     activeTodos ? [...activeTodos] : [],
     sortBy
   );
-  const [animatingTodos, setAnimatingTodos] = useState<Set<string>>(new Set());
 
-  if (loading) {
+  if (isLoading || !todos) {
     return (
       <div className="w-full space-y-3">
         <div className="w-ull flex items-center justify-between">
@@ -50,8 +45,8 @@ export default function TodoList({
         <div className="w-full space-y-3">
           {[...Array(5)].map((_, i) => (
             <div
-              key={i}
-              className="w-full flex items-center justify-between inset-shadow-sm inset-shadow-accent/20 
+            key={i}
+            className="w-full flex items-center justify-between inset-shadow-sm inset-shadow-accent/20 
             px-3 py-1.5 rounded-md bg-background"
             >
               <div className="flex items-center gap-2">
@@ -65,7 +60,7 @@ export default function TodoList({
       </div>
     );
   }
-
+  
   return (
     <div
       className="relative max-h-[calc(100vh-24rem)] sm:max-h-[calc(100vh-9.8rem)] md:max-h-[calc(100vh-9.6rem)] 

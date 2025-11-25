@@ -20,5 +20,6 @@ export function useTodoById(id: number | undefined) {
     queryKey: ["todos", id],
     queryFn: () => fetchTodoById(id!),
     enabled: !!id,
+    gcTime: Infinity,
   })
 }

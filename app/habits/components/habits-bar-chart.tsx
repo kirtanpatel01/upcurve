@@ -24,36 +24,30 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { groupTodosByDay } from "../utils/group-by-todos";
-import { groupTodosByHour } from "../utils/group-by-todos-hour";
-import { filterTodosByRange } from "../utils/filter-todos";
+import { filterHabitsByRange } from "../utils/filter-habits-by-range";
+import { groupHabitsByHour } from "../utils/group-by-habits-hour";
+import { groupHabitsByDay } from "../utils/group-by-habits";
+import { useHabitHistoryByUser } from "../hooks/use-habits-history";
 import type { TooltipProps } from "recharts";
 import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { Todo } from "../utils/types";
 
-export const description = "Todos completion chart";
+export const description = "Habits completion chart";
 
 const chartConfig = {
   count: {
-    label: "Completed Todos:",
+    label: "Completed Habits:",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
-export function TodosBarChart({
-  todos,
-  loading,
-}: {
-  todos: Todo[];
-  loading: boolean;
-}) {
+export default function HabitsBarChart({ userId }: { userId: string }) {
   const [range, setRange] = useState<
     "today" | "yesterday" | "lastWeek" | "lastMonth"
   >("lastWeek");
+  const { data: habit_history, isLoading } = useHabitHistoryByUser(userId);
 
   const rangeLabels: Record<typeof range, string> = {
     today: "Today",
@@ -63,12 +57,12 @@ export function TodosBarChart({
   };
 
   const chartData = useMemo(() => {
-    const filtered = filterTodosByRange(todos, range);
+    const filtered = filterHabitsByRange(habit_history || [], range);
     if (range === "today" || range === "yesterday") {
-      return groupTodosByHour(filtered);
+      return groupHabitsByHour(filtered);
     }
-    return groupTodosByDay(filtered, range);
-  }, [todos, range]);
+    return groupHabitsByDay(filtered, range);
+  }, [habit_history, range]);
 
   const CustomTooltip = (props: TooltipProps<ValueType, NameType>) => {
     const { active, payload } = props;
@@ -94,7 +88,7 @@ export function TodosBarChart({
   };
 
   return (
-    <Card className="max-w-5xl w-full">
+    <Card className="max-w-3xl w-full">
       <CardHeader className="flex justify-between items-center">
         <div>
           <CardTitle>Todos Activity</CardTitle>
@@ -120,7 +114,7 @@ export function TodosBarChart({
       </CardHeader>
 
       <CardContent>
-        {loading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center py-24 sm:py-32">
             <Spinner />
           </div>
@@ -129,7 +123,7 @@ export function TodosBarChart({
             No completed todos in this period.
           </p>
         ) : (
-          <ChartContainer config={chartConfig}>
+          <ChartContainer config={chartConfig} className="">
             <BarChart accessibilityLayer data={chartData}>
               <CartesianGrid vertical={false} />
               <XAxis

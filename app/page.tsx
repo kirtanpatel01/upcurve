@@ -22,7 +22,7 @@ export default async function page() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center text-base-content transition-colors pt-16">
       <ModeToggle />
       <div className="max-w-2xl">
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+        <h1 className="text-5xl font-bold text-primary">
           Build Better Days with Upcurve
         </h1>
         <p className="mt-4 text-base-content/70 text-lg">

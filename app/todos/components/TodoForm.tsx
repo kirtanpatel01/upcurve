@@ -226,7 +226,6 @@ export default function TodoForm() {
             </Button>
             <form.Subscribe selector={(state) => [state.isSubmitting]}>
               {([isSubmitting]) => {
-                console.log("Submitting:", isSubmitting);
                 return (
                   <Button
                     type="submit"

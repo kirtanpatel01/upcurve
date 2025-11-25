@@ -18,32 +18,13 @@ import EmptyHabits from "./empty-habits";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toggleHabitCompletion } from "../utils/action";
 import { toast } from "sonner";
+import { useHabitsByUser } from "../hooks/use-habits-by-user";
 
-/**
- * Optimistic HabitList:
- * - instant local toggle (optimistic)
- * - background server call via toggleHabitCompletion
- * - revert + toast on failure
- * - prevents double toggles while request is running
- *
- * Improvement to avoid flicker:
- * - keep optimistic override until the incoming `habits` prop reflects
- *   the same completion state for that habit id.
- */
-
-export default function HabitList({
-  habits,
-  loading,
-}: {
-  habits: Habit[];
-  loading: boolean;
-}) {
-  // optimistic overrides: id -> optimistic boolean value
+export default function HabitList({ userId }: { userId: string }) {
   const [overrides, setOverrides] = useState<Record<number, boolean>>({});
-  // in-flight toggles: id -> boolean
   const [inFlight, setInFlight] = useState<Record<number, boolean>>({});
 
-  // visible items (same as before)
+  const { data: habits, isLoading } = useHabitsByUser(userId);
   const visible = (habits || []).filter((h) => h.in_list);
   const total = visible.length;
   const completed = visible.filter((h) => h.is_completed).length;
@@ -52,25 +33,15 @@ export default function HabitList({
   const handleOptimisticToggle = async (habit: Habit, checked: boolean) => {
     const id = habit.id;
 
-    // If already in flight, ignore
     if (inFlight[id]) return;
 
-    // apply optimistic override and mark in-flight
     setOverrides((s) => ({ ...s, [id]: checked }));
     setInFlight((s) => ({ ...s, [id]: true }));
 
     try {
-      // If toggleHabitCompletion returns updated habit, you could use it here
-      // to update local cache. For now we await it and rely on the incoming
-      // `habits` prop to sync canonical state.
       await toggleHabitCompletion(id, checked);
 
-      // SUCCESS: do NOT immediately remove the override.
-      // Instead wait for the server-sourced `habits` to match the override
-      // (see useEffect below). This prevents flicker caused by clearing
-      // the override before `habits` has updated.
     } catch (err) {
-      // revert optimistic on error
       setOverrides((s) => {
         const next = { ...s };
         delete next[id];
@@ -79,7 +50,6 @@ export default function HabitList({
       toast.error("Failed to update habit — check your connection.");
       console.error("toggleHabitCompletion error:", err);
     } finally {
-      // clear in-flight flag (we don't need to keep user blocked)
       setInFlight((s) => {
         const next = { ...s };
         delete next[id];
@@ -88,22 +58,14 @@ export default function HabitList({
     }
   };
 
-  /**
-   * Effect: when canonical `habits` changes, remove overrides for any
-   * habit ids where the canonical `is_completed` now equals the optimistic
-   * override value. This ensures we keep showing the optimistic state
-   * until the server-backed data matches it (avoids flicker).
-   */
   useEffect(() => {
     if (!habits || Object.keys(overrides).length === 0) return;
 
-    // Build a map from id -> is_completed for quick lookup
     const canonMap: Record<number, boolean> = {};
     for (const h of habits) {
       canonMap[h.id] = !!h.is_completed;
     }
 
-    // Remove overrides that are now in sync with canonical state
     setOverrides((prev) => {
       const next = { ...prev };
       let changed = false;
@@ -131,7 +93,6 @@ export default function HabitList({
             </CardDescription>
           </div>
 
-          {/* Progress summary */}
           <div className="text-right">
             <div className="text-xs text-muted-foreground">Completed</div>
             <div className="mt-1 inline-flex items-baseline gap-2">
@@ -142,7 +103,6 @@ export default function HabitList({
           </div>
         </div>
 
-        {/* Progress bar */}
         <div className="mt-3 w-full">
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div
@@ -160,7 +120,7 @@ export default function HabitList({
       <Separator />
 
       <CardContent>
-        {loading ? (
+        {isLoading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
               <div
@@ -177,7 +137,6 @@ export default function HabitList({
         ) : (
           <ul className="space-y-3">
             {visible.map((habit) => {
-              // if we have an optimistic override for this id, prefer it
               const hasOverride = Object.prototype.hasOwnProperty.call(
                 overrides,
                 habit.id

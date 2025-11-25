@@ -18,16 +18,14 @@ async function fetchAllHabitsByUser(userId: string): Promise<Habit[]> {
   return habits;
 }
 
-export function useHabitsByUser(userId?: string) {
+export function useHabitsByUser(userId: string) {
   const queryClient = useQueryClient();
 
   const query = useQuery<Habit[]>({
     queryKey: ["habits", userId],
     queryFn: () => fetchAllHabitsByUser(userId!),
     enabled: !!userId,
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
+    gcTime: Infinity,
   });
   
   useEffect(() => {
@@ -39,7 +37,7 @@ export function useHabitsByUser(userId?: string) {
         "postgres_changes",
         { event: "*", schema: "public", table: "habits" },
         () => {
-          // console.log("Realtime change:", payload);
+          console.log("Realtime change from habits!")
           queryClient.invalidateQueries({ queryKey: ["habits", userId] });
         }
       )

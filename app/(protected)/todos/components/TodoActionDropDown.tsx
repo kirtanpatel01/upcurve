@@ -1,5 +1,3 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -14,25 +12,18 @@ import { MoreVerticalIcon } from "lucide-react";
 import EditTodoSheetContent from "./EditTodoSheetContent";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import DeleteTodoAlert from "./DeleteTodoAlert";
+import { type Todo } from "../utils/types";
 import { useState } from "react";
-import { Spinner } from "@/components/ui/spinner";
 
-export function TodoActionDropDown({ id }: { id: number }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isFetchingTodo, setIsFetchingTodo] = useState(false);
-  
+export function TodoActionDropDown({ todo }: { todo: Todo }) {
+  const [open, setOpen] = useState(false)
   return (
     <AlertDialog>
-      <Sheet>
+      <Sheet open={open} onOpenChange={setOpen}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="">
-            <Button
-              variant="secondary"
-              size="icon-sm"
-              className="rounded-full"
-              disabled={isFetchingTodo}
-            >
-              {isFetchingTodo ? <Spinner /> : <MoreVerticalIcon size={16} />}
+            <Button variant="secondary" size="icon-sm" className="rounded-full">
+              <MoreVerticalIcon size={16} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -41,9 +32,7 @@ export function TodoActionDropDown({ id }: { id: number }) {
             </DropdownMenuLabel>
             <DropdownMenuGroup>
               <SheetTrigger asChild>
-                <DropdownMenuItem onClick={() => setIsOpen(true)}>
-                  Edit
-                </DropdownMenuItem>
+                <DropdownMenuItem>Edit</DropdownMenuItem>
               </SheetTrigger>
               <AlertDialogTrigger asChild>
                 <DropdownMenuItem variant="destructive">
@@ -54,14 +43,8 @@ export function TodoActionDropDown({ id }: { id: number }) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {isOpen && (
-          <EditTodoSheetContent
-            id={id}
-            setOpen={setIsOpen}
-            setIsFetchingTodo={setIsFetchingTodo}
-          />
-        )}
-        <DeleteTodoAlert id={id} />
+        <EditTodoSheetContent todo={todo} closeSheet={() => setOpen(false)} />
+        <DeleteTodoAlert id={todo.id} />
       </Sheet>
     </AlertDialog>
   );

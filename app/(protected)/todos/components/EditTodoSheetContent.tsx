@@ -25,11 +25,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTodoById } from "../hooks/use-todo-by-id";
 import { Spinner } from "@/components/ui/spinner";
-import { Dispatch, useEffect } from "react";
 import { editTodo } from "../utils/action";
-import { TodoFormValues } from "../utils/types";
+import { type Todo, TodoFormValues } from "../utils/types";
 
 const formSchema = z.object({
   title: z
@@ -42,20 +40,12 @@ const formSchema = z.object({
 });
 
 function EditTodoSheetContent({
-  id,
-  setOpen,
-  setIsFetchingTodo,
+  todo,
+  closeSheet,
 }: {
-  id: number;
-  setOpen: Dispatch<React.SetStateAction<boolean>>;
-  setIsFetchingTodo: Dispatch<React.SetStateAction<boolean>>;
+  todo: Todo;
+  closeSheet: () => void;
 }) {
-  const { data: todo, isLoading } = useTodoById(id);
-
-  useEffect(() => {
-    setIsFetchingTodo(isLoading);
-  }, [isLoading, setIsFetchingTodo]);
-
   const form = useForm({
     defaultValues: {
       title: todo?.title || "",
@@ -68,10 +58,10 @@ function EditTodoSheetContent({
     },
     onSubmit: async ({ value }: { value: TodoFormValues }) => {
       try {
-        await editTodo(value, id);
+        await editTodo(value, todo.id);
         toast.success("Todo updated successfully!");
         form.reset();
-        setOpen(false);
+        closeSheet();
       } catch (err: unknown) {
         if (err instanceof Error) {
           toast.error(err.message || "Failed to edit todo");
@@ -81,8 +71,6 @@ function EditTodoSheetContent({
       }
     },
   });
-
-  if (isLoading) return null;
 
   return (
     <SheetContent>
@@ -95,9 +83,9 @@ function EditTodoSheetContent({
       </SheetHeader>
       <form
         id="edit-todo-form"
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
-          form.handleSubmit();
+          await form.handleSubmit();
         }}
         className="px-4"
       >
@@ -217,19 +205,19 @@ function EditTodoSheetContent({
       </form>
 
       <SheetFooter>
-        <Button
-          type="submit"
-          form="edit-todo-form"
-          disabled={form.state.isSubmitting}
-        >
-          {form.state.isSubmitting ? (
-            <span className="flex items-center gap-2">
-              Updating <Spinner />
-            </span>
-          ) : (
-            "Update"
-          )}
-        </Button>
+        <form.Subscribe selector={(state) => [state.isSubmitting]}>
+          {([isSubmitting]) => {
+            return (
+              <Button
+                type="submit"
+                form="edit-todo-form"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Updating..." : "Update"}
+              </Button>
+            );
+          }}
+        </form.Subscribe>
         <Button type="button" variant="outline" onClick={() => form.reset()}>
           Reset
         </Button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
@@ -24,30 +24,37 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { groupTodosByDay } from "../utils/group-by-todos";
-import { groupTodosByHour } from "../utils/group-by-todos-hour";
-import { filterTodosByRange } from "../utils/filter-todos";
+import { filterHabitsByRange } from "../utils/filter-habits-by-range";
+import { groupHabitsByHour } from "../utils/group-by-habits-hour";
+import { groupHabitsByDay } from "../utils/group-by-habits";
+import { useHabitHistoryByUser } from "../hooks/use-habits-history";
 import type { TooltipProps } from "recharts";
 import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { useTodosByUser } from "../hooks/use-todos-by-user";
+import { HabitHistory } from "../utils/types";
+import { createClient } from "@/utils/supabase/client";
 
-export const description = "Todos completion chart";
+export const description = "Habits completion chart";
 
 const chartConfig = {
   count: {
-    label: "Completed Todos:",
+    label: "Completed Habits:",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
-export function TodosBarChart({ userId }: { userId: string }) {
+export default function HabitsBarChart({
+  initialHabitHistory,
+}: {
+  initialHabitHistory: HabitHistory[];
+}) {
   const [range, setRange] = useState<
     "today" | "yesterday" | "lastWeek" | "lastMonth"
   >("lastWeek");
+  const [habitHistory, setHabitHistory] = useState(initialHabitHistory);
+  const supabase = createClient();
 
   const rangeLabels: Record<typeof range, string> = {
     today: "Today",
@@ -56,15 +63,47 @@ export function TodosBarChart({ userId }: { userId: string }) {
     lastMonth: "Last 30 Days",
   };
 
-  const { data: todos, isLoading } = useTodosByUser(userId);
+  useEffect(() => {
+    const channel = supabase
+      .channel("habit_history-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "habit_history" },
+        (payload) => {
+          const eventType = payload.eventType;
+          const data = payload.new as HabitHistory;
+          console.log(payload);
+          switch (eventType) {
+            case "INSERT":
+              setHabitHistory((prev) => [data as HabitHistory, ...prev]);
+              break;
+            case "UPDATE":
+              setHabitHistory((prev) =>
+                prev.map((hh) => (hh.id === data.id ? data : hh))
+              );
+              break;
+            case "DELETE":
+              const old = payload.old as HabitHistory;
+              setHabitHistory((prev) => prev.filter((hh) => hh.id !== old.id));
+              break;
+            default:
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const chartData = useMemo(() => {
-    const filtered = filterTodosByRange(todos || [], range);
+    const filtered = filterHabitsByRange(habitHistory || [], range);
     if (range === "today" || range === "yesterday") {
-      return groupTodosByHour(filtered);
+      return groupHabitsByHour(filtered);
     }
-    return groupTodosByDay(filtered, range);
-  }, [todos, range]);
+    return groupHabitsByDay(filtered, range);
+  }, [habitHistory, range]);
 
   const CustomTooltip = (props: TooltipProps<ValueType, NameType>) => {
     const { active, payload } = props;
@@ -90,7 +129,7 @@ export function TodosBarChart({ userId }: { userId: string }) {
   };
 
   return (
-    <Card className="max-w-5xl w-full">
+    <Card className="max-w-3xl w-full">
       <CardHeader className="flex justify-between items-center">
         <div>
           <CardTitle>Todos Activity</CardTitle>
@@ -116,7 +155,7 @@ export function TodosBarChart({ userId }: { userId: string }) {
       </CardHeader>
 
       <CardContent>
-        {isLoading ? (
+        {!habitHistory ? (
           <div className="flex justify-center items-center py-24 sm:py-32">
             <Spinner />
           </div>
@@ -125,7 +164,7 @@ export function TodosBarChart({ userId }: { userId: string }) {
             No completed todos in this period.
           </p>
         ) : (
-          <ChartContainer config={chartConfig}>
+          <ChartContainer config={chartConfig} className="">
             <BarChart accessibilityLayer data={chartData}>
               <CartesianGrid vertical={false} />
               <XAxis

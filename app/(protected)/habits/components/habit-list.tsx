@@ -13,18 +13,57 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import React, { useEffect, useState } from "react";
 import EditHabitsSheet from "./edit-habits-sheet";
-import { Habit } from "../utils/types";
+import { type Habit } from "../utils/types";
 import EmptyHabits from "./empty-habits";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toggleHabitCompletion } from "../utils/action";
 import { toast } from "sonner";
-import { useHabitsByUser } from "../hooks/use-habits-by-user";
+import { createClient } from "@/utils/supabase/client";
 
-export default function HabitList({ userId }: { userId: string }) {
+export default function HabitList({
+  initialHabits,
+}: {
+  initialHabits: Habit[];
+}) {
+  const [habits, setHabits] = useState(initialHabits);
   const [overrides, setOverrides] = useState<Record<number, boolean>>({});
   const [inFlight, setInFlight] = useState<Record<number, boolean>>({});
+  const supabase = createClient();
 
-  const { data: habits, isLoading } = useHabitsByUser(userId);
+  useEffect(() => {
+    const channel = supabase
+      .channel("habits-all-channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "habits" },
+        (payload) => {
+          const eventType = payload.eventType;
+          const data = payload.new as Habit;
+          console.log(payload);
+          switch (eventType) {
+            case "INSERT":
+              setHabits((prev) => [data as Habit, ...prev]);
+              break;
+            case "UPDATE":
+              setHabits((prev) =>
+                prev.map((h) => (h.id === data.id ? data : h))
+              );
+              break;
+            case "DELETE":
+              const old = payload.old as Habit;
+              setHabits((prev) => prev.filter((h) => h.id !== old.id));
+              break;
+            default:
+          }
+        }
+      ).subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      }
+
+  }, []);
+
   const visible = (habits || []).filter((h) => h.in_list);
   const total = visible.length;
   const completed = visible.filter((h) => h.is_completed).length;
@@ -40,7 +79,6 @@ export default function HabitList({ userId }: { userId: string }) {
 
     try {
       await toggleHabitCompletion(id, checked);
-
     } catch (err) {
       setOverrides((s) => {
         const next = { ...s };
@@ -120,7 +158,7 @@ export default function HabitList({ userId }: { userId: string }) {
       <Separator />
 
       <CardContent>
-        {isLoading ? (
+        {!habits ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
               <div

@@ -42,7 +42,7 @@ function SignoutBtn() {
 
   return (
     <>
-      {loading ? (
+      {loading || !user ? (
         <Spinner />
       ) : (
         <div className="flex items-center gap-2" onClick={handleSubmit}>

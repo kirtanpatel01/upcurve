@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
@@ -24,30 +24,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { filterHabitsByRange } from "../utils/filter-habits-by-range";
-import { groupHabitsByHour } from "../utils/group-by-habits-hour";
-import { groupHabitsByDay } from "../utils/group-by-habits";
-import { useHabitHistoryByUser } from "../hooks/use-habits-history";
+
+import { groupTodosByDay } from "../utils/group-by-todos";
+import { groupTodosByHour } from "../utils/group-by-todos-hour";
+import { filterTodosByRange } from "../utils/filter-todos";
 import type { TooltipProps } from "recharts";
 import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
+import { Todo } from "../utils/types";
+import { createClient } from "@/utils/supabase/client";
 
-export const description = "Habits completion chart";
+export const description = "Todos completion chart";
 
 const chartConfig = {
   count: {
-    label: "Completed Habits:",
+    label: "Completed Todos:",
     color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
-export default function HabitsBarChart({ userId }: { userId: string }) {
+export default function TodosBarChart({
+  initialTodos,
+}: {
+  initialTodos: Todo[];
+}) {
   const [range, setRange] = useState<
     "today" | "yesterday" | "lastWeek" | "lastMonth"
   >("lastWeek");
-  const { data: habit_history, isLoading } = useHabitHistoryByUser(userId);
 
   const rangeLabels: Record<typeof range, string> = {
     today: "Today",
@@ -56,13 +61,49 @@ export default function HabitsBarChart({ userId }: { userId: string }) {
     lastMonth: "Last 30 Days",
   };
 
+  const [todos, setTodos] = useState(initialTodos);
+  useEffect(() => {
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel("todos-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "todos" },
+        (payload) => {
+          setTodos((prev) => {
+            switch (payload.eventType) {
+              case "INSERT":
+                return [payload.new as Todo, ...prev];
+
+              case "UPDATE":
+                return prev.map((t) =>
+                  t.id === payload.new.id ? (payload.new as Todo) : t
+                );
+
+              case "DELETE":
+                return prev.filter((t) => t.id !== payload.old.id);
+
+              default:
+                return prev;
+            }
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const chartData = useMemo(() => {
-    const filtered = filterHabitsByRange(habit_history || [], range);
+    const filtered = filterTodosByRange(todos || [], range);
     if (range === "today" || range === "yesterday") {
-      return groupHabitsByHour(filtered);
+      return groupTodosByHour(filtered);
     }
-    return groupHabitsByDay(filtered, range);
-  }, [habit_history, range]);
+    return groupTodosByDay(filtered, range);
+  }, [todos, range]);
 
   const CustomTooltip = (props: TooltipProps<ValueType, NameType>) => {
     const { active, payload } = props;
@@ -88,7 +129,7 @@ export default function HabitsBarChart({ userId }: { userId: string }) {
   };
 
   return (
-    <Card className="max-w-3xl w-full">
+    <Card className="max-w-5xl w-full">
       <CardHeader className="flex justify-between items-center">
         <div>
           <CardTitle>Todos Activity</CardTitle>
@@ -114,7 +155,7 @@ export default function HabitsBarChart({ userId }: { userId: string }) {
       </CardHeader>
 
       <CardContent>
-        {isLoading ? (
+        {!todos ? (
           <div className="flex justify-center items-center py-24 sm:py-32">
             <Spinner />
           </div>
@@ -123,7 +164,7 @@ export default function HabitsBarChart({ userId }: { userId: string }) {
             No completed todos in this period.
           </p>
         ) : (
-          <ChartContainer config={chartConfig} className="">
+          <ChartContainer config={chartConfig}>
             <BarChart accessibilityLayer data={chartData}>
               <CartesianGrid vertical={false} />
               <XAxis

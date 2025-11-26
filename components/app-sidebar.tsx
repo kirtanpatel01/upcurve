@@ -1,15 +1,12 @@
-"use client";
-
 import {
   Brain,
   ChartSpline,
   Dumbbell,
   // Home,
   ListTodo,
+  Notebook,
 } from "lucide-react";
-import React from "react";
 import Link from "next/link";
-import SignoutBtn from "@/components/signout-btn";
 import {
   Sidebar,
   SidebarContent,
@@ -20,6 +17,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
+import SidebarClientActions from "./sidebar-client-actions";
+import { Suspense } from "react";
+import { Spinner } from "./ui/spinner";
+import SignoutBtn from "./signout-btn";
 import { ModeToggle } from "./mode-toggle";
 
 export default function AppSidebar() {
@@ -86,7 +87,9 @@ export default function AppSidebar() {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton variant={"outline"}>
-                <SignoutBtn />
+                <Suspense fallback={<Spinner />}>
+                  <SignoutBtn />
+                </Suspense>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

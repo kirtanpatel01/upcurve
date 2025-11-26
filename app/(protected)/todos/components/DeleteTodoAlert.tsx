@@ -1,5 +1,3 @@
-// "use client";
-
 import {
   AlertDialogAction,
   AlertDialogCancel,
@@ -35,8 +33,8 @@ function DeleteTodoAlert({ id }: { id: number }) {
         </AlertDialogDescription>
       </AlertDialogHeader>
       <AlertDialogFooter>
-        <AlertDialogCancel>Cancel</AlertDialogCancel>
-        <AlertDialogAction onClick={submit}>Continue</AlertDialogAction>
+        <AlertDialogCancel className="bg-mute">Cancel</AlertDialogCancel>
+        <AlertDialogAction onClick={submit} className="bg-destructive/90 hover:bg-destructive">Continue</AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>
   );

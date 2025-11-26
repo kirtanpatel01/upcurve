@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { 
-  // Inter, 
-  // Work_Sans, 
-  // Plus_Jakarta_Sans, 
+import {
+  // Inter,
+  // Work_Sans,
+  // Plus_Jakarta_Sans,
   // Rubik,
   // Manrope,
   // Satisfy,
-  Lexend
+  Lexend,
 } from "next/font/google";
 import "./globals.css";
-import Providers from "@/components/providers";
-import ConditionalShell from "@/components/ConditionalShell";
+import { Toaster } from "sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 // const inter = Inter();
 // const workSans = Work_Sans()
@@ -32,14 +32,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${lexend.className} antialiased`}
-      >
-        <Providers>
-          <ConditionalShell>
-            {children}
-          </ConditionalShell>
-        </Providers>
+      <body className={`${lexend.className} antialiased`}>
+        <ThemeProvider
+          attribute={"class"}
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster richColors />
+        </ThemeProvider>
       </body>
     </html>
   );

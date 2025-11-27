@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import HabitList from "./components/habit-list";
 import HabitsBarChart from "./components/habits-bar-chart";
+import HabitsInsights from "./components/habits-insights";
 
 export default async function page() {
   const supabase = await createClient();
@@ -25,13 +26,14 @@ export default async function page() {
     .select("*")
     .eq("user_id", user?.id)
     .order("created_at", { ascending: false });
-  
-    if(habitHistoryError) throw habitHistoryError
+
+  if (habitHistoryError) throw habitHistoryError;
 
   return (
-    <div className="p-4 flex flex-col xl:flex-row xl:gap-4">
+    <div className="p-4 flex flex-col xl:flex-row gap-4">
       <HabitList initialHabits={habits} />
       <HabitsBarChart initialHabitHistory={habitHistory} />
+      <HabitsInsights habitHistory={habitHistory} />
     </div>
   );
 }

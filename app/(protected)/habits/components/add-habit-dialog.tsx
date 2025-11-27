@@ -23,7 +23,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm } from "@tanstack/react-form";
 import { Plus } from "lucide-react";
-import React from "react";
 import z from "zod";
 import { HabitFormValues } from "../utils/types";
 import { toast } from "sonner";

@@ -27,7 +27,6 @@ import {
 import { filterHabitsByRange } from "../utils/filter-habits-by-range";
 import { groupHabitsByHour } from "../utils/group-by-habits-hour";
 import { groupHabitsByDay } from "../utils/group-by-habits";
-import { useHabitHistoryByUser } from "../hooks/use-habits-history";
 import type { TooltipProps } from "recharts";
 import {
   NameType,
@@ -129,7 +128,7 @@ export default function HabitsBarChart({
   };
 
   return (
-    <Card className="max-w-3xl w-full">
+    <Card className="max-w-3xl w-full h-fit">
       <CardHeader className="flex justify-between items-center">
         <div>
           <CardTitle>Todos Activity</CardTitle>

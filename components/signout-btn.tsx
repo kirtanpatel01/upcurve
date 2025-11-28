@@ -55,13 +55,13 @@ function SignoutBtn() {
 
   // Logged-in UI
   return (
-    <button
+    <div
       onClick={handleLogout}
       className="flex items-center gap-2 w-full text-left"
     >
       <LogOut size={16} className="text-primary" />
       <span className="group-data-[collapsible=icon]:hidden">Logout</span>
-    </button>
+    </div>
   );
 }
 

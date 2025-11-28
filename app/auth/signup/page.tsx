@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, { useActionState, useState } from "react";
+import { useActionState, useState } from "react";
 import { signup } from "../actions";
 import { Eye, EyeOff } from "lucide-react";
 import {
@@ -99,7 +99,7 @@ export default function Page() {
                   <InputGroupInput
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Re-enter your password"
-                    name="password"
+                    name="confirmPassword"
                     defaultValue={state.confirmPassword}
                   />
                   <InputGroupAddon align={"inline-end"}>

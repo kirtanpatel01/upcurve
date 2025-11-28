@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import React from "react";
 
 function page() {
   return (

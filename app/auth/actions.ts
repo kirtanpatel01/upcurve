@@ -42,11 +42,14 @@ export async function signup(
   formData: FormData
 ) {
   const supabase = await createClient()
+  console.log(formData)
 
   const name = formData.get("name") as string
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const confirmPassword = formData.get("confirmPassword") as string;
+
+  console.log(password, confirmPassword)
 
   if(confirmPassword !== password) {
     return { error: "Confirm password should be same!", name, email, password, confirmPassword }
@@ -61,6 +64,7 @@ export async function signup(
   })
 
   if (error) {
+    console.log(error)
     return { error: error.message, name, email, password, confirmPassword }
   }
 

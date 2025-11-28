@@ -21,6 +21,7 @@ import { Suspense } from "react";
 import { Spinner } from "./ui/spinner";
 import SignoutBtn from "./signout-btn";
 import { ModeToggle } from "./mode-toggle";
+import Image from "next/image";
 
 export default function AppSidebar() {
   const items = [
@@ -53,7 +54,7 @@ export default function AppSidebar() {
           <SidebarMenuItem className="w-full flex justify-center">
             <SidebarMenuButton asChild>
               <Link href={"/"}>
-                <ChartSpline className="size-" />
+                <Image src={"/favicon.svg"} alt="logo" height={32} width={32} />
                 <span className="text-base font-semibold">Upcurve</span>
               </Link>
             </SidebarMenuButton>

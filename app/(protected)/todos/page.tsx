@@ -2,6 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import TodoList from "./components/TodoList";
 import TodosBarChart from "./components/TodosBarChart";
 import TodoInsights from "./components/todos-insights";
+import Unauthenticated from "@/components/unauthenticated";
 
 export default async function page() {
   const supabase = await createClient();
@@ -9,9 +10,7 @@ export default async function page() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    return <div>You&apos;re not authenticated!</div>;
-  }
+  if (!user) return <Unauthenticated />
 
   const { data: todos, error } = await supabase
     .from("todos")

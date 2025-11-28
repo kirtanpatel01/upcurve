@@ -1,27 +1,17 @@
-import Link from "next/link";
 import AddExerciseDialog from "./components/add-exercise-dialog";
 import { getAllExercisesByUser, getExerciseLogs, getUser } from "./data";
-import { Button } from "@/components/ui/button";
 import ExerciseLogCard from "./components/exercise-log-card";
 import { Exercise, ExerciseLog } from "./types";
 import ExerciseSelection from "./components/exercise-selection";
 import ExercisesBarChart from "./components/exercise-bar-chart";
 import ExerciseInsights from "./components/exercise-insights";
+import Unauthenticated from "@/components/unauthenticated";
+import { createClient } from "@/utils/supabase/server";
 
 async function page() {
-  const user = await getUser();
-  if (!user)
-    return (
-      <div className="min-h-[95%] w-full flex flex-col justify-center items-center gap-6">
-        <span className="text-9xl font-bold">401</span>
-        <div className="flex items-center gap-2">
-          Unauthenticated!{" "}
-          <Link href={"/auth/login"}>
-            <Button>Login</Button>
-          </Link>
-        </div>
-      </div>
-    );
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return <Unauthenticated />
 
   const exercises: Exercise[] = await getAllExercisesByUser();
   const exercisesLogs: ExerciseLog[] = await getExerciseLogs();

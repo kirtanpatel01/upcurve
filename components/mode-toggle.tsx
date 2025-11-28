@@ -4,6 +4,7 @@ import * as React from "react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "./ui/button";
+import { Spinner } from "./ui/spinner";
 
 export function ModeToggle({
   asChild,
@@ -12,43 +13,54 @@ export function ModeToggle({
   asChild?: boolean;
   size?: number;
 }) {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
+
+    if (!theme) {
+      setTheme("system");
+    }
   }, []);
 
-  if (!mounted) {
-    return null;
-  }
-
   const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
+    const current = theme === "system" ? systemTheme : theme;
+    const newTheme = current === "light" ? "dark" : "light";
     setTheme(newTheme);
   };
 
-  const content = (
+  const resolvedTheme = mounted ? (theme === "system" ? systemTheme : theme) : systemTheme;
+
+  const content = !mounted ? (
+    <div className="w-full flex justify-center">
+      <Spinner />
+    </div>
+  ) : (
     <>
-      {theme === "light" ? (
-        <Sun size={size} className="scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90 text-primary" />
+      {resolvedTheme === "light" ? (
+        <Sun size={size} className="text-primary" />
       ) : (
-        <Moon size={size} className="scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0 text-primary" />
+        <Moon size={size} className="text-primary" />
       )}
       <span className="group-data-[collapsible=icon]:hidden">
-        {theme === "dark" ? "Dark" : "Light"}
+        {resolvedTheme === "dark" ? "Dark" : "Light"}
       </span>
     </>
   );
 
   if (asChild) {
-    return <span className="w-full flex items-center gap-2" onClick={toggleTheme}>{content}</span>;
+    return (
+      <span className="w-full flex items-center gap-2" onClick={toggleTheme}>
+        {content}
+      </span>
+    );
   }
 
   return (
     <Button
-      variant={"outline"}
-      className='flex items-center rounded-full absolute top-4 right-4'
+      variant="outline"
+      className="flex items-center rounded-full fixed top-4 right-4"
       onClick={toggleTheme}
     >
       {content}

@@ -11,6 +11,7 @@ import {
 import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import NetworkStatus from "@/components/network-status";
 
 // const inter = Inter();
 // const workSans = Work_Sans()
@@ -41,6 +42,7 @@ export default function RootLayout({
         >
           {children}
           <Toaster richColors />
+          <NetworkStatus />
         </ThemeProvider>
       </body>
     </html>

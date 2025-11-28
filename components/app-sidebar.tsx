@@ -15,6 +15,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
 } from "./ui/sidebar";
 import { Suspense } from "react";
 import { Spinner } from "./ui/spinner";
@@ -47,12 +48,12 @@ export default function AppSidebar() {
 
   return (
     <Sidebar variant="inset" collapsible="icon">
-      <SidebarHeader>
+      <SidebarHeader className="bg-secondary rounded-md mb-2">
         <SidebarMenu>
-          <SidebarMenuItem>
+          <SidebarMenuItem className="w-full flex justify-center">
             <SidebarMenuButton asChild>
               <Link href={"/"}>
-                <ChartSpline />
+                <ChartSpline className="size-" />
                 <span className="text-base font-semibold">Upcurve</span>
               </Link>
             </SidebarMenuButton>
@@ -85,9 +86,7 @@ export default function AppSidebar() {
             </SidebarMenuItem>
             <SidebarMenuItem>
               <SidebarMenuButton variant={"outline"}>
-                <Suspense fallback={<Spinner />}>
-                  <SignoutBtn />
-                </Suspense>
+                <SignoutBtn />
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

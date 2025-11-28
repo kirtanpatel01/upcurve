@@ -4,7 +4,6 @@ import {
   Dumbbell,
   // Home,
   ListTodo,
-  Notebook,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -17,7 +16,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
-import SidebarClientActions from "./sidebar-client-actions";
 import { Suspense } from "react";
 import { Spinner } from "./ui/spinner";
 import SignoutBtn from "./signout-btn";

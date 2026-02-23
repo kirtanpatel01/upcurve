@@ -7,16 +7,25 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/utils/supabase/server";
 
 export default async function page() {
-  const supabase = await createClient();
+  // TODO: For testing and demo purposes, isLoggedIn is set to false. Remove it later.
+  const isLoggedIn = false;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const isLoggedIn = !!user;
+  const features: { title: string; desc: string }[] = [
+    {
+      title: "Habits",
+      desc: "Create daily routines and stay consistent with visual streaks.",
+    },
+    {
+      title: "Todos",
+      desc: "Keep track of your day-to-day tasks with a clean, minimal interface.",
+    },
+    {
+      title: "Exercise",
+      desc: "Set targets for sets and reps, and log your progress each day.",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center text-base-content transition-colors pt-16">
@@ -32,20 +41,7 @@ export default async function page() {
       </div>
 
       <div className="mt-12 grid gap-6 sm:grid-cols-3 max-w-4xl w-full">
-        {[
-          {
-            title: "Habits",
-            desc: "Create daily routines and stay consistent with visual streaks.",
-          },
-          {
-            title: "Todos",
-            desc: "Keep track of your day-to-day tasks with a clean, minimal interface.",
-          },
-          {
-            title: "Exercise",
-            desc: "Set targets for sets and reps, and log your progress each day.",
-          },
-        ].map((feature) => (
+        {features.map((feature) => (
           <Card key={feature.title}>
             <CardHeader>
               <CardTitle>{feature.title}</CardTitle>
@@ -59,11 +55,11 @@ export default async function page() {
       <div className="mt-12">
         {isLoggedIn ? (
           <Link href="/todos">
-            <Button>Go to website</Button>
+            <Button className="cursor-pointer">Go to website</Button>
           </Link>
         ) : (
           <Link href="/auth/login">
-            <Button>Get Started</Button>
+            <Button className="cursor-pointer">Get Started</Button>
           </Link>
         )}
       </div>

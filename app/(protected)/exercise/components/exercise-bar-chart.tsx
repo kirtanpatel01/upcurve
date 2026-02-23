@@ -27,8 +27,6 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
-import { createClient } from "@/utils/supabase/client";
-
 import { filterLogsByRange } from "../exercise-grouping";
 import { Exercise, ExerciseLog } from "../types";
 
@@ -73,52 +71,8 @@ export default function ExercisesBarChart({
   const [range, setRange] = useState<Range>("lastWeek");
   const { selectedExercise } = useExerciseStore();
 
-  const supabase = createClient();
 
   const [logs, setLogs] = useState<ExerciseLog[]>(initialLogs);
-
-  // realtime updates — but filter only logs of selected exercise
-  useEffect(() => {
-    const channel = supabase
-      .channel("exercise_logs-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "exercise_logs" },
-        (payload) => {
-          const log = payload.new as ExerciseLog;
-          const old = payload.old as ExerciseLog;
-
-          if (!selectedExercise) return;
-
-          const match = log.exercise_id === selectedExercise.id;
-
-          switch (payload.eventType) {
-            case "INSERT":
-              if (match) setLogs((prev) => [log, ...prev]);
-              break;
-
-            case "UPDATE":
-              if (match) {
-                setLogs((prev) => prev.map((l) => (l.id === log.id ? log : l)));
-              }
-              break;
-
-            case "DELETE":
-              if (old.exercise_id === selectedExercise.id) {
-                setLogs((prev) => prev.filter((l) => l.id !== old.id));
-              }
-              break;
-
-            default:
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [selectedExercise]);
 
   // Filter logs ONLY for selected exercise
   const exerciseLogs = useMemo(() => {

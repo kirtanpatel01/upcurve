@@ -4,7 +4,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import TodoForm from "./TodoForm";
 import { type Todo } from "../utils/types";
 import { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import {
   Tooltip,
   TooltipContent,
@@ -15,53 +14,13 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import RemainingTime from "./RemainingTime";
 import { TodoActionDropDown } from "./TodoActionDropDown";
+import { toast } from "sonner";
 
 export default function TodoList({ initialTodos }: { initialTodos: Todo[] }) {
   const [todos, setTodos] = useState<Todo[]>(initialTodos);
-  const supabase = createClient();
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("todos-all-channel")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "todos" },
-        (payload) => {
-          const eventType = payload.eventType;
-          const data = payload.new as Todo;
-          console.log(payload);
-          switch (eventType) {
-            case "INSERT":
-              setTodos((prev) => [data as Todo, ...prev]);
-              break;
-            case "UPDATE":
-              setTodos((prev) =>
-                prev.map((t) => (t.id === data.id ? data : t))
-              );
-              break;
-            case "DELETE":
-              const old = payload.old as Todo;
-              setTodos((prev) => prev.filter((t) => t.id !== old.id));
-              break;
-            default:
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
 
   async function toggleTodoCompletion(id: number, completed: boolean) {
-    const { error } = await supabase
-      .from("todos")
-      .update({ is_completed: completed, completed_time: new Date().toISOString() })
-      .eq("id", id)
-      .select();
-
-    if (error) throw error;
+    toast.success("Todo completed!");
   }
 
   const activeTodos = todos?.filter((t) => !t.is_completed) ?? [];

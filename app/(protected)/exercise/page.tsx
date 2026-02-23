@@ -1,17 +1,14 @@
 import AddExerciseDialog from "./components/add-exercise-dialog";
-import { getAllExercisesByUser, getExerciseLogs, getUser } from "./data";
+import { getAllExercisesByUser, getExerciseLogs } from "./data";
 import ExerciseLogCard from "./components/exercise-log-card";
 import { Exercise, ExerciseLog } from "./types";
 import ExerciseSelection from "./components/exercise-selection";
 import ExercisesBarChart from "./components/exercise-bar-chart";
 import ExerciseInsights from "./components/exercise-insights";
 import Unauthenticated from "@/components/unauthenticated";
-import { createClient } from "@/utils/supabase/server";
 
 async function page() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return <Unauthenticated />
+  // if (!user) return <Unauthenticated />
 
   const exercises: Exercise[] = await getAllExercisesByUser();
   const exercisesLogs: ExerciseLog[] = await getExerciseLogs();

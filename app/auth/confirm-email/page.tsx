@@ -18,7 +18,7 @@ function page() {
         <CardFooter className="flex justify-center items-center gap-1">
           <span>Are you using Gmail ?</span>
           <Link href="https://mail.google.com/">
-            <Button variant={"outline"}>Open My Gmail Inbox</Button>
+            <Button variant={"outline"} className="cursor-pointer">Open My Gmail Inbox</Button>
           </Link>
         </CardFooter>
       </Card>

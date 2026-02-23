@@ -24,11 +24,27 @@ export function ModeToggle({
     }
   }, []);
 
-  const toggleTheme = () => {
+  const toggleTheme = React.useCallback(() => {
     const current = theme === "system" ? systemTheme : theme;
     const newTheme = current === "light" ? "dark" : "light";
     setTheme(newTheme);
-  };
+  }, [theme, setTheme, systemTheme]);
+
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isInput =
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target as HTMLElement).isContentEditable;
+
+      if (e.key.toLowerCase() === "d" && !isInput) {
+        toggleTheme();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [toggleTheme]);
 
   const resolvedTheme = mounted ? (theme === "system" ? systemTheme : theme) : systemTheme;
 

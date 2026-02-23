@@ -17,15 +17,14 @@ import {
 } from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
-import { createClient } from "@/utils/supabase/client";
 import { MailIcon, Send } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Page() {
   const [email, setEmail] = useState("");
   const [success, setSuccess] = useState<boolean | undefined>(false);
   const [loading, setLoading] = useState(false);
-  const supabase = createClient();
 
   type SubmitEvent =
     | React.FormEvent<HTMLFormElement>
@@ -37,22 +36,11 @@ export default function Page() {
 
   const handleSubmit: SubmitHandler = async (e) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_WEB_URL}/auth/update-password`,
-      });
-      if (!error) {
-        setSuccess(true);
-      } else {
-        setSuccess(false);
-      }
-    } catch (error) {
-      setSuccess(false);
-      console.log(error);
-    } finally {
+    setLoading(true);
+    setTimeout(() => {
       setLoading(false);
-    }
+    }, 2000);
+    toast.info("Reset password clicked!")
   };
 
   return (
@@ -89,6 +77,8 @@ export default function Page() {
                       placeholder="mail@site.com"
                       required
                       value={email}
+                      disabled={loading}
+                      
                       onChange={(e) => setEmail(e.target.value)}
                     />
                     <InputGroupAddon>
@@ -99,16 +89,15 @@ export default function Page() {
                 <Field>
                   <Button
                     type="submit"
-                    disabled={!email}
-                    onClick={handleSubmit}
+                    disabled={!email || loading}
+                    className="cursor-pointer"
                   >
                     {loading ? (
                       <Spinner />
                     ) : (
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold">Send</span>
-                        <Send className="size-5" />
-                      </div>
+                      <span className="flex items-center gap-2">
+                        Send <Send />
+                      </span>
                     )}
                   </Button>
                 </Field>

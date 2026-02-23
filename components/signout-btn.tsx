@@ -1,6 +1,5 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
 import { LogIn, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -12,26 +11,8 @@ function SignoutBtn() {
   const [user, setUser] = useState<null | object>(null);
   const [loading, setLoading] = useState(true);
 
-  const router = useRouter();
-  const supabase = createClient();
-
-  useEffect(() => {
-    const loadUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user ?? null);
-      setLoading(false);
-    };
-    loadUser();
-  }, []);
-
   const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
       toast.success("Successfully logout.");
-      router.push("/auth/login");
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   // Loading state

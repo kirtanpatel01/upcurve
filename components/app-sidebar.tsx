@@ -17,8 +17,6 @@ import {
   SidebarMenuItem,
   SidebarMenuSkeleton,
 } from "./ui/sidebar";
-import { Suspense } from "react";
-import { Spinner } from "./ui/spinner";
 import SignoutBtn from "./signout-btn";
 import { ModeToggle } from "./mode-toggle";
 import Image from "next/image";

@@ -34,7 +34,6 @@ import {
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
 import { Todo } from "../utils/types";
-import { createClient } from "@/utils/supabase/client";
 
 export const description = "Todos completion chart";
 
@@ -62,40 +61,6 @@ export default function TodosBarChart({
   };
 
   const [todos, setTodos] = useState(initialTodos);
-  useEffect(() => {
-    const supabase = createClient();
-
-    const channel = supabase
-      .channel("todos-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "todos" },
-        (payload) => {
-          setTodos((prev) => {
-            switch (payload.eventType) {
-              case "INSERT":
-                return [payload.new as Todo, ...prev];
-
-              case "UPDATE":
-                return prev.map((t) =>
-                  t.id === payload.new.id ? (payload.new as Todo) : t
-                );
-
-              case "DELETE":
-                return prev.filter((t) => t.id !== payload.old.id);
-
-              default:
-                return prev;
-            }
-          });
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
 
   const chartData = useMemo(() => {
     const filtered = filterTodosByRange(todos || [], range);

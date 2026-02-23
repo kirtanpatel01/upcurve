@@ -33,7 +33,6 @@ import {
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
 import { HabitHistory } from "../utils/types";
-import { createClient } from "@/utils/supabase/client";
 
 export const description = "Habits completion chart";
 
@@ -53,7 +52,6 @@ export default function HabitsBarChart({
     "today" | "yesterday" | "lastWeek" | "lastMonth"
   >("lastWeek");
   const [habitHistory, setHabitHistory] = useState(initialHabitHistory);
-  const supabase = createClient();
 
   const rangeLabels: Record<typeof range, string> = {
     today: "Today",
@@ -61,40 +59,6 @@ export default function HabitsBarChart({
     lastWeek: "Last 7 Days",
     lastMonth: "Last 30 Days",
   };
-
-  useEffect(() => {
-    const channel = supabase
-      .channel("habit_history-realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "habit_history" },
-        (payload) => {
-          const eventType = payload.eventType;
-          const data = payload.new as HabitHistory;
-          console.log(payload);
-          switch (eventType) {
-            case "INSERT":
-              setHabitHistory((prev) => [data as HabitHistory, ...prev]);
-              break;
-            case "UPDATE":
-              setHabitHistory((prev) =>
-                prev.map((hh) => (hh.id === data.id ? data : hh))
-              );
-              break;
-            case "DELETE":
-              const old = payload.old as HabitHistory;
-              setHabitHistory((prev) => prev.filter((hh) => hh.id !== old.id));
-              break;
-            default:
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
 
   const chartData = useMemo(() => {
     const filtered = filterHabitsByRange(habitHistory || [], range);

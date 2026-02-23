@@ -16,7 +16,6 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Spinner } from "@/components/ui/spinner";
-import { createClient } from "@/utils/supabase/client";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -29,7 +28,6 @@ export default function Page() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const supabase = createClient();
   const router = useRouter();
 
   type SubmitEvent =
@@ -47,16 +45,9 @@ export default function Page() {
       setError("Confirm password should be same as password!");
       return;
     }
-
-    const { error } = await supabase.auth.updateUser({
-      password: confirmPassword,
-    });
-    setLoading(false);
-
-    if (error) {
-      setError(error.message);
-      return;
-    }
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
 
     toast.success("Your password has been updated!")
     router.push("/auth/login");
@@ -127,7 +118,7 @@ export default function Page() {
                 </span>
               )}
 
-              <Button type="submit" onClick={handleSubmit}>
+              <Button type="submit" onClick={handleSubmit} className="cursor-pointer">
                 {loading ? <Spinner /> : "Update"}
               </Button>
             </FieldGroup>

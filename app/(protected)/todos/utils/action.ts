@@ -1,17 +1,11 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
 import { TodoFormValues } from "./types";
 
 export async function addTodo(value: TodoFormValues) {
-  const supabase = await createClient();
   const { title, desc, deadline, priority } = value;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error("You're not logged in!");
+  // if (!user) throw new Error("You're not logged in!");
 
   if (!title || title.trim().length < 3) {
     throw new Error("Title must be at least 3 characters.");
@@ -23,29 +17,15 @@ export async function addTodo(value: TodoFormValues) {
 
   if (!priority) {
     throw new Error("Priority is required.");
-  }
-
-  const { error } = await supabase
-    .from("todos")
-    .insert([{ title, desc, deadline, priority, user_id: user?.id }]);
-
-  if (error) {
-    console.log(error);
-    throw new Error("Failed to add todo. Please try again.");
   }
 
   return { success: true };
 }
 
 export async function editTodo(value: TodoFormValues, id: number) {
-  const supabase = await createClient();
   const { title, desc, deadline, priority } = value;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error("You're not logged in!");
+  // if (!user) throw new Error("You're not logged in!");
 
   if (!title || title.trim().length < 3) {
     throw new Error("Title must be at least 3 characters.");
@@ -59,47 +39,13 @@ export async function editTodo(value: TodoFormValues, id: number) {
     throw new Error("Priority is required.");
   }
 
-  const { error } = await supabase
-    .from("todos")
-    .update({ title, desc, deadline, priority })
-    .eq("id", id);
-
-  if (error) {
-    console.log(error);
-    throw new Error("Failed to edit todo. Please try again.");
-  }
-
   return { success: true };
 }
 
 export async function deleteTodo(id: number) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) throw new Error("You're not logged in!");
-
-  const { error } = await supabase.from("todos").delete().eq("id", id);
-
-  if (error) {
-    console.log(error);
-    throw new Error("Failed to delete the todo. Please try again.");
-  }
-
   return { success: true };
 }
 
 export async function toggleTodoCompletion(id: number, completed: boolean) {
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("todos")
-    .update({
-      is_completed: completed,
-      completed_time: completed ? new Date().toISOString() : null,
-    })
-    .eq("id", id)
-    .select();
-
-  if (error) throw error;
+  return { success: true };
 }

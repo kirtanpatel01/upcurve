@@ -1,8 +1,10 @@
+'use client'
+
 import {
   Brain,
   ChartSpline,
   Dumbbell,
-  // Home,
+  Home,
   ListTodo,
 } from "lucide-react";
 import Link from "next/link";
@@ -15,19 +17,44 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSkeleton,
 } from "./ui/sidebar";
-import SignoutBtn from "./signout-btn";
 import { ModeToggle } from "./mode-toggle";
-import Image from "next/image";
+import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Spinner } from "./ui/spinner";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 export default function AppSidebar() {
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    setLoading(true);
+    try {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push('/auth/login')
+          }
+        }
+      })
+      toast.success("Successfully logout.");
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to logout.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const items = [
-    // {
-    //   title: "Dashboard",
-    //   url: "/dashboard",
-    //   icon: Home,
-    // },
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: Home,
+    },
     {
       title: "Todos",
       url: "/todos",
@@ -47,27 +74,27 @@ export default function AppSidebar() {
 
   return (
     <Sidebar variant="inset" collapsible="icon">
-      <SidebarHeader className="bg-secondary rounded-md mb-2">
+      <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem className="w-full flex justify-center">
-            <SidebarMenuButton asChild>
-              <Link href={"/"}>
-                <Image src={"/favicon.svg"} alt="logo" height={32} width={32} />
-                <span className="text-base font-semibold">Upcurve</span>
-              </Link>
-            </SidebarMenuButton>
+          <SidebarMenuItem>
+            <Link href={"/"}>
+              <SidebarMenuButton className="cursor-pointer">
+                <ChartSpline className="text-primary" />
+                <span className="text-base font-bold">Upcurve</span>
+              </SidebarMenuButton>
+            </Link>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup className="bg-secondary/60 rounded-md">
+        <SidebarGroup>
           <SidebarGroupLabel>Pages</SidebarGroupLabel>
           <SidebarMenu>
             {items.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild>
                   <Link href={item.url} className="flex items-center">
-                    <item.icon className="text-primary" />
+                    <item.icon />
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
@@ -75,17 +102,24 @@ export default function AppSidebar() {
             ))}
           </SidebarMenu>
         </SidebarGroup>
-        <SidebarGroup className="bg-secondary/60 rounded-md">
+        <SidebarGroup>
           <SidebarGroupLabel>Actions</SidebarGroupLabel>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton variant={"outline"}>
-                <ModeToggle asChild size={16} />
+              <SidebarMenuButton className="cursor-pointer">
+                <ModeToggle asChild />
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton variant={"outline"}>
-                <SignoutBtn />
+              <SidebarMenuButton 
+                onClick={handleLogout}
+                className="bg-destructive/10 text-destructive hover:bg-destructive/20 hover:text-destructive cursor-pointer">
+                {loading ? <Spinner /> : (
+                  <span className="flex justify-start items-center gap-2">
+                    <LogOut size={16} />
+                    Logout
+                  </span>
+                )}
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

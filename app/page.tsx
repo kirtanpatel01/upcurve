@@ -7,10 +7,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export default async function page() {
-  // TODO: For testing and demo purposes, isLoggedIn is set to false. Remove it later.
-  const isLoggedIn = false;
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+  const isLoggedIn = session?.user ? true : false;
 
   const features: { title: string; desc: string }[] = [
     {
@@ -54,8 +58,8 @@ export default async function page() {
       {/* CTA */}
       <div className="mt-12">
         {isLoggedIn ? (
-          <Link href="/todos">
-            <Button className="cursor-pointer">Go to website</Button>
+          <Link href="/dashboard">
+            <Button className="cursor-pointer">Dashboard</Button>
           </Link>
         ) : (
           <Link href="/auth/login">
@@ -65,7 +69,7 @@ export default async function page() {
       </div>
 
       {/* Footer */}
-      <footer className="mt-16 text-sm text-base-content/60">
+      <footer className="mt-16 text-sm tracking-widest font-extralight text-base-content/60">
         © {new Date().getFullYear()} Upcurve. All rights reserved.
       </footer>
     </div>

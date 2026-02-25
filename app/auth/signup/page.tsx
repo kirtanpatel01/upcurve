@@ -31,6 +31,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   name: z.string().min(3, "Name must be at least 3 characters long"),
@@ -47,6 +49,7 @@ type FormValues = z.infer<typeof formSchema>;
 export default function Page() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -58,18 +61,26 @@ export default function Page() {
     },
   })
 
-  const onSubmit = (data: FormValues) => {
-      toast("You submitted the following values:", {
-        description: (
-          <pre className="bg-code text-code-foreground mt-2 w-[320px] overflow-x-auto rounded-md p-4">
-            <code>{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
-        position: "bottom-right",
-        classNames: {
-          content: "flex flex-col gap-2",
-        },
-      })
+  const onSubmit = async (values: FormValues) => {
+    await authClient.signUp.email({
+      email: values.email,
+      password: values.password,
+      name: values.name,
+      callbackURL: "/dashboard"
+    }, {
+      onSuccess: () => {
+        toast.success("User registered successfully!")
+        router.push("/dashboard");
+      },
+      onError: (error) => {
+        console.error(error)
+        toast.error(error.error.message)
+      }
+    })
+  };
+
+  const handleGoogleLogin = () => {
+    toast.info("Google auth login clicked!")
   }
   return (
     <div className="min-h-screen flex justify-center items-center p-4 sm:p-6">
@@ -197,7 +208,7 @@ export default function Page() {
           <span className="text-sm">
             Already have an account ?
             <Link href="/auth/login">
-                <Button variant={"link"} className="cursor-pointer">Login</Button>
+              <Button variant={"link"} className="cursor-pointer">Login</Button>
             </Link>
           </span>
         </CardFooter>

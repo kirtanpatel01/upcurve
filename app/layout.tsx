@@ -11,9 +11,9 @@ export const metadata: Metadata = {
   title: "Boost your productivity",
   description:
     "Upcurve provides minimal UI to manage and monitor your progress.",
-    icons: {
-      icon: "/favicon.svg"
-    }
+  icons: {
+    icon: "/favicon.svg"
+  }
 };
 
 export default function RootLayout({

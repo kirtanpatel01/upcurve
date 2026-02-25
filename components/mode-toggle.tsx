@@ -6,37 +6,24 @@ import { useTheme } from "next-themes";
 import { Button } from "./ui/button";
 import { Spinner } from "./ui/spinner";
 
-export function ModeToggle({
-  asChild,
-  size,
-}: {
-  asChild?: boolean;
-  size?: number;
-}) {
+export function ModeToggle({ asChild }: { asChild?: boolean }) {
   const { theme, setTheme, systemTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
-
-    if (!theme) {
-      setTheme("system");
-    }
-  }, []);
+    if (!theme) setTheme("system");
+  }, [theme, setTheme]);
 
   const toggleTheme = React.useCallback(() => {
-    const current = theme === "system" ? systemTheme : theme;
-    const newTheme = current === "light" ? "dark" : "light";
-    setTheme(newTheme);
-  }, [theme, setTheme, systemTheme]);
+    const currentTheme = theme === "system" ? systemTheme : theme;
+    setTheme(currentTheme === "light" ? "dark" : "light");
+  }, [theme, systemTheme, setTheme]);
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      const isInput =
-        e.target instanceof HTMLInputElement ||
-        e.target instanceof HTMLTextAreaElement ||
-        (e.target as HTMLElement).isContentEditable;
-
+      const target = e.target as HTMLElement;
+      const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
       if (e.key.toLowerCase() === "d" && !isInput) {
         toggleTheme();
       }
@@ -46,40 +33,35 @@ export function ModeToggle({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleTheme]);
 
-  const resolvedTheme = mounted ? (theme === "system" ? systemTheme : theme) : systemTheme;
+  const resolvedTheme = theme === "system" ? systemTheme : theme;
+  const isDark = resolvedTheme === "dark";
 
   const content = !mounted ? (
-    <div className="w-full flex justify-center">
-      <Spinner />
-    </div>
+    <div className="flex w-full justify-center"><Spinner /></div>
   ) : (
     <>
-      {resolvedTheme === "light" ? (
-        <Sun size={size} className="text-primary" />
-      ) : (
-        <Moon size={size} className="text-primary" />
-      )}
+      {isDark ? <Moon size={16} /> : <Sun size={16} />}
       <span className="group-data-[collapsible=icon]:hidden">
-        {resolvedTheme === "dark" ? "Dark" : "Light"}
+        {isDark ? "Dark" : "Light"}
       </span>
     </>
   );
 
-  if (asChild) {
-    return (
-      <span className="w-full flex items-center gap-2" onClick={toggleTheme}>
-        {content}
-      </span>
-    );
-  }
-
   return (
-    <Button
-      variant="outline"
-      className="flex items-center rounded-full fixed top-4 right-4"
-      onClick={toggleTheme}
-    >
-      {content}
-    </Button>
-  );
+    <>
+      {asChild ? (
+        <span className="flex items-center gap-2 cursor-pointer" onClick={toggleTheme}>
+          {content}
+        </span>
+      ) : (
+        <Button
+          variant="outline"
+          className="flex items-center rounded-full cursor-pointer absolute right-4 top-4"
+          onClick={toggleTheme}
+        >
+          {content}
+        </Button>
+      )}
+    </>
+  )
 }

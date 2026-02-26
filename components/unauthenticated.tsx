@@ -7,8 +7,8 @@ function Unauthenticated() {
       <span className="text-9xl font-bold">401</span>
       <div className="flex items-center gap-2">
         Unauthenticated!{" "}
-        <Link href={"/auth/login"}>
-          <Button>Login</Button>
+        <Link href={"/"}>
+          <Button>Home</Button>
         </Link>
       </div>
     </div>

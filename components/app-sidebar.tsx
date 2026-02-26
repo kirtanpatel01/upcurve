@@ -36,7 +36,7 @@ export default function AppSidebar() {
       await authClient.signOut({
         fetchOptions: {
           onSuccess: () => {
-            router.push('/auth/login')
+            router.push('/')
           }
         }
       })

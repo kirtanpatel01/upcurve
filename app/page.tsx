@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import GoogleAuth from "@/components/google-auth";
 
 export default async function page() {
   const session = await auth.api.getSession({
@@ -62,16 +63,9 @@ export default async function page() {
             <Button className="cursor-pointer">Dashboard</Button>
           </Link>
         ) : (
-          <Link href="/auth/login">
-            <Button className="cursor-pointer">Get Started</Button>
-          </Link>
+          <GoogleAuth />
         )}
       </div>
-
-      {/* Footer */}
-      <footer className="mt-16 text-sm tracking-widest font-extralight text-base-content/60">
-        © {new Date().getFullYear()} Upcurve. All rights reserved.
-      </footer>
     </div>
   );
 }

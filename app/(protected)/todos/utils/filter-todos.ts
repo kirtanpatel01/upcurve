@@ -11,8 +11,8 @@ export function filterTodosByRange(todos: Todo[], range: "today" | "yesterday" |
   const now = new Date();
 
   return todos.filter((todo) => {
-    if (!todo.completed_time) return false;
-    const date = parseISO(todo.completed_time);
+    if (!todo.completedAt) return false;
+    const date = parseISO(todo.completedAt.toISOString());
 
     switch (range) {
       case "today":

@@ -31,7 +31,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
@@ -83,7 +83,7 @@ export default function Page() {
     toast.info("Google auth login clicked!");
   }
   return (
-    <div className="min-h-screen flex justify-center items-center p-4 sm:p-6">
+    <div className="min-h-screen flex justify-center items-center p-4 sm:p-4">
       <Card className="max-w-96 w-full">
         <CardHeader>
           <CardTitle>Sign Up Page</CardTitle>

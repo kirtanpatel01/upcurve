@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
-import { authClient } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth/client";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
 import { Meteors } from "@/components/ui/meteors";
 import { Link } from "lucide-react";
@@ -44,7 +44,7 @@ export default function Page() {
   }
 
   return (
-    <BackgroundBeamsWithCollision className="min-h-screen flex justify-center items-center p-4 sm:p-6">
+    <BackgroundBeamsWithCollision className="min-h-screen flex justify-center items-center p-4 sm:p-4">
       Nothing is here go to <Link href="/"><Button variant={"link"}>Home</Button></Link>
       <Card className="relative overflow-hidden w-full max-w-xl border-0 p-16">
         <CardHeader className="text-center">

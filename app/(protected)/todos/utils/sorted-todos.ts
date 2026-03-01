@@ -24,8 +24,8 @@ export function sortTodos(todos: Todo[] | undefined, sortBy: string) {
     priority ? priorityMap[priority.toLowerCase()] ?? 0 : 0;
 
   const sortByDeadlineSoonest = (a: Todo, b: Todo) => {
-    const aDiff = getDeadlineHours(a.deadline);
-    const bDiff = getDeadlineHours(b.deadline);
+    const aDiff = getDeadlineHours(a.deadline?.toISOString());
+    const bDiff = getDeadlineHours(b.deadline?.toISOString());
     if (aDiff === null && bDiff === null) return 0;
     if (aDiff === null) return 1;
     if (bDiff === null) return -1;
@@ -33,8 +33,8 @@ export function sortTodos(todos: Todo[] | undefined, sortBy: string) {
   };
 
   const sortByDeadlineLatest = (a: Todo, b: Todo) => {
-    const aDiff = getDeadlineHours(a.deadline);
-    const bDiff = getDeadlineHours(b.deadline);
+    const aDiff = getDeadlineHours(a.deadline?.toISOString());
+    const bDiff = getDeadlineHours(b.deadline?.toISOString());
     if (aDiff === null && bDiff === null) return 0;
     if (aDiff === null) return 1;
     if (bDiff === null) return -1;

@@ -1,12 +1,7 @@
-export interface TodoFormValues {
-  title: string;
-  desc: string;
-  deadline: string;
-  priority: string;
-}
+import { todos } from "@/lib/db/schema";
+import { formSchema } from "./validations";
+import { z } from "zod";
 
-export interface Todo extends Omit<TodoFormValues, "id"> {
-  id: number;
-  is_completed?: boolean;
-  completed_time?: string;
-}
+export type Todo = typeof todos.$inferSelect;
+export type TodoInsert = typeof todos.$inferInsert;
+export type TodoFormValues = z.infer<typeof formSchema>;

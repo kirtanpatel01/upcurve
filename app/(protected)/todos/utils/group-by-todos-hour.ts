@@ -5,8 +5,8 @@ export function groupTodosByHour(todos: Todo[]) {
   const counts: Record<number, number> = {};
 
   for (const todo of todos) {
-    if (!todo.completed_time) continue;
-    const date = parseISO(todo.completed_time);
+    if (!todo.completedAt) continue;
+    const date = parseISO(todo.completedAt.toISOString());
     const hour = getHours(date);
     counts[hour] = (counts[hour] || 0) + 1;
   }

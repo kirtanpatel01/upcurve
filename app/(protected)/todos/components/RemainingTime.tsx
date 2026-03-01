@@ -6,8 +6,8 @@ import {
 import { parseISO, formatDistanceToNow, isPast } from "date-fns";
 import { Timer } from "lucide-react";
 
-export default function RemainingTime({ deadline }: { deadline: string }) {
-  const parsed = parseISO(deadline);
+export default function RemainingTime({ deadline }: { deadline: Date }) {
+  const parsed = parseISO(deadline.toISOString());
   const past = isPast(parsed);
   const timeLeft = formatDistanceToNow(parsed, { addSuffix: true });
 

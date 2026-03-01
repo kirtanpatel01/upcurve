@@ -103,7 +103,7 @@ function EditExerciseSheet() {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="px-6"
+          className="px-4"
         >
           <FieldGroup>
             {/* NAME */}
@@ -171,7 +171,7 @@ function EditExerciseSheet() {
                       onValueChange={(v) =>
                         field.handleChange(v as "reps" | "duration")
                       }
-                      className="flex gap-6"
+                      className="flex gap-4"
                     >
                       <div className="flex items-center gap-2">
                         <RadioGroupItem value="reps" id="edit-reps" />

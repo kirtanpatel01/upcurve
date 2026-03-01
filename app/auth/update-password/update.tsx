@@ -54,7 +54,7 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center p-4 sm:p-6">
+    <div className="min-h-screen flex justify-center items-center p-4 sm:p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Update Password</CardTitle>

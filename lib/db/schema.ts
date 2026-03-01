@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, uuid } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -88,6 +88,38 @@ export const sessionRelations = relations(session, ({ one }) => ({
 export const accountRelations = relations(account, ({ one }) => ({
   user: one(user, {
     fields: [account.userId],
+    references: [user.id],
+  }),
+}));
+
+export const todos = pgTable(
+  "todos",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    desc: text("desc"),
+    deadline: timestamp("deadline"),
+    priority: text("priority", {
+      enum: ["low", "medium", "high", "urgent"],
+    }).notNull().default("low"),
+    isCompleted: boolean("is_completed").default(false).notNull(),
+    completedAt: timestamp("completed_at"),
+    isArchived: boolean("is_archived").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (table) => [index("todos_userId_idx").on(table.userId)],
+);
+
+export const todoRelations = relations(todos, ({ one }) => ({
+  user: one(user, {
+    fields: [todos.userId],
     references: [user.id],
   }),
 }));

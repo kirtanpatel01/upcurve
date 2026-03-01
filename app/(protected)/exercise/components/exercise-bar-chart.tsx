@@ -160,11 +160,11 @@ export default function ExercisesBarChart({
 
       <CardContent>
         {exerciseLogs.length === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-6">
+          <p className="text-muted-foreground text-sm text-center py-4">
             No logs found for this exercise.
           </p>
         ) : chartData.length === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-6">
+          <p className="text-muted-foreground text-sm text-center py-4">
             No activity in this period.
           </p>
         ) : (

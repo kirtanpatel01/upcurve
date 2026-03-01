@@ -1,25 +1,29 @@
 "use client";
 
-import { Todo } from "../utils/types";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { format, isSameDay } from "date-fns";
+import { isSameDay } from "date-fns";
 import { useMemo } from "react";
+import { useTodos } from "../utils/hooks";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function TodoInsights({ todos }: { todos: Todo[] }) {
-  const completed = todos.filter((t) => t.is_completed);
-  const pending = todos.filter((t) => !t.is_completed);
+export default function TodoInsights() {
+  const { data, isLoading } = useTodos();
+  const todos = data?.todo || [];
+
+  const completed = todos.filter((t) => t.isCompleted);
+  const pending = todos.filter((t) => !t.isCompleted);
 
   const today = new Date();
   const completedToday = completed.filter((t) =>
-    t.completed_time ? isSameDay(new Date(t.completed_time), today) : false
+    t.completedAt ? isSameDay(new Date(t.completedAt), today) : false
   );
 
   const bestDay = useMemo(() => {
     const map = new Map<string, number>();
 
     completed.forEach((t) => {
-      if (!t.completed_time) return;
-      const day = t.completed_time.slice(0, 10);
+      if (!t.completedAt) return;
+      const day = t.completedAt.toISOString().slice(0, 10);
       map.set(day, (map.get(day) || 0) + 1);
     });
 
@@ -30,7 +34,7 @@ export default function TodoInsights({ todos }: { todos: Todo[] }) {
   }, [completed]);
 
   // Only count todos that are in the list
-  const activeTodos = todos.filter((t) => !t.is_completed);
+  const activeTodos = todos.filter((t) => !t.isCompleted);
 
   const priorityCounts = {
     low: activeTodos.filter((t) => t.priority === "low").length,
@@ -45,7 +49,7 @@ export default function TodoInsights({ todos }: { todos: Todo[] }) {
       : Math.round((completed.length / todos.length) * 100);
 
   return (
-    <Card className="flex-1 min-w-[260px] h-fit">
+    <Card>
       <CardHeader>
         <CardTitle>Todo Insights</CardTitle>
       </CardHeader>
@@ -53,52 +57,23 @@ export default function TodoInsights({ todos }: { todos: Todo[] }) {
       <CardContent className="space-y-4 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Completed Today:</span>
-          <span className="font-medium">{completedToday.length}</span>
+          <span className="font-medium">{isLoading ? <Skeleton className="w-4 h-4" /> : completedToday.length}</span>
         </div>
 
         <div className="flex justify-between">
           <span className="text-muted-foreground">Pending Todos:</span>
-          <span className="font-medium">{pending.length}</span>
-        </div>
-
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Completed Todos:</span>
-          <span className="font-medium">{completed.length}</span>
+          <span className="font-medium">{isLoading ? <Skeleton className="w-4 h-4" /> : pending.length}</span>
         </div>
 
         <div className="flex justify-between">
           <span className="text-muted-foreground">Completion Rate:</span>
-          <span className="font-medium">{completionRate}%</span>
-        </div>
-
-        <div className="pt-3 border-t text-sm">
-          <div className="font-medium mb-2">Priority Overview:</div>
-
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Low:</span>
-            <span>{priorityCounts.low}</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Medium:</span>
-            <span>{priorityCounts.medium}</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">High:</span>
-            <span>{priorityCounts.high}</span>
-          </div>
-
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Urgent:</span>
-            <span>{priorityCounts.urgent}</span>
-          </div>
+          <span className="font-medium flex items-center gap-1">{isLoading ? <Skeleton className="w-4 h-4" /> : completionRate}%</span>
         </div>
 
         <div className="pt-3 border-t flex justify-between">
           <span className="text-muted-foreground">Best Day:</span>
-          <span className="font-medium">
-            {bestDay ? `${bestDay.date} (${bestDay.count})` : "No data"}
+          <span className="font-medium text-primary">
+            {isLoading ? <Skeleton className="w-32 h-4" /> : bestDay ? `${bestDay.date} (${bestDay.count})` : "No data"}
           </span>
         </div>
       </CardContent>

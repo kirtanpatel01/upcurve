@@ -2,7 +2,7 @@
 
 import { Button } from './ui/button'
 import { useState } from 'react'
-import { authClient } from '@/lib/auth-client'
+import { authClient } from '@/lib/auth/client'
 import { toast } from 'sonner'
 import { Spinner } from './ui/spinner'
 

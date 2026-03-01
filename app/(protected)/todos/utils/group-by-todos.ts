@@ -36,8 +36,8 @@ export function groupTodosByDay(
   const counts: Record<string, number> = {};
 
   for (const todo of todos) {
-    if (!todo.completed_time) continue;
-    const date = parseISO(todo.completed_time);
+    if (!todo.completedAt) continue;
+    const date = parseISO(todo.completedAt.toISOString());
     const day = format(date, "yyyy-MM-dd");
     counts[day] = (counts[day] || 0) + 1;
   }

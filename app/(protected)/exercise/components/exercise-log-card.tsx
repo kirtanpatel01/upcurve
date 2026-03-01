@@ -86,7 +86,7 @@ export default function ExerciseLogCard() {
             e.preventDefault();
             form.handleSubmit();
           }}
-          className="space-y-6"
+          className="space-y-4"
         >
           <form.Field name="values">
             {(field) => (

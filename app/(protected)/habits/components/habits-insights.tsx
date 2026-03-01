@@ -12,7 +12,7 @@ export default function HabitsInsights({
 }) {
   if (!habitHistory || habitHistory.length === 0) {
     return (
-      <Card className="flex-1 min-w-[260px] h-fit p-6 text-center text-muted-foreground">
+      <Card className="flex-1 min-w-[260px] h-fit p-4 text-center text-muted-foreground">
         No habit activity yet.
       </Card>
     );

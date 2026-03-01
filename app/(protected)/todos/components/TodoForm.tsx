@@ -27,45 +27,40 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
-import { z } from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import { useState } from "react";
-import { addTodo } from "../utils/action";
-
-const formSchema = z.object({
-  id: z.number().optional(),
-  title: z
-    .string()
-    .min(3, "Todo title must be 3 or more characters.")
-    .max(32, "Todo title can't be more than 32 characters."),
-  desc: z.string(),
-  deadline: z.string(),
-  priority: z.string(),
-  is_completed: z.boolean().optional(),
-});
+import { formSchema } from "../utils/validations";
+import { TodoFormValues } from "../utils/types";
+import { createTodoMutation } from "../utils/hooks";
 
 export default function TodoForm() {
   const [open, setOpen] = useState(false);
+  const { mutateAsync } = createTodoMutation();
 
   const form = useForm({
     defaultValues: {
       title: "",
       desc: "",
       deadline: "",
-      priority: "",
-    },
+      priority: "low",
+    } as TodoFormValues,
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
       try {
-        await addTodo(value);
-        toast.success("Todo added successfully!");
-        form.reset();
-        setOpen(false);
+        const { success, message } = await mutateAsync(value);
+        if (success) {
+          toast.success("Todo created successfully!");
+          form.reset();
+          setOpen(false);
+        } else {
+          toast.error(message || "Failed to add todo");
+        }
       } catch (err: unknown) {
         if (err instanceof Error) {
+          console.error(err)
           toast.error(err.message || "Failed to add todo");
         } else {
           toast.error("Failed to add todo");
@@ -76,8 +71,8 @@ export default function TodoForm() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild className="self-end">
-        <Button>
+      <DialogTrigger asChild>
+        <Button className="cursor-pointer">
           <Plus />
           New
         </Button>
@@ -93,9 +88,9 @@ export default function TodoForm() {
         </DialogHeader>
         <form
           id="add-todo-form"
-          onSubmit={async (e) => {
+          onSubmit={(e) => {
             e.preventDefault();
-            await form.handleSubmit(e);
+            form.handleSubmit();
           }}
         >
           {/* Title */}
@@ -195,15 +190,18 @@ export default function TodoForm() {
                     <Select
                       name={field.name}
                       value={field.state.value}
-                      onValueChange={field.handleChange}
+                      onValueChange={(value: "low" | "medium" | "high" | "urgent") =>
+                        field.handleChange(value)
+                      }
                     >
                       <SelectTrigger id={field.name} aria-invalid={isInvalid}>
-                        <SelectValue placeholder="Select Priority" />
+                        <SelectValue defaultValue={"low"} />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="low">Low</SelectItem>
                         <SelectItem value="medium">Medium</SelectItem>
                         <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="urgent">Urgent</SelectItem>
                       </SelectContent>
                     </Select>
                   </Field>

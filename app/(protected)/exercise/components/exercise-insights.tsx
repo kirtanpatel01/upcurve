@@ -21,7 +21,7 @@ export default function ExerciseInsights({
 
   if (!selectedExercise) {
     return (
-      <Card className="max-w-72 w-full h-fit p-6 text-center text-muted-foreground">
+      <Card className="max-w-72 w-full h-fit p-4 text-center text-muted-foreground">
         Select an exercise to see insights.
       </Card>
     );

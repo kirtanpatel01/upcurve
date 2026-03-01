@@ -123,7 +123,7 @@ export default function HabitsBarChart({
             <Spinner />
           </div>
         ) : chartData.length === 0 ? (
-          <p className="text-muted-foreground text-sm text-center py-6">
+          <p className="text-muted-foreground text-sm text-center py-4">
             No completed todos in this period.
           </p>
         ) : (

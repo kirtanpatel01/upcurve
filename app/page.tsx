@@ -1,15 +1,10 @@
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth";
+import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import GoogleAuth from "@/components/google-auth";
+import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
 
 export default async function page() {
   const session = await auth.api.getSession({
@@ -33,31 +28,18 @@ export default async function page() {
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center text-base-content transition-colors pt-16">
+    <BackgroundBeamsWithCollision className="min-h-screen flex flex-col items-center justify-center p-4">
       <ModeToggle />
-      <div className="max-w-2xl">
-        <h1 className="text-5xl font-bold text-primary">
-          Build Better Days with Upcurve
-        </h1>
-        <p className="mt-4 text-base-content/70 text-lg">
-          Track habits, manage todos, and log your workouts — all in one smooth,
-          responsive dashboard.
-        </p>
-      </div>
+      <div className="space-y-8 text-center">
+        <header className="space-y-4">
+          <h1 className="text-5xl font-bold text-primary">
+            Upcurve
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Track habits, manage todos, and log your workouts — all in one!
+          </p>
+        </header>
 
-      <div className="mt-12 grid gap-6 sm:grid-cols-3 max-w-4xl w-full">
-        {features.map((feature) => (
-          <Card key={feature.title}>
-            <CardHeader>
-              <CardTitle>{feature.title}</CardTitle>
-              <CardDescription>{feature.desc}</CardDescription>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
-
-      {/* CTA */}
-      <div className="mt-12">
         {isLoggedIn ? (
           <Link href="/dashboard">
             <Button className="cursor-pointer">Dashboard</Button>
@@ -66,6 +48,6 @@ export default async function page() {
           <GoogleAuth />
         )}
       </div>
-    </div>
+    </BackgroundBeamsWithCollision>
   );
 }

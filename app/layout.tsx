@@ -8,7 +8,7 @@ import NetworkStatus from "@/components/network-status";
 const lexend = Lexend();
 
 export const metadata: Metadata = {
-  title: "Boost your productivity",
+  title: "Upcurve",
   description:
     "Upcurve provides minimal UI to manage and monitor your progress.",
   icons: {
@@ -30,9 +30,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster richColors />
-          <NetworkStatus />
+            {children}
+            <Toaster richColors />
+            <NetworkStatus />
         </ThemeProvider>
       </body>
     </html>

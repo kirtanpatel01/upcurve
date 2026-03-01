@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import z from "zod";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import {
@@ -25,19 +24,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Spinner } from "@/components/ui/spinner";
-import { editTodo } from "../utils/action";
 import { type Todo, TodoFormValues } from "../utils/types";
-
-const formSchema = z.object({
-  title: z
-    .string()
-    .min(3, "Todo title must be 3 or more characters.")
-    .max(32, "Todo title can't be more than 32 characters."),
-  desc: z.string(),
-  deadline: z.string(),
-  priority: z.string(),
-});
+import { formSchema } from "../utils/validations";
+import { editTodoMutation } from "../utils/hooks";
 
 function EditTodoSheetContent({
   todo,
@@ -46,19 +35,20 @@ function EditTodoSheetContent({
   todo: Todo;
   closeSheet: () => void;
 }) {
+  const { mutateAsync: editTodo, isPending: isEditing } = editTodoMutation(todo.id);
   const form = useForm({
     defaultValues: {
       title: todo?.title || "",
       desc: todo?.desc || "",
-      deadline: todo?.deadline || "",
-      priority: todo?.priority || "",
-    },
+      deadline: todo?.deadline ? new Date(todo.deadline).toISOString().split('T')[0] : "",
+      priority: todo?.priority || "low",
+    } as TodoFormValues,
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }: { value: TodoFormValues }) => {
       try {
-        await editTodo(value, todo.id);
+        await editTodo({ value, id: todo.id });
         toast.success("Todo updated successfully!");
         form.reset();
         closeSheet();
@@ -89,7 +79,6 @@ function EditTodoSheetContent({
         }}
         className="px-4"
       >
-        {/* Title */}
         <FieldGroup>
           <form.Field name="title">
             {(field) => {
@@ -182,10 +171,8 @@ function EditTodoSheetContent({
                   <Select
                     name={field.name}
                     value={field.state.value}
-                    onValueChange={(value) =>
-                      field.handleChange(
-                        value as "" | "low" | "medium" | "high"
-                      )
+                    onValueChange={(value: "low" | "medium" | "high" | "urgent") =>
+                      field.handleChange(value)
                     }
                   >
                     <SelectTrigger id={field.name} aria-invalid={isInvalid}>
@@ -195,6 +182,7 @@ function EditTodoSheetContent({
                       <SelectItem value="low">Low</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
                       <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
                     </SelectContent>
                   </Select>
                 </Field>
@@ -205,20 +193,15 @@ function EditTodoSheetContent({
       </form>
 
       <SheetFooter>
-        <form.Subscribe selector={(state) => [state.isSubmitting]}>
-          {([isSubmitting]) => {
-            return (
-              <Button
-                type="submit"
-                form="edit-todo-form"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? "Updating..." : "Update"}
-              </Button>
-            );
-          }}
-        </form.Subscribe>
-        <Button type="button" variant="outline" onClick={() => form.reset()}>
+        <Button
+          type="submit"
+          form="edit-todo-form"
+          disabled={isEditing}
+          className="cursor-pointer"
+        >
+          {isEditing ? "Updating..." : "Update"}
+        </Button>
+        <Button type="button" variant="outline" onClick={() => form.reset()} className="cursor-pointer">
           Reset
         </Button>
       </SheetFooter>

@@ -22,7 +22,6 @@ import { toggleTodoCompletionMutation, useTodos } from "../utils/hooks";
 import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MoreVertical } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -33,7 +32,15 @@ export default function TodoList() {
 
     return data.todo
       .filter((t) => !t.isArchived)
-      .sort((a, b) => Number(a.isCompleted) - Number(b.isCompleted));
+      .sort((a, b) => {
+        if (a.isCompleted !== b.isCompleted) {
+          return a.isCompleted ? 1 : -1;
+        }
+
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA;
+      });
   }, [data?.todo]);
 
   const { mutate: toggleTodoCompletion, variables: togglingId, isPending: isToggling } = toggleTodoCompletionMutation();
@@ -78,7 +85,7 @@ export default function TodoList() {
       {visibleTodos.length > 0 ? (
         <div className="space-y-3">
           <TodoForm />
-          <ScrollArea className="h-[calc(100vh-11rem)] pr-3">
+          <ScrollArea className="h-[calc(100vh-11rem)] pr-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <ul className="space-y-3">
               {visibleTodos.map((todo) => (
                 <div

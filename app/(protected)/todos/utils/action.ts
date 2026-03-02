@@ -5,7 +5,7 @@ import { TodoFormValues } from "./types";
 import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
 import { todos } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 export async function getTodos() {
   const session = await auth.api.getSession({
@@ -16,7 +16,11 @@ export async function getTodos() {
 
   const { user } = session;
 
-  const todo = await db.select().from(todos).where(eq(todos.userId, user.id));
+  const todo = await db
+    .select()
+    .from(todos)
+    .where(eq(todos.userId, user.id))
+    .orderBy(desc(todos.createdAt));
 
   return { success: true, todo };
 }

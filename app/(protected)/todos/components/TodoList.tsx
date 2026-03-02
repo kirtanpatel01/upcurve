@@ -78,7 +78,7 @@ export default function TodoList() {
       {visibleTodos.length > 0 ? (
         <div className="space-y-3">
           <TodoForm />
-          <ScrollArea className="h-[calc(100vh-8rem)] pr-3">
+          <ScrollArea className="h-[calc(100vh-11rem)] pr-3">
             <ul className="space-y-3">
               {visibleTodos.map((todo) => (
                 <div

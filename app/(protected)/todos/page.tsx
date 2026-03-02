@@ -13,7 +13,7 @@ export default async function page() {
           <TodosChart />
         </div>
       </div>
-      <div className="xl:hidden p-3">
+      <div className="xl:hidden p-3 h-[calc(100vh-4rem)] overflow-hidden">
         <Tabs defaultValue="todos">
           <TabsList className="w-full">
             <TabsTrigger value="todos">Todos</TabsTrigger>

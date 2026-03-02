@@ -5,6 +5,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Trash2 } from "lucide-react";
+import DeleteTodoAlert from "./DeleteTodoAlert";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";
@@ -192,16 +195,24 @@ function EditTodoSheetContent({
         </FieldGroup>
       </form>
 
-      <SheetFooter>
+      <SheetFooter className="flex-col sm:flex-row gap-2 mt-4 p-4 mb-4 sm:mb-0 sm:p-0">
         <Button
           type="submit"
           form="edit-todo-form"
           disabled={isEditing}
-          className="cursor-pointer"
+          className="cursor-pointer flex-1"
         >
           {isEditing ? "Updating..." : "Update"}
         </Button>
-        <Button type="button" variant="outline" onClick={() => form.reset()} className="cursor-pointer">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" className="text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer flex-1">
+              <Trash2 size={16} className="mr-2" /> Delete
+            </Button>
+          </AlertDialogTrigger>
+          <DeleteTodoAlert id={todo.id} />
+        </AlertDialog>
+        <Button type="button" variant="outline" onClick={() => form.reset()} className="cursor-pointer flex-1">
           Reset
         </Button>
       </SheetFooter>

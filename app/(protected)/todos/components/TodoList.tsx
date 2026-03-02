@@ -2,16 +2,6 @@
 
 import TodoForm from "./TodoForm";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
-import RemainingTime from "./RemainingTime";
-import { TodoAction } from "./todo-action";
-import {
   Empty,
   EmptyContent,
   EmptyDescription,
@@ -19,14 +9,16 @@ import {
   EmptyTitle
 } from "@/components/ui/empty";
 import { toggleTodoCompletionMutation, useTodos } from "../utils/hooks";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MoreVertical } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { MoreVertical, ChevronDown, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import TodoItem from "./todo-item";
 
 export default function TodoList() {
   const { data, isLoading, error } = useTodos();
+  const [showCompleted, setShowCompleted] = useState(false);
+
   const visibleTodos = useMemo(() => {
     if (!data?.todo) return [];
 
@@ -43,9 +35,11 @@ export default function TodoList() {
       });
   }, [data?.todo]);
 
+  const incompletedTodos = useMemo(() => visibleTodos.filter(t => !t.isCompleted), [visibleTodos]);
+  const completedTodos = useMemo(() => visibleTodos.filter(t => t.isCompleted), [visibleTodos]);
+
   const { mutate: toggleTodoCompletion, variables: togglingId, isPending: isToggling } = toggleTodoCompletionMutation();
 
-  console.log(togglingId)
   if (isLoading) {
     return (
       <div className="w-full max-w-lg">
@@ -86,61 +80,46 @@ export default function TodoList() {
         <div className="space-y-3">
           <TodoForm />
           <ScrollArea className="h-[calc(100vh-11rem)] pr-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <ul className="space-y-3">
-              {visibleTodos.map((todo) => (
-                <div
-                  key={todo.id}
-                  className={cn(
-                    "w-full flex items-center justify-between border border-border/30 p-3 rounded-md bg-background"
-                  )}
-                >
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id={`todo-${todo.id}`}
-                          checked={todo.isCompleted}
-                          onCheckedChange={() => toggleTodoCompletion(todo.id)}
-                          disabled={togglingId === todo.id && isToggling}
-                          className="cursor-pointer"
-                        />
-                        <Label
-                          htmlFor={`todo-${todo.id}`}
-                          className={cn(
-                            "cursor-pointer select-none capitalize transition-all duration-200",
-                            todo.isCompleted && "line-through text-gray-400"
-                          )}
-                        >
-                          {todo.title}
-                        </Label>
-                        {todo.priority && (
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "ml-1 capitalize border-transparent text-[10px] px-1.5 py-0",
-                              todo.priority === "low" && "bg-muted text-muted-foreground",
-                              todo.priority === "medium" && "bg-blue-500/10 text-blue-500",
-                              todo.priority === "high" && "bg-orange-500/10 text-orange-500",
-                              todo.priority === "urgent" && "bg-destructive/10 text-destructive border-destructive/20"
-                            )}
-                          >
-                            {todo.priority}
-                          </Badge>
-                        )}
-                      </div>
-                    </TooltipTrigger>
-                    {todo.desc && <TooltipContent>Desc: {todo.desc}</TooltipContent>}
-                  </Tooltip>
+            {/* Incompleted Todos */}
+            {incompletedTodos.length > 0 && (
+              <ul className="space-y-3">
+                {incompletedTodos.map((todo) => (
+                  <TodoItem
+                    key={todo.id}
+                    todo={todo}
+                    toggleTodoCompletion={toggleTodoCompletion}
+                    togglingId={togglingId as string | null}
+                    isToggling={isToggling}
+                  />
+                ))}
+              </ul>
+            )}
 
-                  {!todo.isCompleted && (
-                    <div className="flex items-center gap-1">
-                      {todo.deadline && <RemainingTime deadline={todo.deadline} />}
-                    </div>
-                  )}
-                  <TodoAction todo={todo} />
-                </div>
-              ))}
-            </ul>
+            {/* Completed Todos */}
+            {completedTodos.length > 0 && (
+               <div className="mt-6">
+                <button
+                  onClick={() => setShowCompleted(!showCompleted)}
+                  className="flex items-center gap-2 text-sm text-muted-foreground w-full hover:bg-muted/50 rounded-md transition-colors cursor-pointer font-medium"
+                >
+                  {showCompleted ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  Completed ({completedTodos.length})
+                </button>
+                {showCompleted && (
+                  <ul className="space-y-3 mt-3">
+                    {completedTodos.map((todo) => (
+                      <TodoItem 
+                        key={todo.id} 
+                        todo={todo} 
+                        toggleTodoCompletion={toggleTodoCompletion} 
+                        togglingId={togglingId as string | null} 
+                        isToggling={isToggling} 
+                      />
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </ScrollArea>
         </div>
       ) : (

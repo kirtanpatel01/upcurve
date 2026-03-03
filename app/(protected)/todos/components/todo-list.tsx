@@ -1,6 +1,6 @@
 "use client";
 
-import TodoForm from "./TodoForm";
+import TodoForm from "./todo-form";
 import {
   Empty,
   EmptyContent,

@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
-import DeleteTodoAlert from "./DeleteTodoAlert";
+import DeleteTodoAlert from "./delete-todo-alert";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@tanstack/react-form";

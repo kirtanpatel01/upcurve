@@ -123,3 +123,54 @@ export const todoRelations = relations(todos, ({ one }) => ({
     references: [user.id],
   }),
 }));
+
+export const habits = pgTable(
+  "habits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    isArchived: boolean("is_archived").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (table) => [index("habits_userId_idx").on(table.userId)],
+);
+
+export const habitRelations = relations(habits, ({ one, many }) => ({
+  user: one(user, {
+    fields: [habits.userId],
+    references: [user.id],
+  }),
+  executions: many(habitExecutions),
+}));
+
+export const habitExecutions = pgTable(
+  "habit_executions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    habitId: uuid("habit_id")
+      .notNull()
+      .references(() => habits.id, { onDelete: "cascade" }),
+    date: text("date").notNull(),
+    completed: boolean("completed").default(false).notNull(),
+    completedAt: timestamp("completed_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("habit_executions_habitId_idx").on(table.habitId),
+    index("habit_executions_date_idx").on(table.date),
+  ],
+);
+
+export const habitExecutionRelations = relations(habitExecutions, ({ one }) => ({
+  habit: one(habits, {
+    fields: [habitExecutions.habitId],
+    references: [habits.id],
+  }),
+}));

@@ -8,7 +8,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import RemainingTime from "./RemainingTime";
+import RemainingTime from "./remaining-time";
 import { TodoAction } from "./todo-action";
 import { Badge } from "@/components/ui/badge";
 import { Todo } from "../utils/types";

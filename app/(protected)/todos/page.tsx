@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TodoList from "./components/TodoList";
+import TodoList from "./components/todo-list";
 import { TodosChart } from "./components/todos-charts";
 import TodoInsights from "./components/todos-insights";
 

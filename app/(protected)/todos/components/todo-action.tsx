@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetTrigger } from "@/components/ui/sheet";
 import { Pencil, Archive } from "lucide-react";
-import EditTodoSheetContent from "./EditTodoSheetContent";
+import EditTodoSheetContent from "./edit-todo-sheet-content";
 import { useState } from "react";
 import { Todo } from "../utils/types";
 import { toggleTodoArchiveMutation } from "../utils/hooks";

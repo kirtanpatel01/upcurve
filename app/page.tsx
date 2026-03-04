@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth/auth";
+import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import GoogleAuth from "@/components/google-auth";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";

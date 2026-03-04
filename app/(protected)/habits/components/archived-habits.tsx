@@ -1,17 +1,23 @@
 "use client";
-import React, { useState } from "react";
+
 import { ArchiveRestore, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useHabitStore, Habit } from "../store";
 import { toggleHabitArchive, deleteHabit } from "../actions";
 
-export default function ArchivedHabits() {
-  const [show, setShow] = useState(false);
+export default function ArchivedHabits({
+  initialArchivedHabits,
+}: {
+  initialArchivedHabits: Habit[];
+}) {
+  const isInitialized = useHabitStore((state) => state.isInitialized);
   const archivedHabits = useHabitStore((state) => state.archivedHabits);
   const toggleArchive = useHabitStore((state) => state.toggleArchive);
   const removeArchivedHabit = useHabitStore((state) => state.removeArchivedHabit);
 
-  if (archivedHabits.length === 0) return null;
+  const displayHabits = isInitialized ? archivedHabits : initialArchivedHabits;
+
+  if (displayHabits.length === 0) return null;
 
   const handleRestore = async (habit: Habit) => {
     toggleArchive(habit);
@@ -24,48 +30,33 @@ export default function ArchivedHabits() {
   };
 
   return (
-    <div className="pt-6">
-      <Button
-        variant="link"
-        size="sm"
-        onClick={() => setShow(!show)}
-        className="text-muted-foreground px-0 h-auto"
-      >
-        {show ? "Hide Archived" : `Show Archived (${archivedHabits.length})`}
-      </Button>
-      
-      {show && (
-        <div className="mt-4 space-y-2">
-          {archivedHabits.map((habit) => (
-            <div
-              key={habit.id}
-              className="flex items-center justify-between p-3 border rounded-md bg-muted/50"
+    <div className="space-y-2">
+      {displayHabits.map((habit) => (
+        <div
+          key={habit.id}
+          className="flex items-center justify-between px-2 border border-border/50 rounded-md bg-muted/30"
+        >
+          <span className="text-sm text-muted-foreground line-through">
+            {habit.name}
+          </span>
+          <div className="flex items-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleRestore(habit)}
             >
-              <span className="text-sm text-muted-foreground line-through">
-                {habit.name}
-              </span>
-              <div className="flex items-center space-x-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                  onClick={() => handleRestore(habit)}
-                >
-                  <ArchiveRestore className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => handleDelete(habit.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ))}
+              <ArchiveRestore className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => handleDelete(habit.id)}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
-      )}
+      ))}
     </div>
   );
 }

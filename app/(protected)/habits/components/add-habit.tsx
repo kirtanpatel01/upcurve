@@ -51,15 +51,15 @@ export default function AddHabit() {
       <Button
         variant="ghost"
         onClick={() => setIsAdding(true)}
-        className="w-full justify-start text-muted-foreground hover:text-foreground font-normal px-3 mt-2"
+        className="w-full justify-start"
       >
-        <Plus className="mr-2 h-4 w-4" /> Add Habit
+        <Plus className="h-4 w-4" /> Add Habit
       </Button>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center space-x-2 p-3 mt-2 border rounded-md">
+    <form onSubmit={handleSubmit} className="flex items-center space-x-2 px-3 mt-2 border rounded-md">
       <Input
         ref={inputRef}
         value={name}

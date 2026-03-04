@@ -1,19 +1,14 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth/auth";
-import { headers } from "next/headers";
 import { habits, habitExecutions } from "@/lib/db/schema";
-import { desc, eq, and } from "drizzle-orm";
+import { desc, eq, and, sql, gte, asc } from "drizzle-orm";
+import { getUser } from "@/lib/auth/client";
+import { format } from "date-fns";
 
 export async function getHabits() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
-
-  const { user } = session;
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   const activeHabits = await db
     .select()
@@ -25,13 +20,8 @@ export async function getHabits() {
 }
 
 export async function getArchivedHabits() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
-
-  const { user } = session;
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   const archivedHabits = await db
     .select()
@@ -43,16 +33,10 @@ export async function getArchivedHabits() {
 }
 
 export async function addHabit(name: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
-
-  const { user } = session;
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   await db.insert(habits).values({
-    id: crypto.randomUUID(),
     name,
     userId: user.id,
   });
@@ -61,11 +45,8 @@ export async function addHabit(name: string) {
 }
 
 export async function editHabit(id: string, name: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   await db
     .update(habits)
@@ -76,23 +57,16 @@ export async function editHabit(id: string, name: string) {
 }
 
 export async function deleteHabit(id: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   await db.delete(habits).where(eq(habits.id, id));
-
   return { success: true };
 }
 
 export async function toggleHabitArchive(id: string, isArchived: boolean) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   await db
     .update(habits)
@@ -106,11 +80,8 @@ export async function toggleHabitArchive(id: string, isArchived: boolean) {
 
 export async function getHabitExecutions(dateStr: string) {
   // dateStr format: YYYY-MM-DD
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   const executions = await db
     .select({
@@ -121,17 +92,42 @@ export async function getHabitExecutions(dateStr: string) {
     })
     .from(habitExecutions)
     .innerJoin(habits, eq(habits.id, habitExecutions.habitId))
-    .where(and(eq(habits.userId, session.user.id), eq(habitExecutions.date, dateStr)));
+    .where(and(eq(habits.userId, user.id), eq(habitExecutions.date, dateStr)));
 
   return { success: true, executions };
 }
 
-export async function toggleHabitExecution(habitId: string, dateStr: string, completed: boolean) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+export async function getHistoricalExecutions(days: number) {
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
-  if (!session) return { success: false, message: "You're not logged in!" };
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - days);
+  const startDateStr = format(startDate, "yyyy-MM-dd");
+
+  const results = await db
+    .select({
+      date: habitExecutions.date,
+      count: sql<number>`cast(count(${habitExecutions.id}) as int)`,
+    })
+    .from(habitExecutions)
+    .innerJoin(habits, eq(habits.id, habitExecutions.habitId))
+    .where(
+      and(
+        eq(habits.userId, user.id),
+        eq(habitExecutions.completed, true),
+        gte(habitExecutions.date, startDateStr)
+      )
+    )
+    .groupBy(habitExecutions.date)
+    .orderBy(asc(habitExecutions.date));
+
+  return { success: true, stats: results };
+}
+
+export async function toggleHabitExecution(habitId: string, dateStr: string, completed: boolean) {
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   const existing = await db
     .select()
@@ -146,7 +142,6 @@ export async function toggleHabitExecution(habitId: string, dateStr: string, com
       .where(eq(habitExecutions.id, existing[0].id));
   } else {
     await db.insert(habitExecutions).values({
-      id: crypto.randomUUID(),
       habitId,
       date: dateStr,
       completed,

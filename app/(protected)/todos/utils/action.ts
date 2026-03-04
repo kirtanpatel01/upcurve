@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { TodoFormValues } from "./types";
-import { auth } from "@/lib/auth/auth";
+import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { todos } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";

@@ -1,7 +1,19 @@
 "use client";
 
-import { format, subDays, eachDayOfInterval, isSameDay, startOfMonth, endOfMonth, eachMonthOfInterval } from "date-fns";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { 
+  format, 
+  subDays, 
+  eachDayOfInterval, 
+  isSameDay, 
+  startOfMonth, 
+  eachMonthOfInterval 
+} from "date-fns";
+import { 
+  Tooltip, 
+  TooltipContent, 
+  TooltipProvider, 
+  TooltipTrigger 
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface HeatmapData {

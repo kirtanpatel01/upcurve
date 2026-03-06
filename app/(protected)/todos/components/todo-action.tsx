@@ -4,11 +4,27 @@ import { Pencil, Archive } from "lucide-react";
 import EditTodoSheetContent from "./edit-todo-sheet-content";
 import { useState } from "react";
 import { Todo } from "../utils/types";
-import { toggleTodoArchiveMutation } from "../utils/hooks";
+import { useTodoStore } from "./todo-store-provider";
+import { toggleTodoArchive } from "../utils/action";
+import { toast } from "sonner";
 
 export function TodoAction({ todo }: { todo: Todo }) {
   const [open, setOpen] = useState(false);
-  const { mutate: toggleTodoArchive, isPending: isArchiving } = toggleTodoArchiveMutation();
+  const updateTodoInStore = useTodoStore((state) => state.updateTodoInStore);
+
+  const handleArchive = async () => {
+    updateTodoInStore(todo.id, { isArchived: true });
+    try {
+      const res = await toggleTodoArchive(todo.id);
+      if (!res.success) {
+        updateTodoInStore(todo.id, { isArchived: false });
+        toast.error("Failed to archive todo");
+      }
+    } catch (err) {
+      updateTodoInStore(todo.id, { isArchived: false });
+      toast.error("An unexpected error occurred");
+    }
+  };
 
   return (
     <div className="flex items-center gap-1 border border-border/10 rounded-md">
@@ -26,8 +42,7 @@ export function TodoAction({ todo }: { todo: Todo }) {
           variant="ghost"
           size="icon"
           className="h-7 w-7 text-muted-foreground hover:text-foreground cursor-pointer"
-          onClick={() => toggleTodoArchive(todo.id)}
-          disabled={isArchiving}
+          onClick={handleArchive}
         >
           <Archive size={14} />
         </Button>

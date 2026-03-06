@@ -32,11 +32,12 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { formSchema } from "../utils/validations";
 import { TodoFormValues } from "../utils/types";
-import { createTodoMutation } from "../utils/hooks";
+import { useTodoStore } from "./todo-store-provider";
+import { addTodo } from "../utils/action";
 
 export default function TodoForm() {
   const [open, setOpen] = useState(false);
-  const { mutateAsync } = createTodoMutation();
+  const addTodoToStore = useTodoStore((state) => state.addTodoToStore);
 
   const form = useForm({
     defaultValues: {
@@ -50,21 +51,17 @@ export default function TodoForm() {
     },
     onSubmit: async ({ value }) => {
       try {
-        const { success, message } = await mutateAsync(value);
-        if (success) {
+        const res = await addTodo(value);
+        if (res.success && res.data) {
           toast.success("Todo created successfully!");
+          addTodoToStore(res.data);
           form.reset();
           setOpen(false);
         } else {
-          toast.error(message || "Failed to add todo");
+          toast.error(res.message || "Failed to add todo");
         }
       } catch (err: unknown) {
-        if (err instanceof Error) {
-          console.error(err)
-          toast.error(err.message || "Failed to add todo");
-        } else {
-          toast.error("Failed to add todo");
-        }
+        toast.error("An unexpected error occurred");
       }
     },
   });

@@ -29,7 +29,9 @@ import {
 } from "@/components/ui/select";
 import { type Todo, TodoFormValues } from "../utils/types";
 import { formSchema } from "../utils/validations";
-import { editTodoMutation } from "../utils/hooks";
+import { useTodoStore } from "./todo-store-provider";
+import { editTodo } from "../utils/action";
+import { useState } from "react";
 
 function EditTodoSheetContent({
   todo,
@@ -38,7 +40,9 @@ function EditTodoSheetContent({
   todo: Todo;
   closeSheet: () => void;
 }) {
-  const { mutateAsync: editTodo, isPending: isEditing } = editTodoMutation(todo.id);
+  const updateTodoInStore = useTodoStore((state) => state.updateTodoInStore);
+  const [isEditing, setIsEditing] = useState(false);
+
   const form = useForm({
     defaultValues: {
       title: todo?.title || "",
@@ -50,17 +54,25 @@ function EditTodoSheetContent({
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }: { value: TodoFormValues }) => {
+      setIsEditing(true);
       try {
-        await editTodo({ value, id: todo.id });
-        toast.success("Todo updated successfully!");
-        form.reset();
-        closeSheet();
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          toast.error(err.message || "Failed to edit todo");
+        const res = await editTodo(value, todo.id);
+        if (res.success) {
+          updateTodoInStore(todo.id, {
+            title: value.title,
+            priority: value.priority,
+            desc: value.desc || null,
+            deadline: value.deadline ? new Date(value.deadline) : null,
+          });
+          toast.success("Todo updated successfully!");
+          closeSheet();
         } else {
           toast.error("Failed to edit todo");
         }
+      } catch (err: unknown) {
+        toast.error("An unexpected error occurred");
+      } finally {
+        setIsEditing(false);
       }
     },
   });

@@ -25,16 +25,16 @@ export async function addTodo(values: TodoFormValues) {
   const user = await getUser();
   if (!user) return { success: false, message: "You're not logged in!" };
 
-  await db.insert(todos).values({
+  const [newTodo] = await db.insert(todos).values({
     id: crypto.randomUUID(),
     title,
     desc,
     deadline: deadline ? new Date(deadline) : null,
     priority: priority as "low" | "medium" | "high" | "urgent",
     userId: user.id,
-  });
+  }).returning();
 
-  return { success: true, message: "Todo created successfully." };
+  return { success: true, message: "Todo created successfully.", data: newTodo };
 }
 
 export async function editTodo(value: TodoFormValues, id: string) {

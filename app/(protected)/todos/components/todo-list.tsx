@@ -8,21 +8,18 @@ import {
   EmptyHeader,
   EmptyTitle
 } from "@/components/ui/empty";
-import { toggleTodoCompletionMutation, useTodos } from "../utils/hooks";
 import { useMemo, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { MoreVertical, ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TodoItem from "./todo-item";
+import { useTodoStore } from "./todo-store-provider";
 
 export default function TodoList() {
-  const { data, isLoading, error } = useTodos();
+  const todos = useTodoStore((state) => state.todos);
   const [showCompleted, setShowCompleted] = useState(false);
 
   const visibleTodos = useMemo(() => {
-    if (!data?.todo) return [];
-
-    return data.todo
+    return (todos || [])
       .filter((t) => !t.isArchived)
       .sort((a, b) => {
         if (a.isCompleted !== b.isCompleted) {
@@ -33,46 +30,10 @@ export default function TodoList() {
         const dateB = new Date(b.createdAt).getTime();
         return dateB - dateA;
       });
-  }, [data?.todo]);
+  }, [todos]);
 
   const incompletedTodos = useMemo(() => visibleTodos.filter(t => !t.isCompleted), [visibleTodos]);
   const completedTodos = useMemo(() => visibleTodos.filter(t => t.isCompleted), [visibleTodos]);
-
-  const { mutate: toggleTodoCompletion, variables: togglingId, isPending: isToggling } = toggleTodoCompletionMutation();
-
-  if (isLoading) {
-    return (
-      <div className="w-full max-w-lg">
-        <div className="space-y-3">
-          <TodoForm />
-          {
-            [1, 2, 3, 4].map((todo) => (
-              <div
-                key={todo}
-                className="w-full flex items-center justify-between border border-border/30 p-3 rounded-md"
-              >
-                <div className="flex items-center gap-2">
-                  <Skeleton className="h-4 w-4" />
-                  <Skeleton className="h-4 w-32" />
-                </div>
-                <Skeleton className="bg-transparent">
-                  <MoreVertical size={16} />
-                </Skeleton>
-              </div>
-            ))
-          }
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="w-full max-w-lg">
-        <p className="text-red-400">Error: {error.message}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="w-full max-w-lg">
@@ -87,9 +48,6 @@ export default function TodoList() {
                   <TodoItem
                     key={todo.id}
                     todo={todo}
-                    toggleTodoCompletion={toggleTodoCompletion}
-                    togglingId={togglingId as string | null}
-                    isToggling={isToggling}
                   />
                 ))}
               </ul>
@@ -111,9 +69,6 @@ export default function TodoList() {
                       <TodoItem 
                         key={todo.id} 
                         todo={todo} 
-                        toggleTodoCompletion={toggleTodoCompletion} 
-                        togglingId={togglingId as string | null} 
-                        isToggling={isToggling} 
                       />
                     ))}
                   </ul>

@@ -22,11 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useTodos } from "../utils/hooks"
 import { useMemo, useState } from "react"
 import { format, subDays } from "date-fns"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Spinner } from "@/components/ui/spinner"
+import { useTodoStore } from "./todo-store-provider"
 
 const chartConfig = {
   views: {
@@ -43,8 +41,7 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export function TodosChart() {
-  const { data, isLoading } = useTodos();
-  const todos = data?.todo || [];
+  const todos = useTodoStore((state) => state.todos) || [];
   const [timeRange, setTimeRange] = useState("7");
   const [activeChart, setActiveChart] = useState<keyof typeof chartConfig>("created");
 
@@ -132,7 +129,7 @@ export function TodosChart() {
                   {chartConfig[chart].label}
                 </span>
                 <span className="text-lg leading-none font-bold xl:text-3xl">
-                  {isLoading ? <Skeleton className="w-8 h-8" /> : total[key as keyof typeof total].toLocaleString()}
+                  {total[key as keyof typeof total].toLocaleString()}
                 </span>
               </button>
             )
@@ -141,40 +138,38 @@ export function TodosChart() {
       </CardHeader>
       <CardContent className="px-3 sm:px-4 xl:p-6">
         <ChartContainer config={chartConfig}>
-          {isLoading ? <div><Spinner className="flex items-center gap-1" />Loading data</div> : (
-            <LineChart
-              accessibilityLayer
-              data={chartData}
-              margin={{
-                left: 12,
-                right: 12,
-              }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="month"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                interval={tickInterval}
-              />
-              <ChartTooltip
-                cursor={false}
-                content={
-                  <ChartTooltipContent
-                    nameKey="views"
-                  />
-                }
-              />
-              <Line
-                dataKey={activeChart}
-                type="step"
-                stroke={`var(--color-${activeChart})`}
-                strokeWidth={2}
-                dot={false}
-              />
-            </LineChart>
-          )}
+          <LineChart
+            accessibilityLayer
+            data={chartData}
+            margin={{
+              left: 12,
+              right: 12,
+            }}
+          >
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="month"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              interval={tickInterval}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  nameKey="views"
+                />
+              }
+            />
+            <Line
+              dataKey={activeChart}
+              type="step"
+              stroke={`var(--color-${activeChart})`}
+              strokeWidth={2}
+              dot={false}
+            />
+          </LineChart>
         </ChartContainer>
       </CardContent>
     </Card>

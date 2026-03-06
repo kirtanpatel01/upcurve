@@ -8,20 +8,30 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { deleteTodoMutation } from "../utils/hooks";
+import { useTodoStore } from "./todo-store-provider";
+import { deleteTodo } from "../utils/action";
+import { useState } from "react";
 
 function DeleteTodoAlert({ id }: { id: string }) {
-  const { mutateAsync, isPending } = deleteTodoMutation();
+  const removeTodoFromStore = useTodoStore((state) => state.removeTodoFromStore);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const submit = async () => {
+    setIsDeleting(true);
+    // Optimistic removal
+    removeTodoFromStore(id);
+    
     try {
-      await mutateAsync(id);
-      toast.success("Successfully deleted!");
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        toast.error(err.message || "Failed to delete todo");
+      const res = await deleteTodo(id);
+      if (res.success) {
+        toast.success("Successfully deleted!");
       } else {
         toast.error("Failed to delete todo");
       }
+    } catch (err: unknown) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setIsDeleting(false);
     }
   };
   return (
@@ -38,9 +48,9 @@ function DeleteTodoAlert({ id }: { id: string }) {
         <AlertDialogAction
           onClick={submit}
           className="bg-destructive/90 hover:bg-destructive cursor-pointer"
-          disabled={isPending}
+          disabled={isDeleting}
         >
-          {isPending ? "Deleting..." : "Delete"}
+          {isDeleting ? "Deleting..." : "Delete"}
         </AlertDialogAction>
       </AlertDialogFooter>
     </AlertDialogContent>

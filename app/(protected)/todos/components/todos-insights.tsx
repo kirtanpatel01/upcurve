@@ -3,12 +3,10 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { isSameDay } from "date-fns";
 import { useMemo } from "react";
-import { useTodos } from "../utils/hooks";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useTodoStore } from "./todo-store-provider";
 
 export default function TodoInsights() {
-  const { data, isLoading } = useTodos();
-  const todos = data?.todo || [];
+  const todos = useTodoStore((state) => state.todos) || [];
 
   const completed = todos.filter((t) => t.isCompleted);
   const pending = todos.filter((t) => !t.isCompleted);
@@ -57,23 +55,23 @@ export default function TodoInsights() {
       <CardContent className="space-y-4 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Completed Today:</span>
-          <span className="font-medium">{isLoading ? <Skeleton className="w-4 h-4" /> : completedToday.length}</span>
+          <span className="font-medium">{completedToday.length}</span>
         </div>
 
         <div className="flex justify-between">
           <span className="text-muted-foreground">Pending Todos:</span>
-          <span className="font-medium">{isLoading ? <Skeleton className="w-4 h-4" /> : pending.length}</span>
+          <span className="font-medium">{pending.length}</span>
         </div>
 
         <div className="flex justify-between">
           <span className="text-muted-foreground">Completion Rate:</span>
-          <span className="font-medium flex items-center gap-1">{isLoading ? <Skeleton className="w-4 h-4" /> : completionRate}%</span>
+          <span className="font-medium flex items-center gap-1">{completionRate}%</span>
         </div>
 
         <div className="pt-3 border-t flex justify-between">
           <span className="text-muted-foreground">Best Day:</span>
           <span className="font-medium text-primary">
-            {isLoading ? <Skeleton className="w-32 h-4" /> : bestDay ? `${bestDay.date} (${bestDay.count})` : "No data"}
+            {bestDay ? `${bestDay.date} (${bestDay.count})` : "No data"}
           </span>
         </div>
       </CardContent>

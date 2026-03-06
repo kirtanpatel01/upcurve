@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Tooltip,
   TooltipContent,
@@ -12,18 +10,35 @@ import RemainingTime from "./remaining-time";
 import { TodoAction } from "./todo-action";
 import { Badge } from "@/components/ui/badge";
 import { Todo } from "../utils/types";
+import { useTodoStore } from "./todo-store-provider";
+import { toggleTodoCompletion } from "../utils/action";
+import { toast } from "sonner";
 
 export default function TodoItem({
   todo,
-  toggleTodoCompletion,
-  togglingId,
-  isToggling,
 }: {
   todo: Todo;
-  toggleTodoCompletion: (id: string) => void;
-  togglingId: string | null;
-  isToggling: boolean;
 }) {
+  const updateTodoInStore = useTodoStore((state) => state.updateTodoInStore);
+
+  const handleToggleCompletion = async () => {
+    // Optimistic update
+    const previousState = todo.isCompleted;
+    updateTodoInStore(todo.id, { isCompleted: !previousState, completedAt: !previousState ? new Date() : null });
+
+    try {
+      const res = await toggleTodoCompletion(todo.id);
+      if (!res.success) {
+        // Rollback on failure
+        updateTodoInStore(todo.id, { isCompleted: previousState, completedAt: previousState ? new Date() : null });
+        toast.error("Failed to update todo status");
+      }
+    } catch (err) {
+      updateTodoInStore(todo.id, { isCompleted: previousState, completedAt: previousState ? new Date() : null });
+      toast.error("An error occurred");
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -36,8 +51,7 @@ export default function TodoItem({
             <Checkbox
               id={`todo-${todo.id}`}
               checked={todo.isCompleted}
-              onCheckedChange={() => toggleTodoCompletion(todo.id)}
-              disabled={togglingId === todo.id && isToggling}
+              onCheckedChange={handleToggleCompletion}
               className="cursor-pointer"
             />
             <Label

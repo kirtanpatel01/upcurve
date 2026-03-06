@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { habits, habitExecutions } from "@/lib/db/schema";
 import { desc, eq, and, sql, gte, asc } from "drizzle-orm";
-import { getUser } from "@/lib/auth/client";
+import { getUser } from "@/lib/auth";
 import { format } from "date-fns";
 
 export async function getHabits() {

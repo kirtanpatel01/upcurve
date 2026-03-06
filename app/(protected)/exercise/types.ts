@@ -1,22 +1,5 @@
-export interface ExerciseFormValues {
-  id?: number;
-  name: string;
-  sets: number;
-  type: "reps" | "duration";
-  goal: number;
-}
+import { InferSelectModel } from "drizzle-orm";
+import { exercises, exerciseLogs } from "@/lib/db/schema";
 
-export interface Exercise extends Omit<ExerciseFormValues, "id"> {
-  id: number;
-}
-
-export interface ExerciseLogFormValues {
-  exercise_id: number;
-  values: number[];
-}
-
-export interface ExerciseLog extends ExerciseLogFormValues {
-  id: number;
-  user_id: string;
-  created_at: string;
-}
+export type Exercise = InferSelectModel<typeof exercises>;
+export type ExerciseLog = InferSelectModel<typeof exerciseLogs>;

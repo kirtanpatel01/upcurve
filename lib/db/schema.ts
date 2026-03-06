@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index, uuid } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, uuid, integer } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -172,5 +172,55 @@ export const habitExecutionRelations = relations(habitExecutions, ({ one }) => (
   habit: one(habits, {
     fields: [habitExecutions.habitId],
     references: [habits.id],
+  }),
+}));
+
+export const exercises = pgTable(
+  "exercises",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    type: text("type", { enum: ["reps", "duration"] }).notNull().default("reps"),
+    sets: integer("sets").notNull().default(1),
+    goal: integer("goal").notNull().default(0),
+    durationUnit: text("duration_unit", { enum: ["sec", "min", "hr"] }),
+    isArchived: boolean("is_archived").default(false).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+  },
+  (table) => [index("exercises_userId_idx").on(table.userId)],
+);
+
+export const exerciseRelations = relations(exercises, ({ one, many }) => ({
+  user: one(user, {
+    fields: [exercises.userId],
+    references: [user.id],
+  }),
+  logs: many(exerciseLogs),
+}));
+
+export const exerciseLogs = pgTable(
+  "exercise_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    exerciseId: uuid("exercise_id")
+      .notNull()
+      .references(() => exercises.id, { onDelete: "cascade" }),
+    values: integer("values").array().notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("exercise_logs_exerciseId_idx").on(table.exerciseId)],
+);
+
+export const exerciseLogRelations = relations(exerciseLogs, ({ one }) => ({
+  exercise: one(exercises, {
+    fields: [exerciseLogs.exerciseId],
+    references: [exercises.id],
   }),
 }));

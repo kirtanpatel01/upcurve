@@ -7,15 +7,13 @@ import ReactQueryClientProvider from "@/components/query-client-provider";
 function layout({ children }: { children: React.ReactNode }) {
   return (
     <ReactQueryClientProvider>
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <SiteHeader />
-        <div className="h-[calc(100vh-4rem)] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <SiteHeader />
           {children}
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </SidebarInset>
+      </SidebarProvider>
     </ReactQueryClientProvider>
   );
 }

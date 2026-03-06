@@ -2,19 +2,13 @@
 
 import { db } from "@/lib/db";
 import { TodoFormValues } from "./types";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getUser } from "@/lib/auth";
 import { todos } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 
 export async function getTodos() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
-
-  const { user } = session;
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   const todo = await db
     .select()
@@ -28,13 +22,8 @@ export async function getTodos() {
 export async function addTodo(values: TodoFormValues) {
   const { title, desc, deadline, priority } = values;
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
-
-  const { user } = session;
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   await db.insert(todos).values({
     id: crypto.randomUUID(),
@@ -51,13 +40,8 @@ export async function addTodo(values: TodoFormValues) {
 export async function editTodo(value: TodoFormValues, id: string) {
   const { title, desc, deadline, priority } = value;
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
-
-  const { user } = session;
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   await db
     .update(todos)
@@ -74,23 +58,16 @@ export async function editTodo(value: TodoFormValues, id: string) {
 }
 
 export async function deleteTodo(id: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   await db.delete(todos).where(eq(todos.id, id));
-
   return { success: true };
 }
 
 export async function toggleTodoCompletion(id: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   await db
     .update(todos)
@@ -101,11 +78,8 @@ export async function toggleTodoCompletion(id: string) {
 }
 
 export async function toggleTodoArchive(id: string) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) return { success: false, message: "You're not logged in!" };
+  const user = await getUser();
+  if (!user) return { success: false, message: "You're not logged in!" };
 
   await db
     .update(todos)

@@ -1,16 +1,12 @@
 import Link from "next/link";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import GoogleAuth from "@/components/google-auth";
+import { getUser } from "@/lib/auth";import GoogleAuth from "@/components/google-auth";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
 
 export default async function page() {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  })
-  const isLoggedIn = session?.user ? true : false;
+  const user = await getUser();
+  const isLoggedIn = !!user;
 
   const features: { title: string; desc: string }[] = [
     {

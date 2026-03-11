@@ -3,7 +3,6 @@ import { Todo } from "./types";
 
 export interface TodoState {
   todos: Todo[];
-  isInitialized: boolean;
 }
 
 export interface TodoActions {
@@ -11,7 +10,6 @@ export interface TodoActions {
   addTodoToStore: (todo: Todo) => void;
   updateTodoInStore: (id: string, data: Partial<Todo>) => void;
   removeTodoFromStore: (id: string) => void;
-  setIsInitialized: (val: boolean) => void;
 }
 
 export type TodoStore = TodoState & TodoActions;
@@ -32,6 +30,5 @@ export const createTodoStore = (initialState: Partial<TodoState> = {}) => {
     removeTodoFromStore: (id) => set((state) => ({
       todos: state.todos.filter(t => t.id !== id)
     })),
-    setIsInitialized: (val) => set({ isInitialized: val }),
   }));
 };

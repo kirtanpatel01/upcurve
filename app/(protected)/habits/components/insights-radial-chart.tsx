@@ -29,7 +29,7 @@ export default function InsightsRadialChart({
 
   const radialConfig = {
     value: { label: "Completed" },
-    completed: { label: "Completed", color: "hsl(var(--primary))" },
+    completed: { label: "Completed", color: "var(--chart-2)" },
   } satisfies ChartConfig;
 
   const endAngle = activeCount > 0 ? (completedCount / activeCount) * 360 : 0;

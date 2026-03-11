@@ -6,31 +6,7 @@ import { desc, eq, and, sql, gte, asc } from "drizzle-orm";
 import { getUser } from "@/lib/auth";
 import { format } from "date-fns";
 
-export async function getHabits() {
-  const user = await getUser();
-  if (!user) return { success: false, message: "You're not logged in!" };
-
-  const activeHabits = await db
-    .select()
-    .from(habits)
-    .where(and(eq(habits.userId, user.id), eq(habits.isArchived, false)))
-    .orderBy(desc(habits.createdAt));
-
-  return { success: true, habits: activeHabits };
-}
-
-export async function getArchivedHabits() {
-  const user = await getUser();
-  if (!user) return { success: false, message: "You're not logged in!" };
-
-  const archivedHabits = await db
-    .select()
-    .from(habits)
-    .where(and(eq(habits.userId, user.id), eq(habits.isArchived, true)))
-    .orderBy(desc(habits.createdAt));
-
-  return { success: true, habits: archivedHabits };
-}
+import { revalidatePath } from "next/cache";
 
 export async function addHabit(name: string) {
   const user = await getUser();
@@ -41,6 +17,7 @@ export async function addHabit(name: string) {
     userId: user.id,
   });
 
+  revalidatePath("/habits");
   return { success: true, message: "Habit created successfully." };
 }
 
@@ -53,6 +30,7 @@ export async function editHabit(id: string, name: string) {
     .set({ name })
     .where(eq(habits.id, id));
 
+  revalidatePath("/habits");
   return { success: true };
 }
 
@@ -61,6 +39,8 @@ export async function deleteHabit(id: string) {
   if (!user) return { success: false, message: "You're not logged in!" };
 
   await db.delete(habits).where(eq(habits.id, id));
+
+  revalidatePath("/habits");
   return { success: true };
 }
 
@@ -73,56 +53,8 @@ export async function toggleHabitArchive(id: string, isArchived: boolean) {
     .set({ isArchived })
     .where(eq(habits.id, id));
 
+  revalidatePath("/habits");
   return { success: true };
-}
-
-// Executions
-
-export async function getHabitExecutions(dateStr: string) {
-  // dateStr format: YYYY-MM-DD
-  const user = await getUser();
-  if (!user) return { success: false, message: "You're not logged in!" };
-
-  const executions = await db
-    .select({
-      id: habitExecutions.id,
-      habitId: habitExecutions.habitId,
-      date: habitExecutions.date,
-      completed: habitExecutions.completed,
-    })
-    .from(habitExecutions)
-    .innerJoin(habits, eq(habits.id, habitExecutions.habitId))
-    .where(and(eq(habits.userId, user.id), eq(habitExecutions.date, dateStr)));
-
-  return { success: true, executions };
-}
-
-export async function getHistoricalExecutions(days: number) {
-  const user = await getUser();
-  if (!user) return { success: false, message: "You're not logged in!" };
-
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
-  const startDateStr = format(startDate, "yyyy-MM-dd");
-
-  const results = await db
-    .select({
-      date: habitExecutions.date,
-      count: sql<number>`cast(count(${habitExecutions.id}) as int)`,
-    })
-    .from(habitExecutions)
-    .innerJoin(habits, eq(habits.id, habitExecutions.habitId))
-    .where(
-      and(
-        eq(habits.userId, user.id),
-        eq(habitExecutions.completed, true),
-        gte(habitExecutions.date, startDateStr)
-      )
-    )
-    .groupBy(habitExecutions.date)
-    .orderBy(asc(habitExecutions.date));
-
-  return { success: true, stats: results };
 }
 
 export async function toggleHabitExecution(habitId: string, dateStr: string, completed: boolean) {
@@ -149,5 +81,6 @@ export async function toggleHabitExecution(habitId: string, dateStr: string, com
     });
   }
 
+  revalidatePath("/habits");
   return { success: true };
 }

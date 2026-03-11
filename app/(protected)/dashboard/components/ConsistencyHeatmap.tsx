@@ -115,7 +115,7 @@ export function ConsistencyHeatmap({ data }: ConsistencyHeatmapProps) {
                         <Tooltip key={dIdx}>
                           <TooltipTrigger asChild>
                             <div className={cn(
-                              "w-2.5 h-2.5 rounded-[1px] cursor-help transition-all hover:scale-125 hover:ring-1 hover:ring-primary/50",
+                              "w-2.5 h-2.5 rounded-[1px] transition-all hover:scale-125 hover:ring-1 hover:ring-primary/50",
                               getHeatColor(day)
                             )} />
                           </TooltipTrigger>

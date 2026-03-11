@@ -93,7 +93,7 @@ export function TodosChart() {
   );
 
   return (
-    <Card className="py-3 sm:py-4 xl:py-0">
+    <Card className="mt-3 py-3 sm:py-4 xl:py-0">
       <CardHeader className="flex flex-col items-stretch border-b !p-0 xl:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-3 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between w-full">

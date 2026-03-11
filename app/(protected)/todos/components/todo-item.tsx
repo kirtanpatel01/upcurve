@@ -1,18 +1,14 @@
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+"use client";
+
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import RemainingTime from "./remaining-time";
-import { TodoAction } from "./todo-action";
-import { Badge } from "@/components/ui/badge";
 import { Todo } from "../utils/types";
 import { useTodoStore } from "./todo-store-provider";
-import { toggleTodoCompletion } from "../utils/action";
+import { toggleTodoCompletion, editTodo, deleteTodo, toggleTodoArchive } from "../utils/action";
 import { toast } from "sonner";
+import { useState, useRef, useEffect } from "react";
+import { Archive, Trash2, Undo2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function TodoItem({
   todo,
@@ -20,75 +16,155 @@ export default function TodoItem({
   todo: Todo;
 }) {
   const updateTodoInStore = useTodoStore((state) => state.updateTodoInStore);
+  const removeTodoFromStore = useTodoStore((state) => state.removeTodoFromStore);
+  
+  const [isEditing, setIsEditing] = useState(false);
+  const [title, setTitle] = useState(todo.title);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isEditing]);
 
   const handleToggleCompletion = async () => {
-    // Optimistic update
-    const previousState = todo.isCompleted;
-    updateTodoInStore(todo.id, { isCompleted: !previousState, completedAt: !previousState ? new Date() : null });
+    const nextState = !todo.isCompleted;
+    updateTodoInStore(todo.id, { isCompleted: nextState, completedAt: nextState ? new Date() : null });
 
     try {
-      const res = await toggleTodoCompletion(todo.id);
+      const res = await toggleTodoCompletion(todo.id, nextState);
       if (!res.success) {
-        // Rollback on failure
-        updateTodoInStore(todo.id, { isCompleted: previousState, completedAt: previousState ? new Date() : null });
-        toast.error("Failed to update todo status");
+        updateTodoInStore(todo.id, { isCompleted: !nextState, completedAt: !nextState ? new Date() : null });
+        toast.error("Failed to update todo");
       }
     } catch (err) {
-      updateTodoInStore(todo.id, { isCompleted: previousState, completedAt: previousState ? new Date() : null });
+      updateTodoInStore(todo.id, { isCompleted: !nextState, completedAt: !nextState ? new Date() : null });
+      toast.error("An error occurred");
+    }
+  };
+
+  const handleTitleSubmit = async () => {
+    if (title === todo.title) {
+      setIsEditing(false);
+      return;
+    }
+
+    if (title.trim() === "") {
+      setTitle(todo.title);
+      setIsEditing(false);
+      return;
+    }
+
+    const previousTitle = todo.title;
+    updateTodoInStore(todo.id, { title });
+    setIsEditing(false);
+
+    try {
+      const res = await editTodo({ title }, todo.id);
+      if (!res.success) {
+        updateTodoInStore(todo.id, { title: previousTitle });
+        setTitle(previousTitle);
+        toast.error("Failed to update title");
+      }
+    } catch (err) {
+      updateTodoInStore(todo.id, { title: previousTitle });
+      setTitle(previousTitle);
+      toast.error("An error occurred");
+    }
+  };
+
+  const handleArchive = async () => {
+    const nextArchived = !todo.isArchived;
+    // For simplicity, we remove it from the current view regardless of which tab we are on,
+    // assuming the parent filter will handle it. But to be safe, we just update store.
+    updateTodoInStore(todo.id, { isArchived: nextArchived });
+    
+    try {
+      const res = await toggleTodoArchive(todo.id, nextArchived);
+      if (!res.success) {
+        updateTodoInStore(todo.id, { isArchived: !nextArchived });
+        toast.error("Failed to update archive status");
+      }
+    } catch (err) {
+      updateTodoInStore(todo.id, { isArchived: !nextArchived });
+      toast.error("An error occurred");
+    }
+  };
+
+  const handleDelete = async () => {
+    removeTodoFromStore(todo.id);
+    try {
+      const res = await deleteTodo(todo.id);
+      if (!res.success) {
+        // Rollback is harder with removeTodoFromStore unless we keep the todo object
+        toast.error("Failed to delete todo. Refresh to see it again.");
+      }
+    } catch (err) {
       toast.error("An error occurred");
     }
   };
 
   return (
-    <div
-      className={cn(
-        "w-full flex items-center justify-between"
-      )}
-    >
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id={`todo-${todo.id}`}
-              checked={todo.isCompleted}
-              onCheckedChange={handleToggleCompletion}
-              className="cursor-pointer"
-            />
-            <Label
-              htmlFor={`todo-${todo.id}`}
-              className={cn(
-                "cursor-pointer select-none capitalize transition-all duration-200",
-                todo.isCompleted && "line-through text-gray-400"
-              )}
-            >
-              {todo.title}
-            </Label>
-            {todo.priority && (
-              <Badge
-                variant="outline"
-                className={cn(
-                  "ml-1 capitalize border-transparent text-[10px] px-1.5 py-0",
-                  todo.priority === "low" && "bg-muted text-muted-foreground",
-                  todo.priority === "medium" && "bg-blue-500/10 text-blue-500",
-                  todo.priority === "high" && "bg-orange-500/10 text-orange-500",
-                  todo.priority === "urgent" && "bg-destructive/10 text-destructive border-destructive/20"
-                )}
-              >
-                {todo.priority}
-              </Badge>
+    <div className="group flex items-center gap-3 hover:bg-muted/30 rounded-lg transition-all">
+      <Checkbox
+        checked={todo.isCompleted}
+        onCheckedChange={handleToggleCompletion}
+        disabled={todo.isCompleted}
+        className="w-5 h-5 rounded-full border-2 border-primary/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all duration-300"
+      />
+      
+      <div className="flex-1 min-w-0">
+        {isEditing ? (
+          <input
+            ref={inputRef}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={handleTitleSubmit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleTitleSubmit();
+              if (e.key === "Escape") {
+                setTitle(todo.title);
+                setIsEditing(false);
+              }
+            }}
+            className="w-full bg-transparent border-none p-0 focus:ring-0 text-[15px] font-medium"
+          />
+        ) : (
+          <span
+            onClick={() => !todo.isCompleted && setIsEditing(true)}
+            className={cn(
+              "block text-[15px] font-medium transition-all duration-300",
+              todo.isCompleted 
+                ? "text-muted-foreground line-through opacity-60 cursor-default" 
+                : "text-foreground cursor-text"
             )}
-          </div>
-        </TooltipTrigger>
-        {todo.desc && <TooltipContent>Desc: {todo.desc}</TooltipContent>}
-      </Tooltip>
-
-      <div className="flex items-center gap-2">
-        {!todo.isCompleted && (
-          <div className="flex items-center gap-1">
-            {todo.deadline && <RemainingTime deadline={todo.deadline} />}
-          </div>
+          >
+            {todo.title}
+          </span>
         )}
-        <TodoAction todo={todo} />
+      </div>
+
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted"
+          onClick={handleArchive}
+          title={todo.isArchived ? "Unarchive" : "Archive"}
+        >
+          {todo.isArchived ? <Undo2 size={16} /> : <Archive size={16} />}
+        </Button>
+        {(!todo.isCompleted || todo.isArchived) && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            onClick={handleDelete}
+          >
+            <Trash2 size={16} />
+          </Button>
+        )}
       </div>
     </div>
   );

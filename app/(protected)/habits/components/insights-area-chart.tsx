@@ -45,7 +45,7 @@ export default function InsightsAreaChart({
   }, [historicalData, timeRange]);
 
   const areaConfig = {
-    count: { label: "Completed", color: "hsl(var(--primary))" },
+    count: { label: "Completed", color: "var(--chart-2)" },
   } satisfies ChartConfig;
 
   return (

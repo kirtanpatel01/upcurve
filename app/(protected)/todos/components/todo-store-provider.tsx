@@ -17,7 +17,6 @@ export default function TodoStoreProvider({ children, initialTodos }: TodoStoreP
   if (!storeRef.current) {
     storeRef.current = createTodoStore({ 
       todos: initialTodos,
-      isInitialized: true 
     });
   }
 

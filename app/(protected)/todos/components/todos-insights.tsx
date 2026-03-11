@@ -31,16 +31,6 @@ export default function TodoInsights() {
     return arr[0];
   }, [completed]);
 
-  // Only count todos that are in the list
-  const activeTodos = todos.filter((t) => !t.isCompleted);
-
-  const priorityCounts = {
-    low: activeTodos.filter((t) => t.priority === "low").length,
-    medium: activeTodos.filter((t) => t.priority === "medium").length,
-    high: activeTodos.filter((t) => t.priority === "high").length,
-    urgent: activeTodos.filter((t) => t.priority === "urgent").length,
-  };
-
   const completionRate =
     todos.length === 0
       ? 0

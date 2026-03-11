@@ -97,11 +97,6 @@ export const todos = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     title: text("title").notNull(),
-    desc: text("desc"),
-    deadline: timestamp("deadline"),
-    priority: text("priority", {
-      enum: ["low", "medium", "high", "urgent"],
-    }).notNull().default("low"),
     isCompleted: boolean("is_completed").default(false).notNull(),
     completedAt: timestamp("completed_at"),
     isArchived: boolean("is_archived").default(false).notNull(),

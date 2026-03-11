@@ -1,11 +1,16 @@
 import HabitList from "./components/habit-list";
-import { getHabits, getHabitExecutions, getArchivedHabits, getHistoricalExecutions } from "./actions";
 import { format } from "date-fns";
 import { TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import ArchivedHabits from "./components/archived-habits";
 import HabitStoreProvider from "./components/habit-store-provider";
 import InsightsTab from "./components/insights-tab";
 import ClientTabs from "./components/client-tabs";
+import {
+  getHabitsData,
+  getHabitExecutionsData,
+  getArchivedHabitsData,
+  getHistoricalExecutionsData,
+} from "./data";
 import {
   Accordion,
   AccordionContent,
@@ -20,23 +25,19 @@ export default async function HabitsPage(props: {
   const currentTab = searchParams.tab || "active";
   const today = format(new Date(), "yyyy-MM-dd");
 
-  const [habitsRes, executionsRes, archivedRes, historicalRes] = await Promise.all([
-    getHabits(),
-    getHabitExecutions(today),
-    getArchivedHabits(),
-    getHistoricalExecutions(30),
+  const [habits, executions, archivedHabits, historicalStats] = await Promise.all([
+    getHabitsData(),
+    getHabitExecutionsData(today),
+    getArchivedHabitsData(),
+    getHistoricalExecutionsData(30),
   ]);
-
-  if (!habitsRes.success || !executionsRes.success || !archivedRes.success || !historicalRes.success) {
-    return <div>Error loading habits</div>;
-  }
 
   return (
     <div className="p-3 w-full max-w-xl md:max-w-5xl">
       <HabitStoreProvider
-        initialHabits={habitsRes.habits || []}
-        initialArchivedHabits={archivedRes.habits || []}
-        initialExecutions={executionsRes.executions || []}
+        initialHabits={habits}
+        initialArchivedHabits={archivedHabits}
+        initialExecutions={executions}
         today={today}
       >
         {/* Mobile View: Tabs */}
@@ -49,18 +50,18 @@ export default async function HabitsPage(props: {
             </TabsList>
             <TabsContent value="active">
               <HabitList
-                initialHabits={habitsRes.habits || []}
-                initialExecutions={executionsRes.executions || []}
+                initialHabits={habits}
+                initialExecutions={executions}
               />
             </TabsContent>
             <TabsContent value="archived">
-              <ArchivedHabits initialArchivedHabits={archivedRes.habits || []} />
+              <ArchivedHabits initialArchivedHabits={archivedHabits} />
             </TabsContent>
             <TabsContent value="insights">
               <InsightsTab 
-                historicalData={historicalRes.stats || []}
-                initialHabits={habitsRes.habits || []}
-                initialExecutions={executionsRes.executions || []}
+                historicalData={historicalStats || []}
+                initialHabits={habits}
+                initialExecutions={executions}
               />
             </TabsContent>
           </ClientTabs>
@@ -70,18 +71,18 @@ export default async function HabitsPage(props: {
         <div className="hidden md:grid md:grid-cols-[1fr_350px] lg:grid-cols-[1fr_400px] gap-4 items-start">
           <div className="space-y-2">
             <HabitList
-              initialHabits={habitsRes.habits || []}
-              initialExecutions={executionsRes.executions || []}
+              initialHabits={habits}
+              initialExecutions={executions}
             />
             
-            {archivedRes.habits && archivedRes.habits.length > 0 && (
+            {archivedHabits && archivedHabits.length > 0 && (
               <Accordion type="single" collapsible className="mt-8">
                 <AccordionItem value="archived" className="border-none">
                   <AccordionTrigger className="py-3 hover:no-underline">
                     View Archived Habits
                   </AccordionTrigger>
                   <AccordionContent className="pt-2">
-                    <ArchivedHabits initialArchivedHabits={archivedRes.habits || []} />
+                    <ArchivedHabits initialArchivedHabits={archivedHabits} />
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -89,9 +90,9 @@ export default async function HabitsPage(props: {
           </div>
           
           <InsightsTab 
-            historicalData={historicalRes.stats || []}
-            initialHabits={habitsRes.habits || []}
-            initialExecutions={executionsRes.executions || []}
+            historicalData={historicalStats || []}
+            initialHabits={habits}
+            initialExecutions={executions}
           />
         </div>
       </HabitStoreProvider>

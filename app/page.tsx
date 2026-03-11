@@ -78,12 +78,6 @@ export default async function page() {
           ))}
         </div>
       </div>
-
-      <footer className="mt-16 text-center">
-        <p className="text-[10px] text-muted-foreground/50 font-semibold uppercase tracking-[0.2em]">
-          Upcurve &bull; Flow &bull; Consistency
-        </p>
-      </footer>
     </BackgroundBeamsWithCollision>
   );
 }

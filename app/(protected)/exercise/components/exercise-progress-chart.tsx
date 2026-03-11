@@ -16,6 +16,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { TimeRange } from "../exercise-grouping";
 import { useExerciseStore } from "./exercise-store-provider";
 import { formatSeconds } from "../utils";
@@ -24,7 +25,7 @@ import { format, subDays, startOfDay, eachDayOfInterval } from "date-fns";
 const chartConfig = {
   volume: {
     label: "Volume",
-    color: "hsl(var(--primary))",
+    color: "var(--chart-1)",
   },
 } satisfies ChartConfig;
 
@@ -102,32 +103,33 @@ export default function ExerciseProgressChart() {
             No activity in this period.
           </div>
         ) : (
-          <div className="relative w-full overflow-x-auto scrollbar-hide pb-2">
-            <div className="min-w-[450px] w-full">
-              <ChartContainer config={chartConfig} className="aspect-auto h-[260px] w-full">
-                <BarChart accessibilityLayer data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 0 }}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis 
-                    dataKey="date" 
-                    tickLine={false} 
-                    axisLine={false} 
-                    tickMargin={10}
-                    tickFormatter={(value) => value}
-                  />
-                  <ChartTooltip 
-                    cursor={false} 
-                    content={
-                      <ChartTooltipContent 
-                        hideLabel
-                        formatter={(value) => selectedExercise.type === "duration" ? formatSeconds(Number(value)) : value} 
-                      />
-                    } 
-                  />
-                  <Bar dataKey="volume" fill="var(--color-volume)" radius={8} />
-                </BarChart>
-              </ChartContainer>
-            </div>
+        <ScrollArea className="w-full whitespace-nowrap pb-4">
+          <div className="min-w-[450px] w-full">
+            <ChartContainer config={chartConfig} className="aspect-auto h-[260px] w-full">
+              <BarChart accessibilityLayer data={chartData} margin={{ top: 20, right: 10, left: 10, bottom: 0 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis 
+                  dataKey="date" 
+                  tickLine={false} 
+                  axisLine={false} 
+                  tickMargin={10}
+                  tickFormatter={(value) => value}
+                />
+                <ChartTooltip 
+                  cursor={false} 
+                  content={
+                    <ChartTooltipContent 
+                      hideLabel
+                      formatter={(value) => selectedExercise.type === "duration" ? formatSeconds(Number(value)) : value} 
+                    />
+                  } 
+                />
+                <Bar dataKey="volume" fill="var(--color-volume)" radius={8} />
+              </BarChart>
+            </ChartContainer>
           </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
         )}
       </CardContent>
     </Card>

@@ -1,93 +1,106 @@
 "use client";
 
 import TodoForm from "./todo-form";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle
-} from "@/components/ui/empty";
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TodoItem from "./todo-item";
 import { useTodoStore } from "./todo-store-provider";
+import ArchivedDialog from "./archived-dialog";
 
-export default function TodoList() {
+interface TodoListProps {
+  view?: "active" | "archived";
+}
+
+export default function TodoList({ view = "active" }: TodoListProps) {
   const todos = useTodoStore((state) => state.todos);
   const [showCompleted, setShowCompleted] = useState(false);
 
-  const visibleTodos = useMemo(() => {
+  const activeTodos = useMemo(() => {
     return (todos || [])
-      .filter((t) => !t.isArchived)
-      .sort((a, b) => {
-        if (a.isCompleted !== b.isCompleted) {
-          return a.isCompleted ? 1 : -1;
-        }
-
-        const dateA = new Date(a.createdAt).getTime();
-        const dateB = new Date(b.createdAt).getTime();
-        return dateB - dateA;
-      });
+      .filter((t) => !t.isArchived && !t.isCompleted)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [todos]);
 
-  const incompletedTodos = useMemo(() => visibleTodos.filter(t => !t.isCompleted), [visibleTodos]);
-  const completedTodos = useMemo(() => visibleTodos.filter(t => t.isCompleted), [visibleTodos]);
+  const completedTodos = useMemo(() => {
+    return (todos || [])
+      .filter((t) => !t.isArchived && t.isCompleted)
+      .sort((a, b) => new Date(b.completedAt || b.createdAt).getTime() - new Date(a.completedAt || a.createdAt).getTime());
+  }, [todos]);
+
+  const archivedTodos = useMemo(() => {
+    return (todos || [])
+      .filter((t) => t.isArchived)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [todos]);
+
+  if (view === "archived") {
+    return (
+      <div className="space-y-2">
+        {archivedTodos.length > 0 ? (
+          <ul className="space-y-2">
+            {archivedTodos.map((todo) => (
+              <TodoItem key={todo.id} todo={todo} />
+            ))}
+          </ul>
+        ) : (
+          <div className="py-12 text-center text-muted-foreground opacity-40">
+            No archived todos found.
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full max-w-lg">
-      {visibleTodos.length > 0 ? (
-        <div className="space-y-3">
-          <TodoForm />
-          <ScrollArea className="h-[calc(100vh-11rem)] pr-3 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {/* Incompleted Todos */}
-            {incompletedTodos.length > 0 && (
-              <ul className="space-y-3">
-                {incompletedTodos.map((todo) => (
-                  <TodoItem
-                    key={todo.id}
-                    todo={todo}
-                  />
+    <div className="w-full space-y-4">
+      <div className="flex w-full items-center justify-between gap-2">
+        <TodoForm />
+        <div className="hidden lg:block">
+          <ArchivedDialog />
+        </div>
+      </div>
+
+      <ScrollArea className="h-[calc(100vh-10rem)] pr-3 group/scroll">
+        {activeTodos.length === 0 && completedTodos.length === 0 ? (
+          <div className="py-20 flex flex-col items-center justify-center text-center space-y-2 opacity-40">
+            <span className="text-4xl">✨</span>
+            <p className="font-medium">All caught up!</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {activeTodos.length > 0 && (
+              <ul className="space-y-2">
+                {activeTodos.map((todo) => (
+                  <TodoItem key={todo.id} todo={todo} />
                 ))}
               </ul>
             )}
 
-            {/* Completed Todos */}
             {completedTodos.length > 0 && (
-               <div className="mt-6">
+              <div className="">
                 <button
                   onClick={() => setShowCompleted(!showCompleted)}
-                  className="flex items-center gap-2 text-sm text-muted-foreground w-full hover:bg-muted/50 rounded-md transition-colors cursor-pointer font-medium"
+                  className="flex items-center gap-2 text-sm text-muted-foreground/60 w-full hover:bg-muted/30 p-1.5 rounded-lg transition-colors cursor-pointer font-medium group"
                 >
-                  {showCompleted ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  {showCompleted ? <ChevronDown size={14} className="group-hover:translate-y-0.5 transition-transform" /> : <ChevronRight size={14} className="group-hover:translate-x-0.5 transition-transform" />}
                   Completed ({completedTodos.length})
                 </button>
                 {showCompleted && (
-                  <ul className="space-y-3 mt-3">
+                  <ul className="space-y-2">
                     {completedTodos.map((todo) => (
-                      <TodoItem 
-                        key={todo.id} 
-                        todo={todo} 
-                      />
+                      <TodoItem key={todo.id} todo={todo} />
                     ))}
                   </ul>
                 )}
               </div>
             )}
-          </ScrollArea>
-        </div>
-      ) : (
-        <Empty>
-          <EmptyHeader>
-            <EmptyTitle>No todos found</EmptyTitle>
-            <EmptyDescription>Add todos to get started</EmptyDescription>
-          </EmptyHeader>
-          <EmptyContent>
-            <TodoForm />
-          </EmptyContent>
-        </Empty>
-      )}
+
+            {/* Desktop Archived Dialog Trigger at bottom of ScrollArea content */}
+
+          </div>
+        )}
+      </ScrollArea>
     </div>
   );
 }

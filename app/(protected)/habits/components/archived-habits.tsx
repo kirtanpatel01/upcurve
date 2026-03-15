@@ -2,7 +2,8 @@
 
 import { ArchiveRestore, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useHabitStore, Habit } from "../store";
+import { Habit } from "../store";
+import { useHabitStore } from "./habit-store-provider";
 import { toggleHabitArchive, deleteHabit } from "../actions";
 import {
   Empty,
@@ -12,19 +13,12 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-export default function ArchivedHabits({
-  initialArchivedHabits,
-}: {
-  initialArchivedHabits: Habit[];
-}) {
-  const isInitialized = useHabitStore((state) => state.isInitialized);
+export default function ArchivedHabits() {
   const archivedHabits = useHabitStore((state) => state.archivedHabits);
   const toggleArchive = useHabitStore((state) => state.toggleArchive);
   const removeArchivedHabit = useHabitStore((state) => state.removeArchivedHabit);
 
-  const displayHabits = isInitialized ? archivedHabits : initialArchivedHabits;
-
-  if (displayHabits.length === 0) {
+  if (archivedHabits.length === 0) {
     return (
       <Empty className="py-12">
         <EmptyHeader>
@@ -52,7 +46,7 @@ export default function ArchivedHabits({
 
   return (
     <div className="space-y-2">
-      {displayHabits.map((habit) => (
+      {archivedHabits.map((habit) => (
         <div
           key={habit.id}
           className="flex items-center justify-between px-2 border border-border/50 rounded-md bg-muted/30"

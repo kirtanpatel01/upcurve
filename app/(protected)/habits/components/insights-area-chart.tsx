@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { format, subDays } from "date-fns";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { useHabitStore } from "./habit-store-provider";
 
 import {
   Card,
@@ -19,11 +20,8 @@ import {
 } from "@/components/ui/chart";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export default function InsightsAreaChart({
-  historicalData,
-}: {
-  historicalData: { date: string; count: number }[];
-}) {
+export default function InsightsAreaChart() {
+  const historicalData = useHabitStore((state) => state.historicalData);
   const [timeRange, setTimeRange] = useState("30d");
   
   const filteredData = useMemo(() => {
@@ -81,12 +79,20 @@ export default function InsightsAreaChart({
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              allowDecimals={false}
+              fontSize={12}
+              width={16}
+            />
             <XAxis
               dataKey="displayDate"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              minTickGap={32}
+              minTickGap={0}
             />
             <ChartTooltip
               cursor={false}

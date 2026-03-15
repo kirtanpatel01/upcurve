@@ -15,14 +15,14 @@ import {
   ChartContainer,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { useHabitStore } from "./habit-store-provider";
 
-export default function InsightsRadialChart({
-  activeCount,
-  completedCount,
-}: {
-  activeCount: number;
-  completedCount: number;
-}) {
+export default function InsightsRadialChart() {
+  const activeCount = useHabitStore((state) => state.activeHabits.length);
+  const completedCount = useHabitStore((state) => state.activeHabits.filter((h) =>
+    state.executions.find((e) => e.habitId === h.id && e.completed === true)
+  ).length);
+
   const radialData = [
     { name: "Completed", value: completedCount, fill: "var(--color-completed)" },
   ];
@@ -43,7 +43,6 @@ export default function InsightsRadialChart({
       <CardContent className="flex-1">
         <ChartContainer
           config={radialConfig}
-          className="mx-auto aspect-square max-h-[180px]"
         >
           <RadialBarChart
             data={radialData}

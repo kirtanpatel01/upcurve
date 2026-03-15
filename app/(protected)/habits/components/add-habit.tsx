@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { addHabit as addHabitAction } from "../actions";
-import { useHabitStore } from "../store";
+import { useHabitStore } from "./habit-store-provider";
 
 export default function AddHabit() {
   const [isAdding, setIsAdding] = useState(false);

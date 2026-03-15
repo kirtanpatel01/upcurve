@@ -3,16 +3,12 @@ import ExerciseStoreProvider from "./components/exercise-store-provider";
 import ExerciseSidebar from "./components/exercise-sidebar";
 import ExerciseDashboard from "./components/exercise-dashboard";
 import AddExerciseDialog from "./components/add-exercise-dialog";
-import { TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import ClientTabs from "../habits/components/client-tabs";
-
-export const dynamic = "force-dynamic";
+import { Suspense } from "react";
+import ExerciseTabs from "./components/exercise-tabs";
 
 export default async function ExercisePage(props: {
   searchParams: Promise<{ tab?: string }>;
 }) {
-  const searchParams = await props.searchParams;
-  const currentTab = searchParams.tab || "exercises";
   const exercises = await getAllExercisesByUser();
   const logs = await getExerciseLogs();
 
@@ -32,20 +28,9 @@ export default async function ExercisePage(props: {
 
           {/* Activity / Insights Tabs */}
           <div className="p-3 flex-1 overflow-y-auto">
-            <ClientTabs currentTab={currentTab === "exercises" ? "activity" : currentTab}>
-              <TabsList className="w-full mb-3">
-                <TabsTrigger value="activity" className="flex-1">Activity</TabsTrigger>
-                <TabsTrigger value="insights" className="flex-1">Insights</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="activity" className="mt-0">
-                <ExerciseDashboard view="activity" />
-              </TabsContent>
-              
-              <TabsContent value="insights" className="mt-0">
-                <ExerciseDashboard view="insights" />
-              </TabsContent>
-            </ClientTabs>
+            <Suspense>
+              <ExerciseTabs />
+            </Suspense>
           </div>
         </div>
 

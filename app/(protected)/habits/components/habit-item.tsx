@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useHabitStore, Habit } from "../store";
+import { Habit } from "../store";
+import { useHabitStore } from "./habit-store-provider";
 import { editHabit, toggleHabitArchive, toggleHabitExecution } from "../actions";
 
 export default function HabitItem({ habit }: { habit: Habit }) {

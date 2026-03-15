@@ -1,4 +1,4 @@
-import { create } from "zustand";
+import { createStore } from "zustand";
 
 export type Habit = {
   id: string;
@@ -16,20 +16,23 @@ export type Execution = {
   completed: boolean;
 };
 
-interface HabitStore {
+export interface HabitStoreState {
   activeHabits: Habit[];
   archivedHabits: Habit[];
   executions: Execution[];
+  historicalData: { date: string; count: number }[];
   today: string;
   isInitialized: boolean;
+}
 
+export interface HabitStoreActions {
   setInitialData: (
     habits: Habit[],
     archived: Habit[],
     execs: Execution[],
+    historical: { date: string; count: number }[],
     today: string
   ) => void;
-
   addHabit: (habit: Habit) => void;
   removeActiveHabit: (id: string) => void;
   removeArchivedHabit: (id: string) => void;
@@ -38,61 +41,74 @@ interface HabitStore {
   toggleExecution: (habitId: string) => void;
 }
 
-export const useHabitStore = create<HabitStore>((set, get) => ({
-  activeHabits: [],
-  archivedHabits: [],
-  executions: [],
-  today: "",
-  isInitialized: false,
+export type HabitStore = HabitStoreState & HabitStoreActions;
 
-  setInitialData: (habits, archived, execs, today) => 
-    set({ activeHabits: habits, archivedHabits: archived, executions: execs, today, isInitialized: true }),
+export const createHabitStore = (initialState: Partial<HabitStoreState> = {}) => {
+  return createStore<HabitStore>((set) => ({
+    activeHabits: [],
+    archivedHabits: [],
+    executions: [],
+    historicalData: [],
+    today: "",
+    isInitialized: false,
+    ...initialState,
 
-  addHabit: (habit) => 
-    set((state) => ({ activeHabits: [habit, ...state.activeHabits] })),
+    setInitialData: (habits, archived, execs, historical, today) => 
+      set({ 
+        activeHabits: habits, 
+        archivedHabits: archived, 
+        executions: execs, 
+        historicalData: historical,
+        today, 
+        isInitialized: true 
+      }),
 
-  removeActiveHabit: (id) =>
-    set((state) => ({ activeHabits: state.activeHabits.filter((h) => h.id !== id) })),
+    addHabit: (habit) => 
+      set((state) => ({ activeHabits: [habit, ...state.activeHabits] })),
 
-  removeArchivedHabit: (id) =>
-    set((state) => ({ archivedHabits: state.archivedHabits.filter((h) => h.id !== id) })),
+    removeActiveHabit: (id) =>
+      set((state) => ({ activeHabits: state.activeHabits.filter((h) => h.id !== id) })),
 
-  updateHabitName: (id, name) =>
-    set((state) => ({
-      activeHabits: state.activeHabits.map((h) => (h.id === id ? { ...h, name } : h)),
-    })),
+    removeArchivedHabit: (id) =>
+      set((state) => ({ archivedHabits: state.archivedHabits.filter((h) => h.id !== id) })),
 
-  toggleArchive: (habit) => 
-    set((state) => {
-      const isArchiving = !habit.isArchived;
-      if (isArchiving) {
+    updateHabitName: (id, name) =>
+      set((state) => ({
+        activeHabits: state.activeHabits.map((h) => (h.id === id ? { ...h, name } : h)),
+      })),
+
+    toggleArchive: (habit) => 
+      set((state) => {
+        const isArchiving = !habit.isArchived;
+        if (isArchiving) {
+          return {
+            activeHabits: state.activeHabits.filter((h) => h.id !== habit.id),
+            archivedHabits: [{ ...habit, isArchived: true }, ...state.archivedHabits],
+          };
+        } else {
+          return {
+            archivedHabits: state.archivedHabits.filter((h) => h.id !== habit.id),
+            activeHabits: [{ ...habit, isArchived: false }, ...state.activeHabits],
+          };
+        }
+      }),
+
+    toggleExecution: (habitId) =>
+      set((state) => {
+        const existing = state.executions.find((e) => e.habitId === habitId);
+        if (existing) {
+          return {
+            executions: state.executions.map((e) => 
+              e.habitId === habitId ? { ...e, completed: !e.completed } : e
+            )
+          };
+        }
         return {
-          activeHabits: state.activeHabits.filter((h) => h.id !== habit.id),
-          archivedHabits: [{ ...habit, isArchived: true }, ...state.archivedHabits],
+          executions: [
+            ...state.executions,
+            { id: crypto.randomUUID(), habitId, date: state.today, completed: true }
+          ]
         };
-      } else {
-        return {
-          archivedHabits: state.archivedHabits.filter((h) => h.id !== habit.id),
-          activeHabits: [{ ...habit, isArchived: false }, ...state.activeHabits],
-        };
-      }
-    }),
-
-  toggleExecution: (habitId) =>
-    set((state) => {
-      const existing = state.executions.find((e) => e.habitId === habitId);
-      if (existing) {
-        return {
-          executions: state.executions.map((e) => 
-            e.habitId === habitId ? { ...e, completed: !e.completed } : e
-          )
-        };
-      }
-      return {
-        executions: [
-          ...state.executions,
-          { id: crypto.randomUUID(), habitId, date: state.today, completed: true }
-        ]
-      };
-    }),
-}));
+      }),
+  }));
+};

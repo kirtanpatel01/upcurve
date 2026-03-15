@@ -65,12 +65,18 @@ export function TodosChart() {
     }, {} as Record<string, { completed: number; created: number }>);
 
     const grouped = todos.reduce((acc, todo) => {
-      const dateStr = format(new Date(todo.createdAt), "MMM d");
+      // Handle created count
+      const createdDateStr = format(new Date(todo.createdAt), "MMM d");
+      if (acc[createdDateStr] !== undefined) {
+        acc[createdDateStr].created += 1;
+      }
 
-      if (acc[dateStr] !== undefined) {
-        acc[dateStr].created += 1;
-        if (todo.isCompleted) {
-          acc[dateStr].completed += 1;
+      // Handle completed count using completedAt if available, otherwise fallback to createdAt if completed
+      if (todo.isCompleted) {
+        const completionDate = todo.completedAt ? new Date(todo.completedAt) : new Date(todo.createdAt);
+        const completedDateStr = format(completionDate, "MMM d");
+        if (acc[completedDateStr] !== undefined) {
+          acc[completedDateStr].completed += 1;
         }
       }
 

@@ -4,6 +4,13 @@ import { ArchiveRestore, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useHabitStore, Habit } from "../store";
 import { toggleHabitArchive, deleteHabit } from "../actions";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 
 export default function ArchivedHabits({
   initialArchivedHabits,
@@ -17,7 +24,21 @@ export default function ArchivedHabits({
 
   const displayHabits = isInitialized ? archivedHabits : initialArchivedHabits;
 
-  if (displayHabits.length === 0) return null;
+  if (displayHabits.length === 0) {
+    return (
+      <Empty className="py-12">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <ArchiveRestore className="size-5" />
+          </EmptyMedia>
+          <EmptyTitle>No archived habits</EmptyTitle>
+          <EmptyDescription>
+            Your archive is currently empty.
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
 
   const handleRestore = async (habit: Habit) => {
     toggleArchive(habit);

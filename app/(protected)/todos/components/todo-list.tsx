@@ -61,7 +61,7 @@ export default function TodoList({ view = "active" }: TodoListProps) {
         </div>
       </div>
 
-      <ScrollArea className="h-[calc(100vh-10rem)] pr-3 group/scroll">
+      <ScrollArea className="h-[calc(100vh-10rem)] pr-3">
         {activeTodos.length === 0 && completedTodos.length === 0 ? (
           <div className="py-20 flex flex-col items-center justify-center text-center space-y-2 opacity-40">
             <span className="text-4xl">✨</span>
@@ -95,9 +95,6 @@ export default function TodoList({ view = "active" }: TodoListProps) {
                 )}
               </div>
             )}
-
-            {/* Desktop Archived Dialog Trigger at bottom of ScrollArea content */}
-
           </div>
         )}
       </ScrollArea>

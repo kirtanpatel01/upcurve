@@ -6,15 +6,13 @@ import TodoStoreProvider from "./components/todo-store-provider";
 import TodoTabs from "./components/todo-tabs";
 import { Suspense } from "react";
 
-export const dynamic = "force-dynamic";
-
 export default async function page() {
   const initialTodos = await getAllTodosByUser();
 
   return (
     <TodoStoreProvider initialTodos={initialTodos}>
         {/* Desktop View */}
-        <div className="p-3 sm:p-4 hidden lg:flex flex-col lg:flex-row gap-4">
+        <div className="p-4 hidden lg:flex flex-col lg:flex-row gap-4">
           <div className="w-full max-w-lg flex-shrink-0">
             <TodoList />
           </div>

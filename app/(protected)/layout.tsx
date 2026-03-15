@@ -9,7 +9,7 @@ function layout({ children }: { children: React.ReactNode }) {
       <AppSidebar />
       <SidebarInset>
         <SiteHeader />
-        {children}
+        <div className="h-[calc(100vh-4rem)]">{children}</div>
       </SidebarInset>
     </SidebarProvider>
   );

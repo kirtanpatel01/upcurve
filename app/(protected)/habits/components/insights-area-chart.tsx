@@ -72,7 +72,7 @@ export default function InsightsAreaChart({
         </Select>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={areaConfig} className="aspect-auto h-[250px] w-full">
+        <ChartContainer config={areaConfig}>
           <AreaChart data={filteredData}>
             <defs>
               <linearGradient id="fillCount" x1="0" y1="0" x2="0" y2="1">
@@ -94,7 +94,7 @@ export default function InsightsAreaChart({
             />
             <Area
               dataKey="count"
-              type="natural"
+              type="linear"
               fill="url(#fillCount)"
               fillOpacity={0.4}
               stroke="var(--color-count)"

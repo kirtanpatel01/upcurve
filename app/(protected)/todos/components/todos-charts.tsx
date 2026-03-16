@@ -1,6 +1,6 @@
 "use client"
 
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
+import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts"
 
 import {
   Card,
@@ -32,7 +32,7 @@ const chartConfig = {
   },
   created: {
     label: "Created",
-    color: "var(--chart-1)",
+    color: "var(--chart-3)",
   },
   completed: {
     label: "Completed",
@@ -47,9 +47,9 @@ export function TodosChart() {
 
   // Dynamically change tick interval based on timescale to keep x-axis clean
   const tickInterval = useMemo(() => {
-    if (timeRange === "7") return 0; // Show all 7 days for maximum clarity
-    if (timeRange === "14") return 1; // Gap of 3 for 2 weeks
-    if (timeRange === "30") return 3; // Gap of a week for 30 days
+    if (timeRange === "7") return 0; 
+    if (timeRange === "14") return 1; 
+    if (timeRange === "30") return 3; 
     return 0;
   }, [timeRange]);
 
@@ -65,13 +65,11 @@ export function TodosChart() {
     }, {} as Record<string, { completed: number; created: number }>);
 
     const grouped = todos.reduce((acc, todo) => {
-      // Handle created count
       const createdDateStr = format(new Date(todo.createdAt), "MMM d");
       if (acc[createdDateStr] !== undefined) {
         acc[createdDateStr].created += 1;
       }
 
-      // Handle completed count using completedAt if available, otherwise fallback to createdAt if completed
       if (todo.isCompleted) {
         const completionDate = todo.completedAt ? new Date(todo.completedAt) : new Date(todo.createdAt);
         const completedDateStr = format(completionDate, "MMM d");
@@ -84,7 +82,7 @@ export function TodosChart() {
     }, initialGrouped);
 
     return lastDays.map((dateStr) => ({
-      month: dateStr,
+      date: dateStr,
       completed: grouped[dateStr].completed,
       created: grouped[dateStr].created,
     }));
@@ -144,38 +142,45 @@ export function TodosChart() {
       </CardHeader>
       <CardContent className="px-3 sm:px-4 xl:p-6">
         <ChartContainer config={chartConfig}>
-          <LineChart
+          <BarChart
             accessibilityLayer
             data={chartData}
             margin={{
+              top: 20,
               left: 12,
               right: 12,
             }}
           >
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey="month"
+              dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               interval={tickInterval}
+              tickFormatter={(value) => value.slice(0, 3)}
             />
             <ChartTooltip
               cursor={false}
               content={
                 <ChartTooltipContent
-                  nameKey="views"
+                  hideLabel
                 />
               }
             />
-            <Line
-              dataKey={activeChart}
-              type="step"
-              stroke={`var(--color-${activeChart})`}
-              strokeWidth={2}
-              dot={false}
-            />
-          </LineChart>
+            <Bar 
+              dataKey={activeChart} 
+              fill={`var(--color-${activeChart})`} 
+              radius={8}
+            >
+              <LabelList
+                  position="top"
+                  offset={12}
+                  className="fill-foreground"
+                  fontSize={12}
+                />
+            </Bar>
+          </BarChart>
         </ChartContainer>
       </CardContent>
     </Card>

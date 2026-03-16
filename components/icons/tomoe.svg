@@ -1,0 +1,104 @@
+<svg 
+  id="ecYD58TiNdp1" 
+  xmlns="http://www.w3.org/2000/svg" 
+  xmlns:xlink="http://www.w3.org/1999/xlink" 
+  viewBox="0 0 500 500" 
+  shape-rendering="geometricPrecision" 
+  text-rendering="geometricPrecision" 
+  project-id="abdd4ec6ad684d9d9a1f661c0ef4bf74" 
+  export-id="041c24c7497141a0a4c95946aea40d74" 
+  cached="false"
+>
+  <defs>
+    <filter 
+      id="ecYD58TiNdp3-filter" 
+      x="-150%" 
+      y="-150%" 
+      width="400%" 
+      height="400%"
+    >
+      <feGaussianBlur 
+        id="ecYD58TiNdp3-filter-blur-0" 
+        stdDeviation="2.5,2.5" 
+        result="result"
+      />
+    </filter>
+  </defs>
+    
+  <ellipse 
+    rx="225" 
+    ry="225" 
+    transform="translate(250 250)" 
+    fill="#cf0000" 
+    stroke="#000" 
+    stroke-width="12"
+  />
+    
+  <ellipse 
+    style="mix-blend-mode:darken" 
+    rx="118.037889" 
+    ry="125.152812" 
+    transform="matrix(1.058982 0 0 0.998779 249.910594 250)" 
+    filter="url(#ecYD58TiNdp3-filter)" 
+    fill="none" 
+    stroke="#000" 
+    stroke-width="10" s
+    troke-opacity="0.5"
+  />
+        
+  <ellipse 
+    rx="35" 
+    ry="35" 
+    transform="translate(250 250)" 
+    stroke-width="0"
+  />
+    
+  <g transform="matrix(-0.740551 -0.302628 0.272366 -0.666496 311.165707 271.15921)">
+    <ellipse 
+      rx="43.472024" 
+      ry="48.511074" 
+      transform="translate(142.864044 148.185676)" 
+      stroke="#d2dbed" 
+      stroke-width="0"
+    />
+      
+    <path 
+      d="M188.887763,129.058278q24.876272,42.510702-38.882212,98.053289c18.949644-43.569764-26.470829-37.526273-30.894427-39.579204" 
+      transform="matrix(0.552867 0.061832 -0.111145 0.993804 95.637282 0.64773)" 
+      stroke="#3f5787" 
+      stroke-width="0"
+    />
+  </g>
+
+  <g transform="matrix(0.68652 -0.410719 0.369648 0.617868 202.654166 290.380954)">
+    <ellipse 
+      rx="43.472024" 
+      ry="48.511074" 
+      transform="translate(142.864044 148.185676)" 
+      stroke="#d2dbed" 
+      stroke-width="0"
+    />
+    <path 
+      d="M188.887763,129.058278q24.876272,42.510702-38.882212,98.053289c18.949644-43.569764-26.470829-37.526273-30.894427-39.579204" 
+      transform="matrix(0.552867 0.061832 -0.111145 0.993804 95.637282 0.64773)" 
+      stroke="#3f5787" 
+      stroke-width="0"
+    />
+  </g>
+    
+  <g transform="matrix(0.242504 0.762359 -0.686124 0.218253 215.643615 174.098418)">
+    <ellipse 
+      rx="43.472024" 
+      ry="48.511074" 
+      transform="translate(142.864044 148.185676)" 
+      stroke="#d2dbed" 
+     stroke-width="0"
+    />
+    <path 
+      d="M188.887763,129.058278q24.876272,42.510702-38.882212,98.053289c18.949644-43.569764-26.470829-37.526273-30.894427-39.579204" 
+      transform="matrix(0.552867 0.061832 -0.111145 0.993804 95.637282 0.64773)" 
+      stroke="#3f5787" 
+      stroke-width="0"
+    />
+  </g>
+</svg>
